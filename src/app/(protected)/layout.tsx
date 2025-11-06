@@ -14,66 +14,102 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
-  LayoutDashboard,
+  Home,
+  Inbox,
+  FolderOpen,
+  Calendar,
   FileText,
-  Settings,
+  MessageSquare,
   BarChart3,
-  Users,
-  HelpCircle,
+  Settings,
+  LogOut,
+  Plus,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const menuItems = [
+const workspaceItems = [
   {
     title: "Dashboard",
-    icon: LayoutDashboard,
+    icon: Home,
     href: "/dashboard",
   },
   {
-    title: "Forms",
+    title: "Tasks",
+    icon: Inbox,
+    href: "/tasks",
+    badge: 2,
+  },
+  {
+    title: "Projects",
+    icon: FolderOpen,
+    href: "/projects",
+  },
+  {
+    title: "Calendar",
+    icon: Calendar,
+    href: "/calendar",
+  },
+  {
+    title: "Notes",
     icon: FileText,
-    href: "/forms",
-  },
-  {
-    title: "Analytics",
-    icon: BarChart3,
-    href: "/analytics",
-  },
-  {
-    title: "Team",
-    icon: Users,
-    href: "/team",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/settings/profile",
+    href: "/notes",
   },
 ];
 
-export function AppSidebar() {
+const aiAnalyticsItems = [
+  {
+    title: "AI Chat",
+    icon: MessageSquare,
+    href: "/ai-chat",
+    badge: "AI",
+  },
+  {
+    title: "Insights",
+    icon: BarChart3,
+    href: "/insights",
+    badge: "Pro",
+  },
+];
+
+function AppSidebar() {
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b px-6 py-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-blue-600" />
-          <span className="text-xl font-bold">FormAI</span>
+    <Sidebar className="border-r">
+      <SidebarHeader className="border-b px-4 py-4">
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center">
+            <span className="text-white text-xl font-bold">P</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-lg font-semibold">Productivity OS</span>
+            <span className="text-xs text-muted-foreground">Free Plan</span>
+          </div>
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-3">
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-2">
+            Workspace
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {workspaceItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.href}>
-                      <item.icon className="h-4 w-4" />
+                  <SidebarMenuButton asChild className="w-full justify-start px-3 py-2">
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
+                      {item.badge && (
+                        <Badge variant="secondary" className="ml-auto text-xs">
+                          {item.badge}
+                        </Badge>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -82,34 +118,83 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        <Separator className="my-2" />
+
         <SidebarGroup>
-          <SidebarGroupLabel>Support</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-2">
+            AI & Analytics
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/help">
-                    <HelpCircle className="h-4 w-4" />
-                    <span>Help & Support</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {aiAnalyticsItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild className="w-full justify-start px-3 py-2">
+                    <Link href={item.href} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                      {item.badge && (
+                        <Badge variant="secondary" className="ml-auto text-xs">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <Separator className="my-2" />
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-2">
+            Quick Actions
+          </SidebarGroupLabel>
+          <SidebarGroupContent className="space-y-2 px-2">
+            <Button variant="outline" className="w-full justify-start" size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              New Task
+            </Button>
+            <Button variant="outline" className="w-full justify-start" size="sm">
+              <FolderOpen className="h-4 w-4 mr-2" />
+              New Project
+            </Button>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9">
-            <AvatarImage src="/avatars/user.jpg" alt="User" />
-            <AvatarFallback className="bg-indigo-100 text-indigo-600">
-              JD
+      <SidebarFooter className="border-t p-3 space-y-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="w-full justify-start px-3 py-2">
+              <Link href="/settings/profile" className="flex items-center gap-3">
+                <Settings className="h-5 w-5" />
+                <span>Settings</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="w-full justify-start px-3 py-2">
+              <Link href="/logout" className="flex items-center gap-3">
+                <LogOut className="h-5 w-5" />
+                <span>Sign Out</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+
+        <Separator />
+
+        <div className="flex items-center gap-3 px-2 py-2">
+          <Avatar className="h-10 w-10">
+            <AvatarFallback className="bg-indigo-600 text-white">
+              U
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 text-sm">
-            <p className="font-medium">John Doe</p>
-            <p className="text-muted-foreground text-xs">john@example.com</p>
+            <p className="font-medium">User Name</p>
+            <p className="text-muted-foreground text-xs">user@email.com</p>
           </div>
         </div>
       </SidebarFooter>
