@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 // Menu items based on actual protected routes
 const mainItems = [
@@ -76,8 +77,8 @@ const settingsItems = [
 export function AppSidebar() {
   return (
     <Sidebar>
-      <SidebarHeader className="border-b">
-        <div className="flex items-center gap-2 px-4 py-2">
+      <SidebarHeader className="h-16 px-6 justify-center border-b">
+        <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground flex-shrink-0">
             <span className="text-sm font-bold">F</span>
           </div>
