@@ -31,6 +31,9 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import { useAuth, getUserInitials } from "@/lib/auth";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // Menu items based on actual protected routes
 const mainItems = [
@@ -75,6 +78,23 @@ const settingsItems = [
 ];
 
 export function AppSidebar() {
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    const result = await signOut();
+    if (result.success) {
+      toast.success("Signed out successfully");
+      router.push("/login");
+    } else if (result.error) {
+      toast.error(result.error.message);
+    }
+  };
+
+  const userInitials = getUserInitials(user);
+  const displayName = user?.displayName || "User";
+  const displayEmail = user?.email || "user@email.com";
+
   return (
     <Sidebar>
       <SidebarHeader className="h-16 px-6 justify-center border-b bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
@@ -148,7 +168,10 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
               <SidebarMenuItem>
-                <SidebarMenuButton className="flex items-center min-w-0">
+                <SidebarMenuButton 
+                  className="flex items-center min-w-0 cursor-pointer"
+                  onClick={handleSignOut}
+                >
                   <LogOut className="flex-shrink-0" />
                   <span className="truncate">Sign Out</span>
                 </SidebarMenuButton>
