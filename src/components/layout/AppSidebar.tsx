@@ -1,6 +1,21 @@
 "use client";
 
 import {
+  Calendar,
+  Home,
+  Inbox,
+  Search,
+  Settings,
+  BarChart3,
+  FolderOpen,
+  StickyNote,
+  MessageSquare,
+  Users,
+  Plus,
+  LogOut,
+} from "lucide-react";
+
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -11,102 +26,101 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import {
-  Home,
-  Inbox,
-  FolderOpen,
-  Calendar,
-  FileText,
-  MessageSquare,
-  BarChart3,
-  Settings,
-  LogOut,
-  Plus,
-} from "lucide-react";
 import Link from "next/link";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const workspaceItems = [
+// Menu items based on documentation
+const mainItems = [
   {
     title: "Dashboard",
+    url: "/dashboard",
     icon: Home,
-    href: "/dashboard",
   },
   {
     title: "Tasks",
+    url: "/tasks",
     icon: Inbox,
-    href: "/tasks",
-    badge: 2,
+    badge: "2",
   },
   {
     title: "Projects",
+    url: "/projects",
     icon: FolderOpen,
-    href: "/projects",
   },
   {
     title: "Calendar",
+    url: "/calendar",
     icon: Calendar,
-    href: "/calendar",
   },
   {
     title: "Notes",
-    icon: FileText,
-    href: "/notes",
+    url: "/notes",
+    icon: StickyNote,
   },
 ];
 
-const aiAnalyticsItems = [
+const secondaryItems = [
   {
     title: "AI Chat",
+    url: "/chat",
     icon: MessageSquare,
-    href: "/ai-chat",
     badge: "AI",
   },
   {
     title: "Insights",
+    url: "/insights",
     icon: BarChart3,
-    href: "/insights",
     badge: "Pro",
+  },
+];
+
+const settingsItems = [
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
   },
 ];
 
 export function AppSidebar() {
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader className="border-b px-3 py-3">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <span className="text-white text-sm font-bold">P</span>
+    <Sidebar>
+      <SidebarHeader className="border-b">
+        <div className="flex items-center gap-2 px-4 py-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground flex-shrink-0">
+            <span className="text-sm font-bold">P</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold">Productivity OS</span>
-            <span className="text-xs text-muted-foreground">Free Plan</span>
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-sm font-semibold truncate">
+              Productivity OS
+            </span>
+            <span className="text-xs text-muted-foreground truncate">
+              Free Plan
+            </span>
           </div>
-        </Link>
+        </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent>
+        {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-1">
-            Workspace
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {workspaceItems.map((item) => (
+              {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className="w-full justify-start px-2 py-1.5"
-                  >
-                    <Link href={item.href} className="flex items-center gap-2">
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url} className="flex items-center min-w-0">
+                      <item.icon className="flex-shrink-0" />
+                      <span className="truncate">{item.title}</span>
                       {item.badge && (
-                        <Badge variant="secondary" className="ml-auto text-xs">
+                        <Badge
+                          variant="secondary"
+                          className="ml-auto text-xs flex-shrink-0"
+                        >
                           {item.badge}
                         </Badge>
                       )}
@@ -118,25 +132,22 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <Separator className="my-2" />
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-1">
-            AI & Analytics
-          </SidebarGroupLabel>
+        {/* AI & Analytics */}
+        <SidebarGroup className="border-t">
+          <SidebarGroupLabel>AI & Analytics</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {aiAnalyticsItems.map((item) => (
+              {secondaryItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className="w-full justify-start px-2 py-1.5"
-                  >
-                    <Link href={item.href} className="flex items-center gap-2">
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url} className="flex items-center min-w-0">
+                      <item.icon className="flex-shrink-0" />
+                      <span className="truncate">{item.title}</span>
                       {item.badge && (
-                        <Badge variant="secondary" className="ml-auto text-xs">
+                        <Badge
+                          variant="secondary"
+                          className="ml-auto text-xs flex-shrink-0"
+                        >
                           {item.badge}
                         </Badge>
                       )}
@@ -148,73 +159,69 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <Separator className="my-2" />
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-1">
-            Quick Actions
-          </SidebarGroupLabel>
-          <SidebarGroupContent className="space-y-1 px-2">
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Task
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              size="sm"
-            >
-              <FolderOpen className="h-4 w-4 mr-2" />
-              New Project
-            </Button>
+        {/* Quick Actions */}
+        <SidebarGroup className="border-t">
+          <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="px-2 space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start min-w-0"
+              >
+                <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">New Task</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start min-w-0"
+              >
+                <FolderOpen className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">New Project</span>
+              </Button>
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-2 space-y-1">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="w-full justify-start px-2 py-1.5"
-            >
-              <Link
-                href="/settings/profile"
-                className="flex items-center gap-2"
-              >
-                <Settings className="h-5 w-5" />
-                <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="w-full justify-start px-2 py-1.5"
-            >
-              <Link href="/logout" className="flex items-center gap-2">
-                <LogOut className="h-5 w-5" />
-                <span>Sign Out</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarFooter className="border-t">
+        {/* User Profile Section */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url} className="flex items-center min-w-0">
+                      <item.icon className="flex-shrink-0" />
+                      <span className="truncate">{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton className="flex items-center min-w-0">
+                  <LogOut className="flex-shrink-0" />
+                  <span className="truncate">Sign Out</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-        <Separator />
-
-        <div className="flex items-center gap-2 px-2 py-1.5">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-indigo-600 text-white">
+        {/* User Info */}
+        <div className="px-3 py-2">
+          <div className="flex items-center gap-2 text-sm">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs flex-shrink-0">
               U
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 text-sm">
-            <p className="font-medium">User Name</p>
-            <p className="text-muted-foreground text-xs">user@email.com</p>
+            </div>
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-xs font-medium truncate">User Name</span>
+              <span className="text-xs text-muted-foreground truncate">
+                user@email.com
+              </span>
+            </div>
           </div>
         </div>
       </SidebarFooter>
