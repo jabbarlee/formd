@@ -46,13 +46,13 @@ export function Navbar() {
               size="sm"
               className="hidden sm:inline-flex hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400"
             >
-              Sign In
+              <Link href="/login">Sign In</Link>
             </Button>
             <Button
               size="sm"
               className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white"
             >
-              Get Started
+              <Link href="/signup">Get Started</Link>
             </Button>
           </div>
         </div>

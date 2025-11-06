@@ -62,7 +62,7 @@ export function ForgotPasswordForm() {
             </p>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col space-y-4 mt-4">
           <Button
             variant="outline"
             className="w-full"
@@ -107,7 +107,7 @@ export function ForgotPasswordForm() {
             />
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col space-y-4 mt-4">
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Sending..." : "Send reset link"}
           </Button>
