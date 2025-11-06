@@ -77,18 +77,20 @@ const settingsItems = [
 export function AppSidebar() {
   return (
     <Sidebar>
-      <SidebarHeader className="h-16 px-6 justify-center border-b">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground flex-shrink-0">
-            <span className="text-sm font-bold">F</span>
+      <SidebarHeader className="h-16 px-6 justify-center border-b bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
+            <span className="text-primary-foreground text-lg font-bold">F</span>
           </div>
-          <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-sm font-semibold truncate">FormAI</span>
-            <span className="text-xs text-muted-foreground truncate">
+          <div className="flex flex-col">
+            <span className="text-base font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              FormAI
+            </span>
+            <span className="text-xs text-muted-foreground">
               AI Form Builder
             </span>
           </div>
-        </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
@@ -118,12 +120,32 @@ export function AppSidebar() {
             <div className="px-2 space-y-2">
               <Link href="/forms/new">
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
-                  className="w-full justify-start min-w-0"
+                  className="w-full justify-start min-w-0 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-sm"
                 >
                   <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
                   <span className="truncate">New Form</span>
+                </Button>
+              </Link>
+              <Link href="/templates">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start min-w-0 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 dark:hover:bg-amber-950 dark:hover:text-amber-400"
+                >
+                  <Layout className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Browse Templates</span>
+                </Button>
+              </Link>
+              <Link href="/analytics">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start min-w-0 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950 dark:hover:text-emerald-400"
+                >
+                  <LineChart className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">View Analytics</span>
                 </Button>
               </Link>
             </div>

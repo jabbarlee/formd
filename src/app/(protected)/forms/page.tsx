@@ -135,7 +135,7 @@ export default function FormsPage() {
               {forms.map((form) => (
                 <Card
                   key={form.id}
-                  className="hover:shadow-lg transition-shadow"
+                  className="hover:shadow-lg transition-all hover:border-primary/50 hover:scale-[1.02] duration-200"
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -156,15 +156,17 @@ export default function FormsPage() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Responses</span>
-                        <span className="font-medium">{form.responses}</span>
+                        <span className="font-semibold text-violet-600">
+                          {form.responses}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Status</span>
                         <Badge
-                          variant={
+                          className={
                             form.status === "published"
-                              ? "default"
-                              : "secondary"
+                              ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-950 dark:text-emerald-400"
+                              : "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-950 dark:text-amber-400"
                           }
                         >
                           {form.status}

@@ -9,9 +9,12 @@ export function BillingHeader() {
       title="Billing & Subscription"
       description="Manage your subscription plan and billing information."
       icon={CreditCard}
+      iconColor="text-rose-600"
+      iconBgColor="bg-rose-50 dark:bg-rose-950"
       actionButton={{
         label: "Upgrade Plan",
         icon: Sparkles,
+        variant: "default",
         onClick: () => {
           // Handle upgrade plan
           console.log("Upgrade plan clicked");
