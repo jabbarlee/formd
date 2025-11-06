@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Check, CreditCard, Download } from "lucide-react";
+import { BillingHeader } from "@/components/layout/headers";
 
 export default function BillingSettingsPage() {
   const billingHistory = [
@@ -21,11 +22,10 @@ export default function BillingSettingsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Billing & Subscription</h1>
-        <p className="text-muted-foreground">Manage your subscription and billing information</p>
-      </div>
+    <div>
+      <BillingHeader />
+      
+      <div className="space-y-6 p-6">
 
         {/* Current Plan */}
         <Card>
@@ -204,5 +204,6 @@ export default function BillingSettingsPage() {
           </CardContent>
         </Card>
       </div>
+    </div>
   );
 }

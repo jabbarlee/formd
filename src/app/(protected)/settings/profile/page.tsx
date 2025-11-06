@@ -6,14 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Upload, Mail, User, Building2 } from "lucide-react";
+import { ProfileHeader } from "@/components/layout/headers";
 
 export default function ProfileSettingsPage() {
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-3xl font-bold">Profile Settings</h1>
-        <p className="text-muted-foreground">Manage your account information and preferences</p>
-      </div>
+    <div>
+      <ProfileHeader />
+      
+      <div className="space-y-6 max-w-4xl p-6">
 
       {/* Profile Picture */}
         <Card>
@@ -132,5 +132,6 @@ export default function ProfileSettingsPage() {
           <Button className="bg-indigo-600 hover:bg-indigo-700">Save Changes</Button>
         </div>
       </div>
+    </div>
   );
 }

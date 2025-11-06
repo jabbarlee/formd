@@ -32,11 +32,15 @@ import {
   Tablet,
   Globe,
 } from "lucide-react";
+import { AnalyticsHeader } from "@/components/layout/headers";
 
 export default function FormAnalyticsPage() {
   return (
-    <div className="space-y-6">
-      {/* Header with Breadcrumb */}
+    <div>
+      <AnalyticsHeader />
+      
+      <div className="space-y-6 p-6">
+      {/* Breadcrumb */}
       <div>
         <Breadcrumb>
           <BreadcrumbList>
@@ -55,18 +59,6 @@ export default function FormAnalyticsPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="flex items-center justify-between mt-4">
-          <div>
-            <h1 className="text-3xl font-bold">Analytics</h1>
-            <p className="text-muted-foreground">
-              Detailed insights for your form
-            </p>
-          </div>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
-        </div>
       </div>
 
       {/* Overview Metrics */}
@@ -471,6 +463,7 @@ export default function FormAnalyticsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

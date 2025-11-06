@@ -27,6 +27,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import { FormsHeader } from "@/components/layout/headers";
 
 export default function FormsPage() {
   const forms = [
@@ -81,19 +82,10 @@ export default function FormsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Forms</h1>
-          <p className="text-muted-foreground">Manage and create your forms</p>
-        </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700">
-          <Plus className="h-4 w-4 mr-2" />
-          Create Form
-        </Button>
-      </div>
-
+    <div>
+      <FormsHeader />
+      
+      <div className="space-y-6 p-6">
       {/* Toolbar */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1 max-w-md">
@@ -258,6 +250,7 @@ export default function FormsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
