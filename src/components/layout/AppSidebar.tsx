@@ -168,7 +168,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
               <SidebarMenuItem>
-                <SidebarMenuButton 
+                <SidebarMenuButton
                   className="flex items-center min-w-0 cursor-pointer"
                   onClick={handleSignOut}
                 >

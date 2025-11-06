@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
+import { useState, FormEvent } from "react";
+import Link from "next/link";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,15 +11,15 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { CheckCircle2 } from 'lucide-react';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { CheckCircle2 } from "lucide-react";
 
 export function ForgotPasswordForm() {
   const { resetPassword } = useAuth();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -33,7 +33,7 @@ export function ForgotPasswordForm() {
 
     if (result.success) {
       setIsSuccess(true);
-      toast.success('Password reset email sent! Check your inbox.');
+      toast.success("Password reset email sent! Check your inbox.");
     } else if (result.error) {
       toast.error(result.error.message);
     }
@@ -50,15 +50,15 @@ export function ForgotPasswordForm() {
           </div>
           <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
           <CardDescription>
-            We&apos;ve sent a password reset link to{' '}
+            We&apos;ve sent a password reset link to{" "}
             <span className="font-medium text-foreground">{email}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-sm text-muted-foreground space-y-2">
             <p>
-              Click the link in the email to reset your password. If you don&apos;t
-              see the email, check your spam folder.
+              Click the link in the email to reset your password. If you
+              don&apos;t see the email, check your spam folder.
             </p>
           </div>
         </CardContent>
@@ -68,7 +68,7 @@ export function ForgotPasswordForm() {
             className="w-full"
             onClick={() => {
               setIsSuccess(false);
-              setEmail('');
+              setEmail("");
             }}
           >
             Try another email
@@ -109,7 +109,7 @@ export function ForgotPasswordForm() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Sending...' : 'Send reset link'}
+            {isLoading ? "Sending..." : "Send reset link"}
           </Button>
           <div className="text-sm text-center text-muted-foreground">
             <Link href="/login" className="text-primary hover:underline">

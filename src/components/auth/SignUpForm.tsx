@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useSignUp } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSignUp } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,48 +12,48 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { toast } from 'sonner';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 export function SignUpForm() {
   const router = useRouter();
   const { signUp, isLoading, error, clearError } = useSignUp();
   const [formData, setFormData] = useState({
-    displayName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    displayName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
+  const [passwordError, setPasswordError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
-    
+
     // Clear password error when user types
-    if (id === 'password' || id === 'confirmPassword') {
-      setPasswordError('');
+    if (id === "password" || id === "confirmPassword") {
+      setPasswordError("");
     }
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
-    setPasswordError('');
+    setPasswordError("");
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      setPasswordError('Passwords do not match');
+      setPasswordError("Passwords do not match");
       return;
     }
 
     // Validate terms acceptance
     if (!agreedToTerms) {
-      toast.error('Please agree to the Terms of Service and Privacy Policy');
+      toast.error("Please agree to the Terms of Service and Privacy Policy");
       return;
     }
 
@@ -65,9 +65,9 @@ export function SignUpForm() {
 
     if (result.success) {
       toast.success(
-        'Account created successfully! Please check your email to verify your account.'
+        "Account created successfully! Please check your email to verify your account."
       );
-      router.push('/dashboard');
+      router.push("/dashboard");
     } else if (result.error) {
       toast.error(result.error.message);
     }
@@ -117,7 +117,8 @@ export function SignUpForm() {
               disabled={isLoading}
             />
             <p className="text-xs text-muted-foreground">
-              Must be at least 8 characters with uppercase, lowercase, number, and special character
+              Must be at least 8 characters with uppercase, lowercase, number,
+              and special character
             </p>
           </div>
           <div className="space-y-2">
@@ -148,11 +149,11 @@ export function SignUpForm() {
               htmlFor="terms"
               className="text-sm font-normal cursor-pointer leading-relaxed"
             >
-              I agree to the{' '}
+              I agree to the{" "}
               <Link href="/terms" className="text-primary hover:underline">
                 Terms of Service
-              </Link>{' '}
-              and{' '}
+              </Link>{" "}
+              and{" "}
               <Link href="/privacy" className="text-primary hover:underline">
                 Privacy Policy
               </Link>
@@ -166,10 +167,10 @@ export function SignUpForm() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Creating account...' : 'Create account'}
+            {isLoading ? "Creating account..." : "Create account"}
           </Button>
           <div className="text-sm text-center text-muted-foreground">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link href="/login" className="text-primary hover:underline">
               Sign in
             </Link>
