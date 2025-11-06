@@ -77,21 +77,21 @@ const aiAnalyticsItems = [
 export function AppSidebar() {
   return (
     <Sidebar className="border-r">
-      <SidebarHeader className="border-b px-4 py-4">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center">
-            <span className="text-white text-xl font-bold">P</span>
+      <SidebarHeader className="border-b px-3 py-3">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+            <span className="text-white text-sm font-bold">P</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-semibold">Productivity OS</span>
+            <span className="text-sm font-semibold">Productivity OS</span>
             <span className="text-xs text-muted-foreground">Free Plan</span>
           </div>
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="px-3">
+      <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-2">
+          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-1">
             Workspace
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -100,9 +100,9 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    className="w-full justify-start px-3 py-2"
+                    className="w-full justify-start px-2 py-1.5"
                   >
-                    <Link href={item.href} className="flex items-center gap-3">
+                    <Link href={item.href} className="flex items-center gap-2">
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                       {item.badge && (
@@ -121,7 +121,7 @@ export function AppSidebar() {
         <Separator className="my-2" />
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-2">
+          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-1">
             AI & Analytics
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -130,9 +130,9 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    className="w-full justify-start px-3 py-2"
+                    className="w-full justify-start px-2 py-1.5"
                   >
-                    <Link href={item.href} className="flex items-center gap-3">
+                    <Link href={item.href} className="flex items-center gap-2">
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
                       {item.badge && (
@@ -151,10 +151,10 @@ export function AppSidebar() {
         <Separator className="my-2" />
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-2">
+          <SidebarGroupLabel className="text-xs text-muted-foreground px-2 py-1">
             Quick Actions
           </SidebarGroupLabel>
-          <SidebarGroupContent className="space-y-2 px-2">
+          <SidebarGroupContent className="space-y-1 px-2">
             <Button
               variant="outline"
               className="w-full justify-start"
@@ -175,16 +175,16 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-3 space-y-2">
+      <SidebarFooter className="border-t p-2 space-y-1">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="w-full justify-start px-3 py-2"
+              className="w-full justify-start px-2 py-1.5"
             >
               <Link
                 href="/settings/profile"
-                className="flex items-center gap-3"
+                className="flex items-center gap-2"
               >
                 <Settings className="h-5 w-5" />
                 <span>Settings</span>
@@ -194,9 +194,9 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="w-full justify-start px-3 py-2"
+              className="w-full justify-start px-2 py-1.5"
             >
-              <Link href="/logout" className="flex items-center gap-3">
+              <Link href="/logout" className="flex items-center gap-2">
                 <LogOut className="h-5 w-5" />
                 <span>Sign Out</span>
               </Link>
@@ -206,7 +206,7 @@ export function AppSidebar() {
 
         <Separator />
 
-        <div className="flex items-center gap-3 px-2 py-2">
+        <div className="flex items-center gap-2 px-2 py-1.5">
           <Avatar className="h-10 w-10">
             <AvatarFallback className="bg-indigo-600 text-white">
               U
