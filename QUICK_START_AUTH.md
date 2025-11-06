@@ -20,7 +20,7 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
 ```tsx
 // app/layout.tsx
-import { AuthProvider } from '@/lib/auth';
+import { AuthProvider } from "@/lib/auth";
 
 export default function RootLayout({ children }) {
   return (
@@ -36,9 +36,10 @@ export default function RootLayout({ children }) {
 ### 3. Use in Components
 
 **Protected Route:**
+
 ```tsx
-'use client';
-import { useRequireAuth } from '@/lib/auth';
+"use client";
+import { useRequireAuth } from "@/lib/auth";
 
 export default function Dashboard() {
   const { user } = useRequireAuth(); // Auto-redirects if not logged in
@@ -47,9 +48,10 @@ export default function Dashboard() {
 ```
 
 **Login Form:**
+
 ```tsx
-'use client';
-import { useSignIn } from '@/lib/auth';
+"use client";
+import { useSignIn } from "@/lib/auth";
 
 export default function LoginForm() {
   const { signIn, isLoading, error } = useSignIn();
@@ -57,7 +59,7 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await signIn({ email, password });
-    if (result.success) router.push('/dashboard');
+    if (result.success) router.push("/dashboard");
   };
 
   return (
@@ -71,9 +73,10 @@ export default function LoginForm() {
 ```
 
 **Sign Up Form:**
+
 ```tsx
-'use client';
-import { useSignUp } from '@/lib/auth';
+"use client";
+import { useSignUp } from "@/lib/auth";
 
 export default function SignUpForm() {
   const { signUp, isLoading, error } = useSignUp();
@@ -81,7 +84,7 @@ export default function SignUpForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await signUp({ email, password, displayName });
-    if (result.success) router.push('/dashboard');
+    if (result.success) router.push("/dashboard");
   };
 
   return <form onSubmit={handleSubmit}>{/* ... */}</form>;
@@ -91,30 +94,30 @@ export default function SignUpForm() {
 ## Common Hooks
 
 ```tsx
-import { 
-  useAuth,           // Get auth state and methods
-  useRequireAuth,    // Protected routes (redirects if not authenticated)
-  useRequireGuest,   // Guest-only routes (redirects if authenticated)
-  useSignIn,         // Sign in with loading/error state
-  useSignUp,         // Sign up with loading/error state
-} from '@/lib/auth';
+import {
+  useAuth, // Get auth state and methods
+  useRequireAuth, // Protected routes (redirects if not authenticated)
+  useRequireGuest, // Guest-only routes (redirects if authenticated)
+  useSignIn, // Sign in with loading/error state
+  useSignUp, // Sign up with loading/error state
+} from "@/lib/auth";
 ```
 
 ## Available Methods
 
 ```tsx
 const {
-  user,                    // Current user object
-  isAuthenticated,         // Boolean
-  isLoading,              // Boolean
-  error,                  // AuthError | null
-  signUp,                 // (credentials) => Promise<AuthResult>
-  signIn,                 // (credentials) => Promise<AuthResult>
-  signOut,                // () => Promise<AuthResult>
-  resetPassword,          // (email) => Promise<AuthResult>
-  updateProfile,          // (data) => Promise<AuthResult>
-  updateEmail,            // (email, password) => Promise<AuthResult>
-  sendEmailVerification,  // () => Promise<AuthResult>
+  user, // Current user object
+  isAuthenticated, // Boolean
+  isLoading, // Boolean
+  error, // AuthError | null
+  signUp, // (credentials) => Promise<AuthResult>
+  signIn, // (credentials) => Promise<AuthResult>
+  signOut, // () => Promise<AuthResult>
+  resetPassword, // (email) => Promise<AuthResult>
+  updateProfile, // (data) => Promise<AuthResult>
+  updateEmail, // (email, password) => Promise<AuthResult>
+  sendEmailVerification, // () => Promise<AuthResult>
 } = useAuth();
 ```
 
@@ -145,7 +148,7 @@ src/lib/auth/
 
 - Minimum 8 characters
 - At least one uppercase letter
-- At least one lowercase letter  
+- At least one lowercase letter
 - At least one number
 - At least one special character
 

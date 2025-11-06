@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from './useAuth';
-import { ROUTE_PATHS } from '../constants';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "./useAuth";
+import { ROUTE_PATHS } from "../constants";
 
 /**
  * Options for useRequireGuest hook
@@ -18,10 +18,7 @@ interface UseRequireGuestOptions {
  * Useful for login, signup, and password reset pages
  */
 export const useRequireGuest = (options: UseRequireGuestOptions = {}) => {
-  const {
-    redirectTo = ROUTE_PATHS.DASHBOARD,
-    onAuthenticated,
-  } = options;
+  const { redirectTo = ROUTE_PATHS.DASHBOARD, onAuthenticated } = options;
 
   const router = useRouter();
   const { isLoading, isAuthenticated } = useAuth();

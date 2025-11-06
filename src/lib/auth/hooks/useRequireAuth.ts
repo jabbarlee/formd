@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from './useAuth';
-import { ROUTE_PATHS } from '../constants';
-import { tokenStorage } from '../utils/token-storage';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "./useAuth";
+import { ROUTE_PATHS } from "../constants";
+import { tokenStorage } from "../utils/token-storage";
 
 /**
  * Options for useRequireAuth hook
@@ -37,8 +37,10 @@ export const useRequireAuth = (options: UseRequireAuthOptions = {}) => {
     // User is not authenticated
     if (!isAuthenticated || !user) {
       // Store current URL for redirect after login
-      if (typeof window !== 'undefined') {
-        tokenStorage.setRedirectUrl(window.location.pathname + window.location.search);
+      if (typeof window !== "undefined") {
+        tokenStorage.setRedirectUrl(
+          window.location.pathname + window.location.search
+        );
       }
 
       // Call custom handler if provided

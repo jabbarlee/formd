@@ -33,6 +33,7 @@ src/lib/auth/
 ## Features
 
 ### ✅ Core Authentication
+
 - Sign up with email and password
 - Sign in with email and password
 - Sign out
@@ -43,6 +44,7 @@ src/lib/auth/
 - Password updates
 
 ### ✅ Security
+
 - Input sanitization
 - Password strength validation
 - Email format validation
@@ -51,6 +53,7 @@ src/lib/auth/
 - Environment variable configuration
 
 ### ✅ Developer Experience
+
 - Full TypeScript support
 - Clean API with custom hooks
 - Comprehensive error handling
@@ -78,7 +81,7 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
 ```tsx
 // app/layout.tsx
-import { AuthProvider } from '@/lib/auth';
+import { AuthProvider } from "@/lib/auth";
 
 export default function RootLayout({
   children,
@@ -88,9 +91,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
@@ -102,9 +103,9 @@ export default function RootLayout({
 ### Basic Authentication Hook
 
 ```tsx
-'use client';
+"use client";
 
-import { useAuth } from '@/lib/auth';
+import { useAuth } from "@/lib/auth";
 
 export default function Profile() {
   const { user, isLoading, isAuthenticated, signOut } = useAuth();
@@ -129,9 +130,9 @@ export default function Profile() {
 ### Protected Routes
 
 ```tsx
-'use client';
+"use client";
 
-import { useRequireAuth } from '@/lib/auth';
+import { useRequireAuth } from "@/lib/auth";
 
 export default function Dashboard() {
   // Automatically redirects to login if not authenticated
@@ -153,9 +154,9 @@ export default function Dashboard() {
 ### Guest-Only Routes (Login/Signup)
 
 ```tsx
-'use client';
+"use client";
 
-import { useRequireGuest } from '@/lib/auth';
+import { useRequireGuest } from "@/lib/auth";
 
 export default function LoginPage() {
   // Automatically redirects to dashboard if already authenticated
@@ -172,25 +173,25 @@ export default function LoginPage() {
 ### Sign In Form
 
 ```tsx
-'use client';
+"use client";
 
-import { useSignIn } from '@/lib/auth';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useSignIn } from "@/lib/auth";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const router = useRouter();
   const { signIn, isLoading, error } = useSignIn();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const result = await signIn({ email, password });
-    
+
     if (result.success) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
   };
 
@@ -212,7 +213,7 @@ export default function LoginForm() {
       />
       {error && <p className="error">{error.message}</p>}
       <button type="submit" disabled={isLoading}>
-        {isLoading ? 'Signing in...' : 'Sign In'}
+        {isLoading ? "Signing in..." : "Sign In"}
       </button>
     </form>
   );
@@ -222,26 +223,26 @@ export default function LoginForm() {
 ### Sign Up Form
 
 ```tsx
-'use client';
+"use client";
 
-import { useSignUp } from '@/lib/auth';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useSignUp } from "@/lib/auth";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignUpForm() {
   const router = useRouter();
   const { signUp, isLoading, error } = useSignUp();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const result = await signUp({ email, password, displayName });
-    
+
     if (result.success) {
-      router.push('/dashboard');
+      router.push("/dashboard");
     }
   };
 
@@ -269,7 +270,7 @@ export default function SignUpForm() {
       />
       {error && <p className="error">{error.message}</p>}
       <button type="submit" disabled={isLoading}>
-        {isLoading ? 'Creating account...' : 'Sign Up'}
+        {isLoading ? "Creating account..." : "Sign Up"}
       </button>
     </form>
   );
@@ -279,30 +280,30 @@ export default function SignUpForm() {
 ### Password Reset
 
 ```tsx
-'use client';
+"use client";
 
-import { useAuth } from '@/lib/auth';
-import { useState } from 'react';
+import { useAuth } from "@/lib/auth";
+import { useState } from "react";
 
 export default function ForgotPasswordForm() {
   const { resetPassword } = useAuth();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage('');
-    setError('');
-    
+    setMessage("");
+    setError("");
+
     const result = await resetPassword({ email });
-    
+
     setIsLoading(false);
-    
+
     if (result.success) {
-      setMessage('Password reset email sent! Check your inbox.');
+      setMessage("Password reset email sent! Check your inbox.");
     } else if (result.error) {
       setError(result.error.message);
     }
@@ -320,7 +321,7 @@ export default function ForgotPasswordForm() {
       {message && <p className="success">{message}</p>}
       {error && <p className="error">{error}</p>}
       <button type="submit" disabled={isLoading}>
-        {isLoading ? 'Sending...' : 'Reset Password'}
+        {isLoading ? "Sending..." : "Reset Password"}
       </button>
     </form>
   );
@@ -330,28 +331,28 @@ export default function ForgotPasswordForm() {
 ### Update Profile
 
 ```tsx
-'use client';
+"use client";
 
-import { useAuth } from '@/lib/auth';
-import { useState } from 'react';
+import { useAuth } from "@/lib/auth";
+import { useState } from "react";
 
 export default function ProfileUpdateForm() {
   const { user, updateProfile } = useAuth();
-  const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [displayName, setDisplayName] = useState(user?.displayName || "");
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage('');
-    
+    setMessage("");
+
     const result = await updateProfile({ displayName });
-    
+
     setIsLoading(false);
-    
+
     if (result.success) {
-      setMessage('Profile updated successfully!');
+      setMessage("Profile updated successfully!");
     }
   };
 
@@ -365,7 +366,7 @@ export default function ProfileUpdateForm() {
       />
       {message && <p className="success">{message}</p>}
       <button type="submit" disabled={isLoading}>
-        {isLoading ? 'Updating...' : 'Update Profile'}
+        {isLoading ? "Updating..." : "Update Profile"}
       </button>
     </form>
   );
@@ -379,7 +380,7 @@ export default function ProfileUpdateForm() {
 For advanced use cases, you can use the service directly:
 
 ```tsx
-import { authService } from '@/lib/auth';
+import { authService } from "@/lib/auth";
 
 // Get current user without using hooks
 const currentUser = authService.getCurrentUser();
@@ -391,14 +392,14 @@ const firebaseUser = authService.getCurrentFirebaseUser();
 ### Custom Validation
 
 ```tsx
-import { validateEmail, validatePassword } from '@/lib/auth';
+import { validateEmail, validatePassword } from "@/lib/auth";
 
-const emailValidation = validateEmail('user@example.com');
+const emailValidation = validateEmail("user@example.com");
 if (!emailValidation.valid) {
   console.error(emailValidation.error);
 }
 
-const passwordValidation = validatePassword('MyPassword123!');
+const passwordValidation = validatePassword("MyPassword123!");
 if (!passwordValidation.valid) {
   console.error(passwordValidation.error);
 }
@@ -407,10 +408,10 @@ if (!passwordValidation.valid) {
 ### Token Storage
 
 ```tsx
-import { tokenStorage } from '@/lib/auth';
+import { tokenStorage } from "@/lib/auth";
 
 // Store auth token
-tokenStorage.setAuthToken('token');
+tokenStorage.setAuthToken("token");
 
 // Get auth token
 const token = tokenStorage.getAuthToken();
@@ -462,6 +463,7 @@ interface AuthError {
 ## Password Requirements
 
 By default, passwords must:
+
 - Be at least 8 characters long
 - Contain at least one uppercase letter
 - Contain at least one lowercase letter

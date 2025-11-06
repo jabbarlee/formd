@@ -11,8 +11,8 @@ import {
   EmailAuthProvider,
   User as FirebaseUser,
   UserCredential,
-} from 'firebase/auth';
-import { auth } from '@/lib/firebase/client';
+} from "firebase/auth";
+import { auth } from "@/lib/firebase/client";
 import {
   SignUpCredentials,
   SignInCredentials,
@@ -22,14 +22,14 @@ import {
   AuthResult,
   User,
   AuthError,
-} from '../types';
+} from "../types";
 import {
   mapFirebaseUser,
   mapFirebaseError,
   validateSignUpCredentials,
   sanitizeInput,
-} from '../utils';
-import { AUTH_SUCCESS_MESSAGES } from '../constants';
+} from "../utils";
+import { AUTH_SUCCESS_MESSAGES } from "../constants";
 
 /**
  * Authentication Service
@@ -47,29 +47,26 @@ class AuthService {
         credentials.email,
         credentials.password
       );
-      
+
       if (!validation.valid) {
         return {
           success: false,
           error: {
-            code: 'auth/invalid-credentials',
-            message: validation.errors.join('. '),
+            code: "auth/invalid-credentials",
+            message: validation.errors.join(". "),
           },
         };
       }
 
       // Sanitize inputs
       const email = sanitizeInput(credentials.email);
-      const displayName = credentials.displayName 
-        ? sanitizeInput(credentials.displayName) 
+      const displayName = credentials.displayName
+        ? sanitizeInput(credentials.displayName)
         : null;
 
       // Create user
-      const userCredential: UserCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        credentials.password
-      );
+      const userCredential: UserCredential =
+        await createUserWithEmailAndPassword(auth, email, credentials.password);
 
       // Update profile with display name if provided
       if (displayName && userCredential.user) {
@@ -143,7 +140,9 @@ class AuthService {
   /**
    * Sends a password reset email
    */
-  async resetPassword(credentials: PasswordResetCredentials): Promise<AuthResult<void>> {
+  async resetPassword(
+    credentials: PasswordResetCredentials
+  ): Promise<AuthResult<void>> {
     try {
       const email = sanitizeInput(credentials.email);
 
@@ -163,7 +162,9 @@ class AuthService {
   /**
    * Updates the current user's password
    */
-  async updatePassword(credentials: PasswordUpdateCredentials): Promise<AuthResult<void>> {
+  async updatePassword(
+    credentials: PasswordUpdateCredentials
+  ): Promise<AuthResult<void>> {
     try {
       const currentUser = auth.currentUser;
 
@@ -171,8 +172,8 @@ class AuthService {
         return {
           success: false,
           error: {
-            code: 'auth/no-current-user',
-            message: 'No user is currently signed in',
+            code: "auth/no-current-user",
+            message: "No user is currently signed in",
           },
         };
       }
@@ -209,8 +210,8 @@ class AuthService {
         return {
           success: false,
           error: {
-            code: 'auth/no-current-user',
-            message: 'No user is currently signed in',
+            code: "auth/no-current-user",
+            message: "No user is currently signed in",
           },
         };
       }
@@ -234,8 +235,8 @@ class AuthService {
         return {
           success: false,
           error: {
-            code: 'auth/user-reload-failed',
-            message: 'Failed to reload user data',
+            code: "auth/user-reload-failed",
+            message: "Failed to reload user data",
           },
         };
       }
@@ -257,7 +258,10 @@ class AuthService {
   /**
    * Updates the current user's email
    */
-  async updateEmail(newEmail: string, currentPassword: string): Promise<AuthResult<User>> {
+  async updateEmail(
+    newEmail: string,
+    currentPassword: string
+  ): Promise<AuthResult<User>> {
     try {
       const currentUser = auth.currentUser;
 
@@ -265,8 +269,8 @@ class AuthService {
         return {
           success: false,
           error: {
-            code: 'auth/no-current-user',
-            message: 'No user is currently signed in',
+            code: "auth/no-current-user",
+            message: "No user is currently signed in",
           },
         };
       }
@@ -293,8 +297,8 @@ class AuthService {
         return {
           success: false,
           error: {
-            code: 'auth/user-reload-failed',
-            message: 'Failed to reload user data',
+            code: "auth/user-reload-failed",
+            message: "Failed to reload user data",
           },
         };
       }
@@ -324,8 +328,8 @@ class AuthService {
         return {
           success: false,
           error: {
-            code: 'auth/no-current-user',
-            message: 'No user is currently signed in',
+            code: "auth/no-current-user",
+            message: "No user is currently signed in",
           },
         };
       }
@@ -369,8 +373,8 @@ class AuthService {
         return {
           success: false,
           error: {
-            code: 'auth/no-current-user',
-            message: 'No user is currently signed in',
+            code: "auth/no-current-user",
+            message: "No user is currently signed in",
           },
         };
       }
@@ -382,8 +386,8 @@ class AuthService {
         return {
           success: false,
           error: {
-            code: 'auth/user-reload-failed',
-            message: 'Failed to reload user data',
+            code: "auth/user-reload-failed",
+            message: "Failed to reload user data",
           },
         };
       }

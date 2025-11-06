@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { useAuth } from './useAuth';
-import { SignInCredentials, AuthError } from '../types';
+import { useState, useCallback } from "react";
+import { useAuth } from "./useAuth";
+import { SignInCredentials, AuthError } from "../types";
 
 /**
  * Hook for handling sign in form state and submission

@@ -1,12 +1,12 @@
-import { User as FirebaseUser } from 'firebase/auth';
+import { User as FirebaseUser } from "firebase/auth";
 
 /**
  * Authentication state enumeration
  */
 export enum AuthStatus {
-  AUTHENTICATED = 'authenticated',
-  UNAUTHENTICATED = 'unauthenticated',
-  LOADING = 'loading',
+  AUTHENTICATED = "authenticated",
+  UNAUTHENTICATED = "unauthenticated",
+  LOADING = "loading",
 }
 
 /**
@@ -83,30 +83,30 @@ export interface ProfileUpdateData {
  */
 export enum AuthErrorCode {
   // User-related errors
-  USER_NOT_FOUND = 'auth/user-not-found',
-  USER_DISABLED = 'auth/user-disabled',
-  EMAIL_ALREADY_IN_USE = 'auth/email-already-in-use',
-  
+  USER_NOT_FOUND = "auth/user-not-found",
+  USER_DISABLED = "auth/user-disabled",
+  EMAIL_ALREADY_IN_USE = "auth/email-already-in-use",
+
   // Credential-related errors
-  INVALID_EMAIL = 'auth/invalid-email',
-  INVALID_PASSWORD = 'auth/invalid-password',
-  WRONG_PASSWORD = 'auth/wrong-password',
-  WEAK_PASSWORD = 'auth/weak-password',
-  
+  INVALID_EMAIL = "auth/invalid-email",
+  INVALID_PASSWORD = "auth/invalid-password",
+  WRONG_PASSWORD = "auth/wrong-password",
+  WEAK_PASSWORD = "auth/weak-password",
+
   // Token-related errors
-  INVALID_TOKEN = 'auth/invalid-token',
-  TOKEN_EXPIRED = 'auth/token-expired',
-  
+  INVALID_TOKEN = "auth/invalid-token",
+  TOKEN_EXPIRED = "auth/token-expired",
+
   // Network-related errors
-  NETWORK_ERROR = 'auth/network-request-failed',
-  
+  NETWORK_ERROR = "auth/network-request-failed",
+
   // Rate limiting
-  TOO_MANY_REQUESTS = 'auth/too-many-requests',
-  
+  TOO_MANY_REQUESTS = "auth/too-many-requests",
+
   // Generic errors
-  OPERATION_NOT_ALLOWED = 'auth/operation-not-allowed',
-  INTERNAL_ERROR = 'auth/internal-error',
-  UNKNOWN_ERROR = 'auth/unknown-error',
+  OPERATION_NOT_ALLOWED = "auth/operation-not-allowed",
+  INTERNAL_ERROR = "auth/internal-error",
+  UNKNOWN_ERROR = "auth/unknown-error",
 }
 
 /**
@@ -131,11 +131,11 @@ export interface AuthResult<T = User> {
  * OAuth provider types
  */
 export enum OAuthProvider {
-  GOOGLE = 'google',
-  FACEBOOK = 'facebook',
-  TWITTER = 'twitter',
-  GITHUB = 'github',
-  APPLE = 'apple',
+  GOOGLE = "google",
+  FACEBOOK = "facebook",
+  TWITTER = "twitter",
+  GITHUB = "github",
+  APPLE = "apple",
 }
 
 /**
