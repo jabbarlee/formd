@@ -98,7 +98,10 @@ export function AppSidebar() {
             <SidebarMenu>
               {workspaceItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="w-full justify-start px-3 py-2">
+                  <SidebarMenuButton
+                    asChild
+                    className="w-full justify-start px-3 py-2"
+                  >
                     <Link href={item.href} className="flex items-center gap-3">
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
@@ -125,7 +128,10 @@ export function AppSidebar() {
             <SidebarMenu>
               {aiAnalyticsItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="w-full justify-start px-3 py-2">
+                  <SidebarMenuButton
+                    asChild
+                    className="w-full justify-start px-3 py-2"
+                  >
                     <Link href={item.href} className="flex items-center gap-3">
                       <item.icon className="h-5 w-5" />
                       <span>{item.title}</span>
@@ -149,11 +155,19 @@ export function AppSidebar() {
             Quick Actions
           </SidebarGroupLabel>
           <SidebarGroupContent className="space-y-2 px-2">
-            <Button variant="outline" className="w-full justify-start" size="sm">
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              size="sm"
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Task
             </Button>
-            <Button variant="outline" className="w-full justify-start" size="sm">
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              size="sm"
+            >
               <FolderOpen className="h-4 w-4 mr-2" />
               New Project
             </Button>
@@ -164,15 +178,24 @@ export function AppSidebar() {
       <SidebarFooter className="border-t p-3 space-y-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="w-full justify-start px-3 py-2">
-              <Link href="/settings/profile" className="flex items-center gap-3">
+            <SidebarMenuButton
+              asChild
+              className="w-full justify-start px-3 py-2"
+            >
+              <Link
+                href="/settings/profile"
+                className="flex items-center gap-3"
+              >
                 <Settings className="h-5 w-5" />
                 <span>Settings</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="w-full justify-start px-3 py-2">
+            <SidebarMenuButton
+              asChild
+              className="w-full justify-start px-3 py-2"
+            >
               <Link href="/logout" className="flex items-center gap-3">
                 <LogOut className="h-5 w-5" />
                 <span>Sign Out</span>
