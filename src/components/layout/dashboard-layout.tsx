@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FileText,
@@ -11,9 +11,8 @@ import {
   Plus,
   Search,
   Bell,
-  User,
-  Menu,
-} from "lucide-react"
+  LogOut,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,14 +21,18 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
+  SidebarInset,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarRail,
+  SidebarSeparator,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,11 +40,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
-const menuItems = [
+const workspaceItems: Array<{
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+  badge?: string | number;
+}> = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
@@ -57,20 +65,23 @@ const menuItems = [
     icon: FolderOpen,
     href: "/dashboard/templates",
   },
+];
+
+const analyticsItems: Array<{
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+  badge?: string | number;
+}> = [
   {
     title: "Analytics",
     icon: BarChart3,
     href: "/dashboard/analytics",
   },
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/dashboard/settings",
-  },
-]
+];
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <SidebarProvider>
@@ -82,44 +93,133 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-semibold">FormAI</span>
-              <span className="text-xs text-muted-foreground">Form Builder</span>
+              <span className="text-xs text-muted-foreground">Free Plan</span>
             </div>
           </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.href || pathname?.startsWith(item.href + "/")}
-                  >
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.title}</span>
+            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {workspaceItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={
+                        pathname === item.href ||
+                        pathname?.startsWith(item.href + "/")
+                      }
+                    >
+                      <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                    {item.badge && (
+                      <SidebarMenuBadge>
+                        <Badge
+                          variant="secondary"
+                          className="h-5 px-1.5 text-xs"
+                        >
+                          {item.badge}
+                        </Badge>
+                      </SidebarMenuBadge>
+                    )}
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarSeparator />
+
+          <SidebarGroup>
+            <SidebarGroupLabel>Analytics & Insights</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {analyticsItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={
+                        pathname === item.href ||
+                        pathname?.startsWith(item.href + "/")
+                      }
+                    >
+                      <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarSeparator />
+
+          <SidebarGroup>
+            <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild variant="outline" size="default">
+                    <Link href="/dashboard/forms/new">
+                      <Plus />
+                      <span>New Form</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild variant="outline" size="default">
+                    <Link href="/dashboard/templates">
+                      <FolderOpen />
+                      <span>New Template</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href="/dashboard/forms/new">
-                  <Plus />
-                  <span>New Form</span>
+                <Link href="/dashboard/settings">
+                  <Settings />
+                  <span>Settings</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/login">
+                  <LogOut />
+                  <span>Sign Out</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
+          <SidebarSeparator />
+          <div className="flex items-center gap-2 px-2 py-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
+              <AvatarFallback>UN</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col flex-1 min-w-0">
+              <span className="text-sm font-semibold truncate">User Name</span>
+              <span className="text-xs text-muted-foreground truncate">
+                user@email.com
+              </span>
+            </div>
+          </div>
         </SidebarFooter>
+        <SidebarRail />
       </Sidebar>
-      <main className="flex flex-1 flex-col">
+      <SidebarInset>
         <header className="flex h-16 items-center gap-4 border-b px-4 md:px-6">
           <SidebarTrigger />
           <div className="flex flex-1 items-center gap-4">
@@ -156,10 +256,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-auto p-4 md:p-6">
-          {children}
-        </div>
-      </main>
+        <div className="flex-1 overflow-auto p-4 md:p-6">{children}</div>
+      </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
