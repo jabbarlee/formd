@@ -128,26 +128,6 @@ export function AppSidebar() {
                   <span className="truncate">New Form</span>
                 </Button>
               </Link>
-              <Link href="/templates">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start min-w-0 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 dark:hover:bg-amber-950 dark:hover:text-amber-400"
-                >
-                  <Layout className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Browse Templates</span>
-                </Button>
-              </Link>
-              <Link href="/analytics">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start min-w-0 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 dark:hover:bg-emerald-950 dark:hover:text-emerald-400"
-                >
-                  <LineChart className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">View Analytics</span>
-                </Button>
-              </Link>
             </div>
           </SidebarGroupContent>
         </SidebarGroup>

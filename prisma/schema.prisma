@@ -1,0 +1,679 @@
+// ============================================
+// Prisma Schema for FormAI
+// ============================================
+// Database: PostgreSQL (Supabase)
+// ORM: Prisma
+// ============================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserPlan {
+  free
+  pro
+  business
+  enterprise
+}
+
+enum WorkspaceRole {
+  owner
+  admin
+  editor
+  viewer
+}
+
+enum FormStatus {
+  draft
+  published
+  closed
+  archived
+}
+
+enum ResponseStatus {
+  in_progress
+  completed
+  flagged
+}
+
+enum QuestionType {
+  short_text
+  long_text
+  email
+  number
+  phone
+  multiple_choice
+  checkboxes
+  dropdown
+  star_rating
+  linear_scale
+  nps
+  emoji_rating
+  date
+  time
+  datetime
+  file_upload
+  signature
+  matrix
+  ranking
+  payment
+  location
+  image_choice
+  section_heading
+  text_content
+  divider
+}
+
+enum SentimentType {
+  positive
+  neutral
+  negative
+  mixed
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  past_due
+  trialing
+}
+
+enum IntegrationService {
+  slack
+  discord
+  notion
+  airtable
+  hubspot
+  salesforce
+  zapier
+  make
+  webhook
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id                String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  firebaseUid       String    @unique @map("firebase_uid") @db.VarChar(255)
+  email             String    @unique @db.VarChar(255)
+  name              String    @db.VarChar(255)
+  avatarUrl         String?   @map("avatar_url")
+  bio               String?
+  company           String?   @db.VarChar(255)
+  plan              UserPlan  @default(free)
+  emailVerified     Boolean   @default(false) @map("email_verified")
+  preferences       Json      @default("{}")
+  metadata          Json      @default("{}")
+  lastLoginAt       DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt         DateTime? @map("deleted_at") @db.Timestamptz
+
+  // Relations
+  ownedWorkspaces       Workspace[]         @relation("WorkspaceOwner")
+  workspaceMemberships  WorkspaceMember[]
+  createdForms          Form[]              @relation("FormCreator")
+  responses             Response[]          @relation("RespondentUser")
+  createdTemplates      Template[]
+  templateRatings       TemplateRating[]
+  aiChatLogs            AIChatLog[]
+  subscription          Subscription?
+  paymentTransactions   PaymentTransaction[]
+  notifications         Notification[]
+  activityLogs          ActivityLog[]
+  fileUploads           FileUpload[]
+
+  @@index([firebaseUid])
+  @@index([email])
+  @@index([stripeCustomerId])
+  @@index([plan])
+  @@index([createdAt(sort: Desc)])
+  @@map("users")
+}
+
+model Workspace {
+  id           String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name         String     @db.VarChar(255)
+  slug         String     @unique @db.VarChar(255)
+  ownerId      String     @map("owner_id") @db.Uuid
+  plan         UserPlan   @default(free)
+  customDomain String?    @unique @map("custom_domain") @db.VarChar(255)
+  logoUrl      String?    @map("logo_url")
+  branding     Json       @default("{}")
+  settings     Json       @default("{}")
+  metadata     Json       @default("{}")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt    DateTime?  @map("deleted_at") @db.Timestamptz
+
+  // Relations
+  owner         User                @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members       WorkspaceMember[]
+  forms         Form[]
+  integrations  Integration[]
+  webhooks      Webhook[]
+  folders       FormFolder[]
+  activityLogs  ActivityLog[]
+
+  @@index([slug])
+  @@index([ownerId])
+  @@index([customDomain])
+  @@index([plan])
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  workspaceId String        @map("workspace_id") @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  role        WorkspaceRole @default(viewer)
+  permissions Json          @default("{}")
+  invitedBy   String?       @map("invited_by") @db.Uuid
+  joinedAt    DateTime      @default(now()) @map("joined_at") @db.Timestamptz
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([role])
+  @@map("workspace_members")
+}
+
+model Form {
+  id                      String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  workspaceId             String      @map("workspace_id") @db.Uuid
+  createdBy               String      @map("created_by") @db.Uuid
+  title                   String      @db.VarChar(500)
+  description             String?
+  slug                    String      @db.VarChar(255)
+  status                  FormStatus  @default(draft)
+  
+  // Appearance
+  theme                   Json        @default("{}")
+  coverImage              String?     @map("cover_image")
+  logo                    String?
+  
+  // Settings
+  settings                Json        @default("{}")
+  responseLimit           Int?        @map("response_limit")
+  closeDate               DateTime?   @map("close_date") @db.Timestamptz
+  requiresPassword        Boolean     @default(false) @map("requires_password")
+  passwordHash            String?     @map("password_hash") @db.VarChar(255)
+  allowMultipleResponses  Boolean     @default(false) @map("allow_multiple_responses")
+  showProgressBar         Boolean     @default(true) @map("show_progress_bar")
+  enableAiAnalysis        Boolean     @default(true) @map("enable_ai_analysis")
+  collectEmail            Boolean     @default(true) @map("collect_email")
+  
+  // SEO
+  metaTitle               String?     @map("meta_title") @db.VarChar(255)
+  metaDescription         String?     @map("meta_description")
+  
+  // Timestamps
+  publishedAt             DateTime?   @map("published_at") @db.Timestamptz
+  closedAt                DateTime?   @map("closed_at") @db.Timestamptz
+  createdAt               DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt               DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt               DateTime?   @map("deleted_at") @db.Timestamptz
+
+  // Relations
+  workspace         Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator           User                @relation("FormCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  questions         Question[]
+  responses         Response[]
+  integrations      Integration[]
+  webhooks          Webhook[]
+  analyticsEvents   AnalyticsEvent[]
+  aiChatLogs        AIChatLog[]
+  folderItems       FormFolderItem[]
+  fileUploads       FileUpload[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+  @@index([createdBy])
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([workspaceId, status, deletedAt])
+  @@map("forms")
+}
+
+model Question {
+  id                   String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  formId               String       @map("form_id") @db.Uuid
+  type                 QuestionType
+  title                String       @db.VarChar(1000)
+  description          String?
+  placeholder          String?      @db.VarChar(500)
+  required             Boolean      @default(false)
+  orderPosition        Int          @map("order_position")
+  options              Json?
+  validation           Json?
+  logic                Json?
+  settings             Json         @default("{}")
+  aiSuggestionsEnabled Boolean      @default(true) @map("ai_suggestions_enabled")
+  createdAt            DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime     @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  form    Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  answers Answer[]
+
+  @@index([formId])
+  @@index([type])
+  @@index([formId, orderPosition])
+  @@map("questions")
+}
+
+model Response {
+  id                   String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  formId               String          @map("form_id") @db.Uuid
+  respondentEmail      String?         @map("respondent_email") @db.VarChar(255)
+  respondentName       String?         @map("respondent_name") @db.VarChar(255)
+  respondentUserId     String?         @map("respondent_user_id") @db.Uuid
+  status               ResponseStatus  @default(in_progress)
+  qualityScore         Decimal?        @map("quality_score") @db.Decimal(5, 2)
+  completionPercentage Int             @default(0) @map("completion_percentage")
+  timeSpent            Int?            @map("time_spent")
+  startedAt            DateTime        @default(now()) @map("started_at") @db.Timestamptz
+  submittedAt          DateTime?       @map("submitted_at") @db.Timestamptz
+  
+  // Device & Location
+  deviceType           String?         @map("device_type") @db.VarChar(50)
+  browser              String?         @db.VarChar(100)
+  os                   String?         @db.VarChar(100)
+  ipAddress            String?         @map("ip_address") @db.Inet
+  location             Json?
+  referrer             String?
+  userAgent            String?         @map("user_agent")
+  
+  // AI Analysis
+  aiSentiment          SentimentType?  @map("ai_sentiment")
+  aiSentimentScore     Decimal?        @map("ai_sentiment_score") @db.Decimal(5, 2)
+  aiSummary            String?         @map("ai_summary")
+  aiInsights           Json?           @map("ai_insights")
+  
+  metadata             Json            @default("{}")
+  createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime        @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  form            Form             @relation(fields: [formId], references: [id], onDelete: Cascade)
+  respondentUser  User?            @relation("RespondentUser", fields: [respondentUserId], references: [id], onDelete: SetNull)
+  answers         Answer[]
+  analyticsEvents AnalyticsEvent[]
+  fileUploads     FileUpload[]
+
+  @@index([formId])
+  @@index([status])
+  @@index([submittedAt(sort: Desc)])
+  @@index([qualityScore(sort: Desc)])
+  @@index([respondentEmail])
+  @@index([formId, status, submittedAt(sort: Desc)])
+  @@index([deviceType])
+  @@map("responses")
+}
+
+model Answer {
+  id               String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  responseId       String         @map("response_id") @db.Uuid
+  questionId       String         @map("question_id") @db.Uuid
+  answerText       String?        @map("answer_text")
+  answerNumber     Decimal?       @map("answer_number") @db.Decimal(20, 4)
+  answerBoolean    Boolean?       @map("answer_boolean")
+  answerDate       DateTime?      @map("answer_date") @db.Date
+  answerTime       DateTime?      @map("answer_time") @db.Time
+  answerDatetime   DateTime?      @map("answer_datetime") @db.Timestamptz
+  answerJson       Json?          @map("answer_json")
+  answerFileUrl    String?        @map("answer_file_url")
+  aiSentiment      SentimentType? @map("ai_sentiment")
+  aiSentimentScore Decimal?       @map("ai_sentiment_score") @db.Decimal(5, 2)
+  aiThemes         String[]       @map("ai_themes")
+  aiCategories     String[]       @map("ai_categories")
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  response    Response     @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question    Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  fileUploads FileUpload[]
+
+  @@unique([responseId, questionId])
+  @@index([responseId])
+  @@index([questionId])
+  @@index([aiSentiment])
+  @@index([aiThemes])
+  @@index([questionId, responseId])
+  @@map("answers")
+}
+
+model Template {
+  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  createdBy        String?  @map("created_by") @db.Uuid
+  title            String   @db.VarChar(500)
+  description      String?
+  category         String   @db.VarChar(100)
+  subcategory      String?  @db.VarChar(100)
+  thumbnail        String?
+  previewImages    String[] @map("preview_images")
+  isPublic         Boolean  @default(false) @map("is_public")
+  isOfficial       Boolean  @default(false) @map("is_official")
+  isFeatured       Boolean  @default(false) @map("is_featured")
+  formStructure    Json     @map("form_structure")
+  tags             String[]
+  useCount         Int      @default(0) @map("use_count")
+  ratingAverage    Decimal  @default(0.0) @map("rating_average") @db.Decimal(3, 2)
+  ratingCount      Int      @default(0) @map("rating_count")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  creator User?            @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  ratings TemplateRating[]
+
+  @@index([category])
+  @@index([isPublic])
+  @@index([isFeatured])
+  @@index([useCount(sort: Desc)])
+  @@index([ratingAverage(sort: Desc)])
+  @@index([tags])
+  @@index([createdAt(sort: Desc)])
+  @@map("templates")
+}
+
+model TemplateRating {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  templateId String   @map("template_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  rating     Int
+  review     String?
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, userId])
+  @@index([templateId])
+  @@index([userId])
+  @@index([rating])
+  @@map("template_ratings")
+}
+
+model AIChatLog {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  formId      String?  @map("form_id") @db.Uuid
+  sessionId   String   @map("session_id") @db.Uuid
+  role        String   @db.VarChar(20)
+  content     String
+  contextData Json?    @map("context_data")
+  tokensUsed  Int?     @map("tokens_used")
+  model       String?  @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  form Form? @relation(fields: [formId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([formId])
+  @@index([sessionId, createdAt])
+  @@index([createdAt(sort: Desc)])
+  @@map("ai_chat_logs")
+}
+
+model Integration {
+  id           String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  workspaceId  String             @map("workspace_id") @db.Uuid
+  formId       String?            @map("form_id") @db.Uuid
+  service      IntegrationService
+  name         String             @db.VarChar(255)
+  config       Json
+  enabled      Boolean            @default(true)
+  lastSyncAt   DateTime?          @map("last_sync_at") @db.Timestamptz
+  lastError    String?            @map("last_error")
+  metadata     Json               @default("{}")
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  form      Form?     @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([formId])
+  @@index([service])
+  @@index([enabled])
+  @@map("integrations")
+}
+
+model Webhook {
+  id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  workspaceId      String    @map("workspace_id") @db.Uuid
+  formId           String?   @map("form_id") @db.Uuid
+  url              String
+  secret           String?   @db.VarChar(255)
+  events           String[]
+  enabled          Boolean   @default(true)
+  retryCount       Int       @default(3) @map("retry_count")
+  lastTriggeredAt  DateTime? @map("last_triggered_at") @db.Timestamptz
+  lastStatus       Int?      @map("last_status")
+  lastError        String?   @map("last_error")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  form      Form?     @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([formId])
+  @@index([enabled])
+  @@index([events])
+  @@map("webhooks")
+}
+
+model AnalyticsEvent {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  formId     String   @map("form_id") @db.Uuid
+  responseId String?  @map("response_id") @db.Uuid
+  eventType  String   @map("event_type") @db.VarChar(100)
+  eventData  Json?    @map("event_data")
+  sessionId  String?  @map("session_id") @db.Uuid
+  ipAddress  String?  @map("ip_address") @db.Inet
+  userAgent  String?  @map("user_agent")
+  timestamp  DateTime @default(now()) @db.Timestamptz
+
+  // Relations
+  form     Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  response Response? @relation(fields: [responseId], references: [id], onDelete: SetNull)
+
+  @@index([formId, timestamp(sort: Desc)])
+  @@index([responseId])
+  @@index([eventType])
+  @@index([timestamp(sort: Desc)])
+  @@index([sessionId, timestamp])
+  @@map("analytics_events")
+}
+
+model Subscription {
+  id                   String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId               String             @unique @map("user_id") @db.Uuid
+  stripeSubscriptionId String?            @unique @map("stripe_subscription_id") @db.VarChar(255)
+  stripePriceId        String?            @map("stripe_price_id") @db.VarChar(255)
+  plan                 UserPlan
+  status               SubscriptionStatus
+  currentPeriodStart   DateTime?          @map("current_period_start") @db.Timestamptz
+  currentPeriodEnd     DateTime?          @map("current_period_end") @db.Timestamptz
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  canceledAt           DateTime?          @map("canceled_at") @db.Timestamptz
+  formsLimit           Int?               @map("forms_limit")
+  responsesLimit       Int?               @map("responses_limit")
+  storageLimitMb       Int?               @map("storage_limit_mb")
+  metadata             Json               @default("{}")
+  createdAt            DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([stripeSubscriptionId])
+  @@index([status])
+  @@index([currentPeriodEnd])
+  @@index([plan])
+  @@map("subscriptions")
+}
+
+model PaymentTransaction {
+  id                     String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId                 String   @map("user_id") @db.Uuid
+  stripePaymentIntentId  String?  @unique @map("stripe_payment_intent_id") @db.VarChar(255)
+  amount                 Decimal  @db.Decimal(10, 2)
+  currency               String   @default("USD") @db.VarChar(3)
+  status                 String   @db.VarChar(50)
+  description            String?
+  metadata               Json     @default("{}")
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([stripePaymentIntentId])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("payment_transactions")
+}
+
+model FormFolder {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  workspaceId    String   @map("workspace_id") @db.Uuid
+  name           String   @db.VarChar(255)
+  parentFolderId String?  @map("parent_folder_id") @db.Uuid
+  color          String?  @db.VarChar(7)
+  icon           String?  @db.VarChar(50)
+  orderPosition  Int      @default(0) @map("order_position")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  workspace    Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parentFolder FormFolder?      @relation("FolderHierarchy", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  subFolders   FormFolder[]     @relation("FolderHierarchy")
+  folderItems  FormFolderItem[]
+
+  @@index([workspaceId])
+  @@index([parentFolderId])
+  @@index([workspaceId, orderPosition])
+  @@map("form_folders")
+}
+
+model FormFolderItem {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  folderId  String   @map("folder_id") @db.Uuid
+  formId    String   @map("form_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  folder FormFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  form   Form       @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@unique([folderId, formId])
+  @@index([folderId])
+  @@index([formId])
+  @@map("form_folder_items")
+}
+
+model Notification {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  type      String   @db.VarChar(100)
+  title     String   @db.VarChar(255)
+  message   String
+  actionUrl String?  @map("action_url")
+  read      Boolean  @default(false)
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, read])
+  @@index([type])
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId       String?   @map("user_id") @db.Uuid
+  workspaceId  String?   @map("workspace_id") @db.Uuid
+  action       String    @db.VarChar(100)
+  resourceType String    @map("resource_type") @db.VarChar(100)
+  resourceId   String?   @map("resource_id") @db.Uuid
+  details      Json?
+  ipAddress    String?   @map("ip_address") @db.Inet
+  userAgent    String?   @map("user_agent")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@index([resourceType, resourceId])
+  @@index([action])
+  @@index([createdAt(sort: Desc)])
+  @@map("activity_logs")
+}
+
+model FileUpload {
+  id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId           String?   @map("user_id") @db.Uuid
+  formId           String?   @map("form_id") @db.Uuid
+  responseId       String?   @map("response_id") @db.Uuid
+  answerId         String?   @map("answer_id") @db.Uuid
+  filename         String    @db.VarChar(500)
+  originalFilename String    @map("original_filename") @db.VarChar(500)
+  mimeType         String    @map("mime_type") @db.VarChar(100)
+  sizeBytes        BigInt    @map("size_bytes")
+  storagePath      String    @map("storage_path")
+  publicUrl        String?   @map("public_url")
+  width            Int?
+  height           Int?
+  duration         Int?
+  metadata         Json      @default("{}")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  form     Form?     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  response Response? @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  answer   Answer?   @relation(fields: [answerId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([formId])
+  @@index([responseId])
+  @@index([answerId])
+  @@index([createdAt(sort: Desc)])
+  @@map("file_uploads")
+}
