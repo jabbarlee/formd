@@ -1,7 +1,13 @@
 import { ProtectedLayout } from "@/components/layout/ProtectedLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -31,7 +37,12 @@ import {
   Calendar,
   Upload,
 } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function FormBuilderPage() {
   const questionTypes = [
@@ -91,8 +102,12 @@ export default function FormBuilderPage() {
             <CardContent>
               <Tabs defaultValue="basic" className="w-full">
                 <TabsList className="w-full">
-                  <TabsTrigger value="basic" className="flex-1">Basic</TabsTrigger>
-                  <TabsTrigger value="advanced" className="flex-1">Advanced</TabsTrigger>
+                  <TabsTrigger value="basic" className="flex-1">
+                    Basic
+                  </TabsTrigger>
+                  <TabsTrigger value="advanced" className="flex-1">
+                    Advanced
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="basic" className="space-y-2 mt-4">
                   {questionTypes.map((type, i) => (
@@ -108,7 +123,11 @@ export default function FormBuilderPage() {
                   ))}
                 </TabsContent>
                 <TabsContent value="advanced" className="space-y-2 mt-4">
-                  <Button variant="outline" className="w-full justify-start" size="sm">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    size="sm"
+                  >
                     <Sparkles className="h-4 w-4 mr-2" />
                     AI Generated
                   </Button>
@@ -164,7 +183,13 @@ export default function FormBuilderPage() {
                 />
               </CardHeader>
               <CardContent className="space-y-2">
-                {["Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied"].map((option, i) => (
+                {[
+                  "Very Satisfied",
+                  "Satisfied",
+                  "Neutral",
+                  "Dissatisfied",
+                  "Very Dissatisfied",
+                ].map((option, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <div className="h-4 w-4 rounded-full border-2" />
                     <Input defaultValue={option} className="h-8" />
@@ -187,8 +212,12 @@ export default function FormBuilderPage() {
             <CardContent>
               <Tabs defaultValue="settings" className="w-full">
                 <TabsList className="w-full">
-                  <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
-                  <TabsTrigger value="logic" className="flex-1">Logic</TabsTrigger>
+                  <TabsTrigger value="settings" className="flex-1">
+                    Settings
+                  </TabsTrigger>
+                  <TabsTrigger value="logic" className="flex-1">
+                    Logic
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="settings" className="space-y-4 mt-4">
                   <div className="space-y-2">
@@ -228,7 +257,8 @@ export default function FormBuilderPage() {
                 </TabsContent>
                 <TabsContent value="logic" className="mt-4">
                   <p className="text-sm text-muted-foreground">
-                    Add conditional logic to show/hide questions based on previous answers
+                    Add conditional logic to show/hide questions based on
+                    previous answers
                   </p>
                   <Button variant="outline" size="sm" className="w-full mt-4">
                     <Plus className="h-4 w-4 mr-2" />
