@@ -15,8 +15,9 @@ export function FinalCTASection() {
           </h2>
 
           <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl mx-auto">
-            Join thousands of teams already using FormAI to collect better data
-            and gain deeper insights
+            Join thousands of teams already using Form
+            <span className="italic text-indigo-600">D</span> to collect better
+            data and gain deeper insights
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

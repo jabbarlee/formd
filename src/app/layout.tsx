@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FormAI - AI-Powered Form Builder",
+  title: "FormD - AI-Powered Form Builder",
   description: "Create intelligent forms with AI assistance",
 };
 

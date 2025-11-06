@@ -75,7 +75,7 @@ export default function BillingSettingsPage() {
             <Card className="hover:shadow-lg transition-all hover:scale-[1.02] duration-200">
               <CardHeader>
                 <CardTitle>Free</CardTitle>
-                <CardDescription>Perfect for trying out FormAI</CardDescription>
+                <CardDescription>Perfect for trying out FormD</CardDescription>
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-blue-600">$0</span>
                   <span className="text-muted-foreground">/month</span>

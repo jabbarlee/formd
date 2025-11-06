@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X } from "lucide-react";
 
 const competitors = [
-  { name: "FormAI", column: "formai" },
+  { name: "FormD", column: "formd" },
   { name: "Typeform", column: "typeform" },
   { name: "Google Forms", column: "google" },
   { name: "SurveyMonkey", column: "survey" },
@@ -19,56 +19,56 @@ const competitors = [
 const features = [
   {
     name: "AI Form Generation",
-    formai: true,
+    formd: true,
     typeform: false,
     google: false,
     survey: false,
   },
   {
     name: "AI Response Analysis",
-    formai: true,
+    formd: true,
     typeform: false,
     google: false,
     survey: true,
   },
   {
     name: "Beautiful Design",
-    formai: true,
+    formd: true,
     typeform: true,
     google: false,
     survey: false,
   },
   {
     name: "Advanced Logic",
-    formai: true,
+    formd: true,
     typeform: true,
     google: false,
     survey: true,
   },
   {
     name: "Real-time Analytics",
-    formai: true,
+    formd: true,
     typeform: true,
     google: true,
     survey: true,
   },
   {
     name: "Custom Branding",
-    formai: true,
+    formd: true,
     typeform: true,
     google: false,
     survey: true,
   },
   {
     name: "Unlimited Responses (Free)",
-    formai: true,
+    formd: true,
     typeform: false,
     google: true,
     survey: false,
   },
   {
     name: "Payment Collection",
-    formai: true,
+    formd: true,
     typeform: true,
     google: false,
     survey: false,
@@ -83,7 +83,9 @@ export function ComparisonSection() {
           <Badge variant="secondary" className="mb-4">
             Comparison
           </Badge>
-          <h2 className="text-5xl font-bold mb-4">Why choose FormAI?</h2>
+          <h2 className="text-5xl font-bold mb-4">
+            Why choose Form<span className="italic">D</span>?
+          </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             See how we stack up against the competition
           </p>
@@ -101,12 +103,12 @@ export function ComparisonSection() {
                     key={competitor.column}
                     className="text-center font-bold text-base"
                   >
-                    {competitor.name === "FormAI" ? (
+                    {competitor.name === "FormD" ? (
                       <Badge
                         variant="default"
                         className="bg-indigo-600 dark:bg-indigo-600"
                       >
-                        {competitor.name}
+                        Form<span className="italic">D</span>
                       </Badge>
                     ) : (
                       competitor.name
@@ -120,7 +122,7 @@ export function ComparisonSection() {
                 <TableRow key={index} className="hover:bg-gray-50">
                   <TableCell className="font-medium">{feature.name}</TableCell>
                   <TableCell className="text-center">
-                    {feature.formai ? (
+                    {feature.formd ? (
                       <Check className="w-5 h-5 text-green-600 mx-auto" />
                     ) : (
                       <X className="w-5 h-5 text-gray-300 mx-auto" />

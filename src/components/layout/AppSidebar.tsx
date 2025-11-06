@@ -79,13 +79,12 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="h-16 px-6 justify-center border-b bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
-            <span className="text-primary-foreground text-lg font-bold">F</span>
-          </div>
           <div className="flex flex-col">
-            <span className="text-base font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              FormAI
-            </span>
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-xl font-bold text-gray-900">
+                Form<span className="italic text-indigo-600">D</span>
+              </span>
+            </Link>
             <span className="text-xs text-muted-foreground">
               AI Form Builder
             </span>

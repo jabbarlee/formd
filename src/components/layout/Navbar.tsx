@@ -8,8 +8,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-blue-600" />
-            <span className="text-xl font-bold text-gray-900">FormAI</span>
+            <span className="text-xl font-bold text-gray-900">Form<span className="italic text-indigo-600">D</span></span>
           </Link>
 
           {/* Navigation Links */}
