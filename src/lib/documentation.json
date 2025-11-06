@@ -1,0 +1,557 @@
+{
+  "project": {
+    "name": "FormAI",
+    "tagline": "Beautiful forms, intelligent insights — the AI-powered survey platform that actually delights",
+    "description": "A next-generation form and survey platform combining stunning design, intuitive UX, and deep AI integration to revolutionize data collection and analysis",
+    "version": "1.0.0",
+    "type": "SaaS Web Application"
+  },
+
+  "techStack": {
+    "frontend": {
+      "framework": "Next.js 14+ (App Router)",
+      "language": "TypeScript",
+      "styling": "TailwindCSS",
+      "uiComponents": "shadcn/ui",
+      "stateManagement": ["React Query", "Zustand"],
+      "animations": "Framer Motion",
+      "charts": "Recharts",
+      "richText": "TipTap",
+      "dragDrop": "@dnd-kit/core",
+      "dateTime": "date-fns"
+    },
+    "backend": {
+      "platform": "Next.js API Routes",
+      "database": "Supabase (PostgreSQL)",
+      "orm": "Prisma",
+      "auth": "Firebase Authentication",
+      "payments": "Stripe",
+      "aiProvider": ["OpenAI GPT-4", "Anthropic Claude"],
+      "fileStorage": "Supabase Storage",
+      "email": "Resend"
+    },
+    "integrations": {
+      "ai": "OpenAI API / Anthropic API",
+      "payments": "Stripe API",
+      "analytics": "Vercel Analytics",
+      "communication": ["Slack", "Discord"],
+      "crm": ["Notion", "HubSpot", "Salesforce"],
+      "automations": ["Zapier", "Make"],
+      "embedSupport": "iframe postMessage API",
+      "webhooks": "Svix"
+    },
+    "deployment": {
+      "hosting": "Vercel",
+      "database": "Supabase Cloud",
+      "cdn": "Vercel Edge Network",
+      "monitoring": "Sentry"
+    }
+  },
+
+  "firebase": {
+    "auth": {
+      "enabled": true,
+      "providers": ["email_password", "google", "github"],
+      "sessionManagement": "Firebase ID tokens integrated with Next.js server routes",
+      "securityRules": "Custom claims for workspaces and roles"
+    }
+  },
+
+  "databaseSchema": {
+    "tables": [
+      {
+        "name": "users",
+        "description": "User accounts",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "firebase_uid", "type": "STRING", "unique": true, "required": true },
+          { "name": "email", "type": "STRING", "unique": true, "required": true },
+          { "name": "name", "type": "STRING", "required": true },
+          { "name": "avatar_url", "type": "STRING", "nullable": true },
+          { "name": "plan", "type": "ENUM", "values": ["free", "pro", "business", "enterprise"], "default": "free" },
+          { "name": "stripe_customer_id", "type": "STRING", "nullable": true },
+          { "name": "created_at", "type": "TIMESTAMP", "default": "now()" },
+          { "name": "updated_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "workspaces",
+        "description": "Team workspaces",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "name", "type": "STRING", "required": true },
+          { "name": "slug", "type": "STRING", "unique": true, "required": true },
+          { "name": "owner_id", "type": "UUID", "foreignKey": "users.id", "required": true },
+          { "name": "plan", "type": "ENUM", "values": ["free", "pro", "business"], "default": "free" },
+          { "name": "custom_domain", "type": "STRING", "nullable": true },
+          { "name": "branding", "type": "JSONB", "nullable": true },
+          { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "workspace_members",
+        "description": "Team membership",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "workspace_id", "type": "UUID", "foreignKey": "workspaces.id" },
+          { "name": "user_id", "type": "UUID", "foreignKey": "users.id" },
+          { "name": "role", "type": "ENUM", "values": ["owner", "admin", "editor", "viewer"], "default": "viewer" },
+          { "name": "joined_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "forms",
+        "description": "Form definitions",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "workspace_id", "type": "UUID", "foreignKey": "workspaces.id", "required": true },
+          { "name": "created_by", "type": "UUID", "foreignKey": "users.id", "required": true },
+          { "name": "title", "type": "STRING", "required": true },
+          { "name": "description", "type": "TEXT", "nullable": true },
+          { "name": "slug", "type": "STRING", "required": true },
+          { "name": "status", "type": "ENUM", "values": ["draft", "published", "closed", "archived"], "default": "draft" },
+          { "name": "theme", "type": "JSONB", "nullable": true },
+          { "name": "settings", "type": "JSONB", "nullable": true },
+          { "name": "cover_image", "type": "STRING", "nullable": true },
+          { "name": "logo", "type": "STRING", "nullable": true },
+          { "name": "published_at", "type": "TIMESTAMP", "nullable": true },
+          { "name": "closed_at", "type": "TIMESTAMP", "nullable": true },
+          { "name": "response_limit", "type": "INTEGER", "nullable": true },
+          { "name": "close_date", "type": "TIMESTAMP", "nullable": true },
+          { "name": "requires_password", "type": "BOOLEAN", "default": false },
+          { "name": "password_hash", "type": "STRING", "nullable": true },
+          { "name": "allow_multiple_responses", "type": "BOOLEAN", "default": false },
+          { "name": "show_progress_bar", "type": "BOOLEAN", "default": true },
+          { "name": "created_at", "type": "TIMESTAMP", "default": "now()" },
+          { "name": "updated_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "questions",
+        "description": "Form questions",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "form_id", "type": "UUID", "foreignKey": "forms.id", "onDelete": "CASCADE" },
+          { "name": "type", "type": "ENUM", "values": [
+            "short_text", "long_text", "email", "number", "phone",
+            "multiple_choice", "checkboxes", "dropdown", "star_rating",
+            "linear_scale", "nps", "emoji_rating", "date", "time",
+            "datetime", "file_upload", "signature", "matrix", "ranking",
+            "payment", "location", "image_choice", "section_heading",
+            "text_content", "divider"
+          ]},
+          { "name": "title", "type": "STRING", "required": true },
+          { "name": "description", "type": "TEXT", "nullable": true },
+          { "name": "placeholder", "type": "STRING", "nullable": true },
+          { "name": "required", "type": "BOOLEAN", "default": false },
+          { "name": "order", "type": "INTEGER", "required": true },
+          { "name": "options", "type": "JSONB", "nullable": true },
+          { "name": "validation", "type": "JSONB", "nullable": true },
+          { "name": "logic", "type": "JSONB", "nullable": true },
+          { "name": "settings", "type": "JSONB", "nullable": true },
+          { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "responses",
+        "description": "Form submissions",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "form_id", "type": "UUID", "foreignKey": "forms.id", "required": true },
+          { "name": "respondent_email", "type": "STRING", "nullable": true },
+          { "name": "respondent_name", "type": "STRING", "nullable": true },
+          { "name": "status", "type": "ENUM", "values": ["in_progress", "completed", "flagged"], "default": "in_progress" },
+          { "name": "quality_score", "type": "INTEGER", "nullable": true },
+          { "name": "time_spent", "type": "INTEGER", "nullable": true },
+          { "name": "device_type", "type": "STRING", "nullable": true },
+          { "name": "browser", "type": "STRING", "nullable": true },
+          { "name": "ip_address", "type": "STRING", "nullable": true },
+          { "name": "location", "type": "JSONB", "nullable": true },
+          { "name": "referrer", "type": "STRING", "nullable": true },
+          { "name": "started_at", "type": "TIMESTAMP", "default": "now()" },
+          { "name": "submitted_at", "type": "TIMESTAMP", "nullable": true }
+        ]
+      },
+
+      {
+        "name": "answers",
+        "description": "Individual question answers",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "response_id", "type": "UUID", "foreignKey": "responses.id", "onDelete": "CASCADE" },
+          { "name": "question_id", "type": "UUID", "foreignKey": "questions.id" },
+          { "name": "answer_text", "type": "TEXT", "nullable": true },
+          { "name": "answer_number", "type": "FLOAT", "nullable": true },
+          { "name": "answer_json", "type": "JSONB", "nullable": true },
+          { "name": "answer_file_url", "type": "STRING", "nullable": true },
+          { "name": "ai_sentiment", "type": "ENUM", "values": ["positive", "neutral", "negative", "mixed"], "nullable": true },
+          { "name": "ai_sentiment_score", "type": "FLOAT", "nullable": true },
+          { "name": "ai_themes", "type": "STRING[]", "nullable": true },
+          { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "templates",
+        "description": "Form templates",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "created_by", "type": "UUID", "foreignKey": "users.id", "nullable": true },
+          { "name": "title", "type": "STRING", "required": true },
+          { "name": "description", "type": "TEXT", "nullable": true },
+          { "name": "category", "type": "STRING", "required": true },
+          { "name": "thumbnail", "type": "STRING", "nullable": true },
+          { "name": "is_public", "type": "BOOLEAN", "default": false },
+          { "name": "is_official", "type": "BOOLEAN", "default": false },
+          { "name": "use_count", "type": "INTEGER", "default": 0 },
+          { "name": "form_structure", "type": "JSONB", "required": true },
+          { "name": "tags", "type": "STRING[]", "default": [] },
+          { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "ai_chat_logs",
+        "description": "AI assistant conversation history",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "user_id", "type": "UUID", "foreignKey": "users.id", "required": true },
+          { "name": "form_id", "type": "UUID", "foreignKey": "forms.id", "nullable": true },
+          { "name": "session_id", "type": "UUID", "required": true },
+          { "name": "role", "type": "ENUM", "values": ["user", "assistant"], "required": true },
+          { "name": "content", "type": "TEXT", "required": true },
+          { "name": "context_data", "type": "JSONB", "nullable": true },
+          { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "integrations",
+        "description": "Connected third-party integrations",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "workspace_id", "type": "UUID", "foreignKey": "workspaces.id" },
+          { "name": "form_id", "type": "UUID", "foreignKey": "forms.id", "nullable": true },
+          { "name": "service", "type": "ENUM", "values": ["slack", "discord", "notion", "airtable", "hubspot", "salesforce", "zapier", "webhook"] },
+          { "name": "config", "type": "JSONB", "required": true },
+          { "name": "enabled", "type": "BOOLEAN", "default": true },
+          { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "analytics_events",
+        "description": "Tracking of form interactions",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "form_id", "type": "UUID", "foreignKey": "forms.id" },
+          { "name": "response_id", "type": "UUID", "foreignKey": "responses.id", "nullable": true },
+          { "name": "event_type", "type": "STRING", "required": true },
+          { "name": "event_data", "type": "JSONB", "nullable": true },
+          { "name": "timestamp", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      },
+
+      {
+        "name": "subscriptions",
+        "description": "Stripe subscription data",
+        "fields": [
+          { "name": "id", "type": "UUID", "primaryKey": true },
+          { "name": "user_id", "type": "UUID", "foreignKey": "users.id", "unique": true },
+          { "name": "stripe_subscription_id", "type": "STRING", "nullable": true },
+          { "name": "plan", "type": "ENUM", "values": ["free", "pro", "business", "enterprise"] },
+          { "name": "status", "type": "ENUM", "values": ["active", "canceled", "past_due"] },
+          { "name": "current_period_end", "type": "TIMESTAMP", "nullable": true },
+          { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
+        ]
+      }
+    ]
+  },
+
+  "pages": [
+
+    {
+      "id": "landing",
+      "name": "Homepage",
+      "route": "/",
+      "description": "Marketing landing page showcasing FormAI's unique value proposition",
+      "layout": "marketing-single-page",
+      "sections": [
+        {
+          "id": "hero",
+          "name": "Hero Section",
+          "description": "Primary hero with headline and CTA",
+          "components": ["Typography", "Button", "AnimatedFormPreview"],
+          "design": {
+            "background": "Animated gradient (blue to purple)",
+            "headline": "80px bold, centered",
+            "subheadline": "24px subtle",
+            "cta": "Glow primary button"
+          }
+        },
+        {
+          "id": "features",
+          "name": "Feature Showcase",
+          "description": "Grid with icons and descriptions",
+          "components": ["Card", "Icon", "Typography"],
+          "features": [
+            "AI Form Generation",
+            "Beautiful Design",
+            "Real-time Analytics",
+            "Smart Responses",
+            "Easy Sharing",
+            "Powerful Integrations"
+          ]
+        },
+        {
+          "id": "demo",
+          "name": "Interactive Demo",
+          "components": ["EmbeddedForm", "LiveAnalytics"],
+          "design": "Split screen"
+        },
+        {
+          "id": "comparison",
+          "name": "Comparison Table",
+          "components": ["Table", "Badge"]
+        },
+        {
+          "id": "pricing-preview",
+          "name": "Pricing Preview",
+          "components": ["Card", "Button"]
+        },
+        {
+          "id": "testimonials",
+          "name": "Social Proof",
+          "components": ["Card", "Avatar", "StarRating", "Carousel"]
+        },
+        {
+          "id": "cta-final",
+          "name": "Final CTA",
+          "components": ["Typography", "Button"]
+        }
+      ]
+    },
+
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "route": "/dashboard",
+      "sections": [
+        {
+          "id": "header",
+          "name": "Page Header",
+          "components": ["Typography", "Button"]
+        },
+        {
+          "id": "quick-stats",
+          "name": "Quick Statistics",
+          "components": ["Card", "Statistic"]
+        },
+        {
+          "id": "recent-forms",
+          "name": "Recent Forms",
+          "components": ["Card", "Badge"]
+        },
+        {
+          "id": "ai-suggestions",
+          "name": "AI Suggestions",
+          "components": ["Card", "Alert"]
+        },
+        {
+          "id": "recent-responses",
+          "name": "Recent Responses",
+          "components": ["Card"]
+        }
+      ]
+    },
+
+    {
+      "id": "forms-list",
+      "name": "All Forms",
+      "route": "/forms",
+      "sections": [
+        {
+          "id": "toolbar",
+          "name": "Toolbar",
+          "components": ["Input", "Select", "Button"]
+        },
+        {
+          "id": "forms-grid",
+          "name": "Forms Grid/List",
+          "components": ["Card", "Badge"]
+        },
+        {
+          "id": "folders-sidebar",
+          "name": "Folders Sidebar",
+          "components": ["Accordion", "TreeView"]
+        }
+      ]
+    },
+
+    {
+      "id": "form-builder",
+      "name": "Form Builder",
+      "route": "/forms/[id]/edit",
+      "sections": [
+        {
+          "id": "top-toolbar",
+          "name": "Top Toolbar",
+          "components": ["Breadcrumb", "Input", "ButtonGroup"]
+        },
+        {
+          "id": "left-sidebar",
+          "name": "Question Palette",
+          "components": ["Tabs", "Card", "Accordion"]
+        },
+        {
+          "id": "center-canvas",
+          "name": "Form Canvas",
+          "components": ["Canvas", "QuestionBlock", "InlineEditor"]
+        },
+        {
+          "id": "right-sidebar",
+          "name": "Properties Panel",
+          "components": ["Tabs", "Input", "Switch"]
+        },
+        {
+          "id": "ai-assistant",
+          "name": "AI Assistant Panel",
+          "components": ["Sheet", "Chat"]
+        },
+        {
+          "id": "command-palette",
+          "name": "Command Palette",
+          "components": ["Command", "Dialog"]
+        }
+      ]
+    },
+
+    {
+      "id": "form-responses",
+      "name": "Responses",
+      "route": "/forms/[id]/responses",
+      "sections": [
+        {
+          "id": "response-toolbar",
+          "name": "Response Toolbar",
+          "components": ["Input", "Select", "Button"]
+        },
+        {
+          "id": "response-table",
+          "name": "Response Table",
+          "components": ["DataTable", "Badge"]
+        },
+        {
+          "id": "response-detail-modal",
+          "name": "Response Detail",
+          "components": ["Dialog", "Tabs"]
+        },
+        {
+          "id": "ai-insights-panel",
+          "name": "AI Insights",
+          "components": ["Card", "Chart"]
+        }
+      ]
+    },
+
+    {
+      "id": "form-analytics",
+      "name": "Analytics",
+      "route": "/forms/[id]/analytics",
+      "sections": [
+        {
+          "id": "overview-cards",
+          "name": "Overview Metrics",
+          "components": ["Card", "Statistic"]
+        },
+        {
+          "id": "completion-funnel",
+          "name": "Completion Funnel",
+          "components": ["Card", "FunnelChart"]
+        },
+        {
+          "id": "question-analytics",
+          "name": "Question Analytics",
+          "components": ["Accordion", "BarChart", "PieChart"]
+        },
+        {
+          "id": "time-series",
+          "name": "Responses Over Time",
+          "components": ["Card", "LineChart"]
+        },
+        {
+          "id": "device-breakdown",
+          "name": "Device Breakdown",
+          "components": ["Card", "PieChart"]
+        },
+        {
+          "id": "geographic-map",
+          "name": "Geographic Distribution",
+          "components": ["Card", "Map", "Heatmap"],
+          "design": "Interactive world map with heat zones"
+        }
+      ]
+    }
+
+  ],
+
+  "settingsPages": [
+    {
+      "id": "settings-profile",
+      "route": "/settings/profile",
+      "name": "Profile Settings",
+      "sections": [
+        { "id": "profile", "name": "Profile", "components": ["Input", "AvatarUpload"] },
+        { "id": "security", "name": "Security", "components": ["Input", "Button"] }
+      ]
+    },
+    {
+      "id": "settings-billing",
+      "route": "/settings/billing",
+      "name": "Billing",
+      "sections": [
+        { "id": "plan", "name": "Subscription Plan", "components": ["Card"] },
+        { "id": "history", "name": "Billing History", "components": ["Table"] }
+      ]
+    },
+    {
+      "id": "workspace-settings",
+      "route": "/workspace/[id]/settings",
+      "name": "Workspace Settings",
+      "sections": [
+        { "id": "general", "components": ["Input"] },
+        { "id": "members", "components": ["Table"] },
+        { "id": "branding", "components": ["ColorPicker", "FileUpload"] }
+      ]
+    }
+  ],
+
+  "api": {
+    "baseUrl": "/api",
+    "endpoints": [
+      { "route": "/forms", "methods": ["GET", "POST"] },
+      { "route": "/forms/[id]", "methods": ["GET", "PATCH", "DELETE"] },
+      { "route": "/forms/[id]/responses", "methods": ["GET"] },
+      { "route": "/ai/generate-form", "methods": ["POST"] },
+      { "route": "/ai/optimize-question", "methods": ["POST"] }
+    ]
+  },
+
+  "embed": {
+    "methods": ["iframe", "script"],
+    "customization": ["theme", "autoHeight", "transparent"],
+    "events": ["onSubmit", "onPageChange"]
+  },
+
+  "glossary": {
+    "form": "A structured collection of questions",
+    "response": "A user's answers",
+    "workspace": "Team environment",
+    "theme": "Visual customization settings"
+  }
+}
