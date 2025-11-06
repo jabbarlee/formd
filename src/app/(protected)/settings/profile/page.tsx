@@ -1,4 +1,3 @@
-import { ProtectedLayout } from "@/components/layout/ProtectedLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,14 +9,13 @@ import { Upload, Mail, User, Building2 } from "lucide-react";
 
 export default function ProfileSettingsPage() {
   return (
-    <ProtectedLayout>
-      <div className="space-y-6 max-w-4xl">
-        <div>
-          <h1 className="text-3xl font-bold">Profile Settings</h1>
-          <p className="text-muted-foreground">Manage your account information and preferences</p>
-        </div>
+    <div className="space-y-6 max-w-4xl">
+      <div>
+        <h1 className="text-3xl font-bold">Profile Settings</h1>
+        <p className="text-muted-foreground">Manage your account information and preferences</p>
+      </div>
 
-        {/* Profile Picture */}
+      {/* Profile Picture */}
         <Card>
           <CardHeader>
             <CardTitle>Profile Picture</CardTitle>
@@ -134,6 +132,5 @@ export default function ProfileSettingsPage() {
           <Button className="bg-indigo-600 hover:bg-indigo-700">Save Changes</Button>
         </div>
       </div>
-    </ProtectedLayout>
   );
 }

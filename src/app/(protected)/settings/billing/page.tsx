@@ -1,4 +1,3 @@
-import { ProtectedLayout } from "@/components/layout/ProtectedLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,12 +21,11 @@ export default function BillingSettingsPage() {
   ];
 
   return (
-    <ProtectedLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Billing & Subscription</h1>
-          <p className="text-muted-foreground">Manage your subscription and billing information</p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Billing & Subscription</h1>
+        <p className="text-muted-foreground">Manage your subscription and billing information</p>
+      </div>
 
         {/* Current Plan */}
         <Card>
@@ -206,6 +204,5 @@ export default function BillingSettingsPage() {
           </CardContent>
         </Card>
       </div>
-    </ProtectedLayout>
   );
 }

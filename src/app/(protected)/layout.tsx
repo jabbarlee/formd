@@ -117,7 +117,7 @@ export function AppSidebar() {
   );
 }
 
-export function ProtectedLayout({ children }: { children: React.ReactNode }) {
+export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">

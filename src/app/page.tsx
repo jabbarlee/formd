@@ -1,3 +1,4 @@
+import { Navbar } from "@/components/layout/Navbar";
 import { HeroSection } from "@/components/pages/landing/HeroSection";
 import { FeaturesSection } from "@/components/pages/landing/FeaturesSection";
 import { ComparisonSection } from "@/components/pages/landing/ComparisonSection";
@@ -7,13 +8,16 @@ import { FinalCTASection } from "@/components/pages/landing/FinalCTASection";
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      <HeroSection />
-      <FeaturesSection />
-      <ComparisonSection />
-      <PricingSection />
-      <TestimonialsSection />
-      <FinalCTASection />
-    </main>
+    <>
+      <Navbar />
+      <main className="min-h-screen">
+        <HeroSection />
+        <FeaturesSection />
+        <ComparisonSection />
+        <PricingSection />
+        <TestimonialsSection />
+        <FinalCTASection />
+      </main>
+    </>
   );
 }
