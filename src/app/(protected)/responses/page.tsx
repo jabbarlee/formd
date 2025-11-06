@@ -1,0 +1,540 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Search,
+  Download,
+  Filter,
+  Eye,
+  Trash2,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  FileText,
+  Calendar,
+  Mail,
+  Star,
+} from "lucide-react";
+import { ResponsesHeader } from "@/components/layout/headers";
+
+export default function ResponsesPage() {
+  const responses = [
+    {
+      id: "R001",
+      formName: "Customer Satisfaction Survey",
+      respondent: "john.doe@example.com",
+      submittedAt: "2024-01-15 10:30 AM",
+      status: "completed",
+      score: 4.5,
+      duration: "2m 34s",
+      color: "emerald",
+    },
+    {
+      id: "R002",
+      formName: "Employee Feedback Form",
+      respondent: "sarah.smith@example.com",
+      submittedAt: "2024-01-15 09:45 AM",
+      status: "completed",
+      score: 4.8,
+      duration: "3m 12s",
+      color: "blue",
+    },
+    {
+      id: "R003",
+      formName: "Product Feedback",
+      respondent: "mike.johnson@example.com",
+      submittedAt: "2024-01-15 08:20 AM",
+      status: "partial",
+      score: 3.2,
+      duration: "1m 45s",
+      color: "amber",
+    },
+    {
+      id: "R004",
+      formName: "Event Registration",
+      respondent: "emily.davis@example.com",
+      submittedAt: "2024-01-14 04:15 PM",
+      status: "completed",
+      score: 5.0,
+      duration: "1m 58s",
+      color: "violet",
+    },
+    {
+      id: "R005",
+      formName: "Customer Satisfaction Survey",
+      respondent: "alex.wilson@example.com",
+      submittedAt: "2024-01-14 02:30 PM",
+      status: "flagged",
+      score: 2.1,
+      duration: "0m 42s",
+      color: "rose",
+    },
+    {
+      id: "R006",
+      formName: "Job Application Form",
+      respondent: "lisa.brown@example.com",
+      submittedAt: "2024-01-14 11:20 AM",
+      status: "completed",
+      score: 4.3,
+      duration: "5m 23s",
+      color: "cyan",
+    },
+  ];
+
+  const stats = [
+    {
+      label: "Total Responses",
+      value: "1,247",
+      change: "+12.3%",
+      icon: FileText,
+      color: "blue",
+    },
+    {
+      label: "Completed",
+      value: "1,089",
+      change: "+8.1%",
+      icon: CheckCircle2,
+      color: "emerald",
+    },
+    {
+      label: "Partial",
+      value: "132",
+      change: "+4.2%",
+      icon: Clock,
+      color: "amber",
+    },
+    {
+      label: "Flagged",
+      value: "26",
+      change: "-2.5%",
+      icon: AlertCircle,
+      color: "rose",
+    },
+  ];
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed":
+        return (
+          <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+            <CheckCircle2 className="h-3 w-3 mr-1" />
+            Completed
+          </Badge>
+        );
+      case "partial":
+        return (
+          <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+            <Clock className="h-3 w-3 mr-1" />
+            Partial
+          </Badge>
+        );
+      case "flagged":
+        return (
+          <Badge className="bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            Flagged
+          </Badge>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 4.5) return "text-emerald-600 font-semibold";
+    if (score >= 3.5) return "text-blue-600 font-semibold";
+    if (score >= 2.5) return "text-amber-600 font-semibold";
+    return "text-rose-600 font-semibold";
+  };
+
+  return (
+    <div>
+      <ResponsesHeader />
+
+      <div className="space-y-6 p-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {stats.map((stat) => {
+            const colorClasses = {
+              blue: "border-l-blue-500 bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-950/20",
+              emerald:
+                "border-l-emerald-500 bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-950/20",
+              amber:
+                "border-l-amber-500 bg-gradient-to-br from-amber-50 to-transparent dark:from-amber-950/20",
+              rose: "border-l-rose-500 bg-gradient-to-br from-rose-50 to-transparent dark:from-rose-950/20",
+            }[stat.color];
+
+            const iconColorClasses = {
+              blue: "text-blue-600 bg-blue-50 dark:bg-blue-950/50",
+              emerald: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50",
+              amber: "text-amber-600 bg-amber-50 dark:bg-amber-950/50",
+              rose: "text-rose-600 bg-rose-50 dark:bg-rose-950/50",
+            }[stat.color];
+
+            return (
+              <Card key={stat.label} className={`border-l-4 ${colorClasses}`}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {stat.label}
+                    </CardTitle>
+                    <div className={`p-2 rounded-lg ${iconColorClasses}`}>
+                      <stat.icon className="h-4 w-4" />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-baseline justify-between">
+                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <span
+                      className={`text-sm ${
+                        stat.change.startsWith("+")
+                          ? "text-emerald-600"
+                          : "text-rose-600"
+                      }`}
+                    >
+                      {stat.change}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Filters and Search */}
+        <Card className="border-l-4 border-l-cyan-500">
+          <CardHeader>
+            <CardTitle>Filter Responses</CardTitle>
+            <CardDescription>
+              Search and filter through all responses
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by email or form name..."
+                  className="pl-10"
+                />
+              </div>
+              <Select defaultValue="all">
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="partial">Partial</SelectItem>
+                  <SelectItem value="flagged">Flagged</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select defaultValue="recent">
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Most Recent</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                  <SelectItem value="score-high">Highest Score</SelectItem>
+                  <SelectItem value="score-low">Lowest Score</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="icon">
+                <Filter className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Responses Table */}
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList>
+            <TabsTrigger value="all">All Responses</TabsTrigger>
+            <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsTrigger value="partial">Partial</TabsTrigger>
+            <TabsTrigger value="flagged">Flagged</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="mt-4">
+            <Card className="border-l-4 border-l-indigo-500">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>All Responses</CardTitle>
+                  <CardDescription>
+                    View and manage all form responses
+                  </CardDescription>
+                </div>
+                <Button className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Form</TableHead>
+                      <TableHead>Respondent</TableHead>
+                      <TableHead>Submitted</TableHead>
+                      <TableHead>Duration</TableHead>
+                      <TableHead>Score</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {responses.map((response) => (
+                      <TableRow key={response.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">
+                          {response.id}
+                        </TableCell>
+                        <TableCell>{response.formName}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            {response.respondent}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            {response.submittedAt}
+                          </div>
+                        </TableCell>
+                        <TableCell>{response.duration}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Star
+                              className={`h-4 w-4 ${
+                                response.score >= 4
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "text-muted-foreground"
+                              }`}
+                            />
+                            <span className={getScoreColor(response.score)}>
+                              {response.score}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(response.status)}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-950"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="completed" className="mt-4">
+            <Card className="border-l-4 border-l-emerald-500">
+              <CardHeader>
+                <CardTitle>Completed Responses</CardTitle>
+                <CardDescription>
+                  All successfully completed form submissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Form</TableHead>
+                      <TableHead>Respondent</TableHead>
+                      <TableHead>Submitted</TableHead>
+                      <TableHead>Score</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {responses
+                      .filter((r) => r.status === "completed")
+                      .map((response) => (
+                        <TableRow key={response.id}>
+                          <TableCell className="font-medium">
+                            {response.id}
+                          </TableCell>
+                          <TableCell>{response.formName}</TableCell>
+                          <TableCell>{response.respondent}</TableCell>
+                          <TableCell>{response.submittedAt}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                              <span className={getScoreColor(response.score)}>
+                                {response.score}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-950"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="partial" className="mt-4">
+            <Card className="border-l-4 border-l-amber-500">
+              <CardHeader>
+                <CardTitle>Partial Responses</CardTitle>
+                <CardDescription>
+                  Incomplete or partially filled submissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Form</TableHead>
+                      <TableHead>Respondent</TableHead>
+                      <TableHead>Submitted</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {responses
+                      .filter((r) => r.status === "partial")
+                      .map((response) => (
+                        <TableRow key={response.id}>
+                          <TableCell className="font-medium">
+                            {response.id}
+                          </TableCell>
+                          <TableCell>{response.formName}</TableCell>
+                          <TableCell>{response.respondent}</TableCell>
+                          <TableCell>{response.submittedAt}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-950"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="flagged" className="mt-4">
+            <Card className="border-l-4 border-l-rose-500">
+              <CardHeader>
+                <CardTitle>Flagged Responses</CardTitle>
+                <CardDescription>
+                  Responses requiring attention or review
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Form</TableHead>
+                      <TableHead>Respondent</TableHead>
+                      <TableHead>Submitted</TableHead>
+                      <TableHead>Score</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {responses
+                      .filter((r) => r.status === "flagged")
+                      .map((response) => (
+                        <TableRow key={response.id}>
+                          <TableCell className="font-medium">
+                            {response.id}
+                          </TableCell>
+                          <TableCell>{response.formName}</TableCell>
+                          <TableCell>{response.respondent}</TableCell>
+                          <TableCell>{response.submittedAt}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 text-muted-foreground" />
+                              <span className={getScoreColor(response.score)}>
+                                {response.score}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-950"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
