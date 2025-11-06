@@ -22,21 +22,19 @@ const firebaseConfig = {
  */
 const validateFirebaseConfig = (): void => {
   const requiredKeys = [
-    'apiKey',
-    'authDomain',
-    'projectId',
-    'storageBucket',
-    'messagingSenderId',
-    'appId',
+    "apiKey",
+    "authDomain",
+    "projectId",
+    "storageBucket",
+    "messagingSenderId",
+    "appId",
   ] as const;
 
-  const missingKeys = requiredKeys.filter(
-    (key) => !firebaseConfig[key]
-  );
+  const missingKeys = requiredKeys.filter((key) => !firebaseConfig[key]);
 
   if (missingKeys.length > 0) {
     throw new Error(
-      `Missing required Firebase configuration: ${missingKeys.join(', ')}`
+      `Missing required Firebase configuration: ${missingKeys.join(", ")}`
     );
   }
 };
@@ -60,4 +58,5 @@ export const app = initializeFirebaseApp();
 export const auth = getAuth(app);
 
 // Initialize Analytics (only in browser environment)
-export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+export const analytics =
+  typeof window !== "undefined" ? getAnalytics(app) : null;
