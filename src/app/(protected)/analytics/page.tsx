@@ -63,57 +63,57 @@ export default function FormAnalyticsPage() {
 
         {/* Overview Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
+          <Card className="border-l-4 border-l-blue-500 bg-gradient-to-br from-blue-50/50 to-background dark:from-blue-950/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">1,842</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-emerald-600 font-medium">
                 +15% from last month
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-l-4 border-l-emerald-500 bg-gradient-to-br from-emerald-50/50 to-background dark:from-emerald-950/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">
                 Total Responses
               </CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-emerald-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">234</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-emerald-600 font-medium">
                 +12 from last week
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-l-4 border-l-violet-500 bg-gradient-to-br from-violet-50/50 to-background dark:from-violet-950/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">
                 Completion Rate
               </CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-violet-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">68%</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-emerald-600 font-medium">
                 +2% from last week
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-50/50 to-background dark:from-amber-950/20">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Avg Time</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Clock className="h-4 w-4 text-amber-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">3.2 min</div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-emerald-600 font-medium">
                 -0.3 min from last week
               </p>
             </CardContent>
@@ -163,7 +163,7 @@ export default function FormAnalyticsPage() {
                       </div>
                       <div className="h-3 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-indigo-600"
+                          className="h-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm"
                           style={{ width: "100%" }}
                         />
                       </div>
@@ -171,13 +171,13 @@ export default function FormAnalyticsPage() {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium">Started</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-emerald-600 font-medium">
                           1,456 (79%)
                         </span>
                       </div>
                       <div className="h-3 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-indigo-600"
+                          className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-sm"
                           style={{ width: "79%" }}
                         />
                       </div>
@@ -187,13 +187,13 @@ export default function FormAnalyticsPage() {
                         <span className="text-sm font-medium">
                           50% Complete
                         </span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-violet-600 font-medium">
                           892 (48%)
                         </span>
                       </div>
                       <div className="h-3 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-indigo-600"
+                          className="h-full bg-gradient-to-r from-violet-500 to-violet-600 shadow-sm"
                           style={{ width: "48%" }}
                         />
                       </div>
@@ -201,13 +201,13 @@ export default function FormAnalyticsPage() {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium">Completed</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-emerald-600 font-medium">
                           234 (13%)
                         </span>
                       </div>
                       <div className="h-3 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-indigo-600"
+                          className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-sm"
                           style={{ width: "13%" }}
                         />
                       </div>
@@ -229,16 +229,16 @@ export default function FormAnalyticsPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Monitor className="h-4 w-4 text-muted-foreground" />
+                        <Monitor className="h-4 w-4 text-blue-600" />
                         <span className="text-sm font-medium">Desktop</span>
                       </div>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-blue-600 font-medium">
                         142 responses (61%)
                       </span>
                     </div>
                     <div className="h-3 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-indigo-600"
+                        className="h-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm"
                         style={{ width: "61%" }}
                       />
                     </div>
@@ -246,16 +246,16 @@ export default function FormAnalyticsPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Smartphone className="h-4 w-4 text-muted-foreground" />
+                        <Smartphone className="h-4 w-4 text-violet-600" />
                         <span className="text-sm font-medium">Mobile</span>
                       </div>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-violet-600 font-medium">
                         68 responses (29%)
                       </span>
                     </div>
                     <div className="h-3 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-indigo-600"
+                        className="h-full bg-gradient-to-r from-violet-500 to-violet-600 shadow-sm"
                         style={{ width: "29%" }}
                       />
                     </div>
@@ -263,16 +263,16 @@ export default function FormAnalyticsPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Tablet className="h-4 w-4 text-muted-foreground" />
+                        <Tablet className="h-4 w-4 text-amber-600" />
                         <span className="text-sm font-medium">Tablet</span>
                       </div>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-amber-600 font-medium">
                         24 responses (10%)
                       </span>
                     </div>
                     <div className="h-3 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-indigo-600"
+                        className="h-full bg-gradient-to-r from-amber-500 to-amber-600 shadow-sm"
                         style={{ width: "10%" }}
                       />
                     </div>

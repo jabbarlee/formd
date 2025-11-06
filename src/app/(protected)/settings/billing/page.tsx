@@ -33,23 +33,36 @@ export default function BillingSettingsPage() {
 
       <div className="space-y-6 p-6">
         {/* Current Plan */}
-        <Card>
+        <Card className="border-l-4 border-l-rose-500 bg-gradient-to-br from-rose-50/30 to-background dark:from-rose-950/20">
           <CardHeader>
-            <CardTitle>Current Plan</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-rose-600" />
+              Current Plan
+            </CardTitle>
             <CardDescription>You are currently on the Pro plan</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-2xl font-bold">Pro Plan</h3>
-                <p className="text-muted-foreground">
+                <h3 className="text-2xl font-bold flex items-center gap-2">
+                  Pro Plan
+                  <Badge className="bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400">
+                    Active
+                  </Badge>
+                </h3>
+                <p className="text-muted-foreground font-medium">
                   $29/month • Billed monthly
                 </p>
                 <p className="text-sm text-muted-foreground mt-2">
                   Next billing date: February 1, 2024
                 </p>
               </div>
-              <Button variant="outline">Change Plan</Button>
+              <Button
+                variant="outline"
+                className="hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:hover:bg-rose-950"
+              >
+                Change Plan
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -59,12 +72,12 @@ export default function BillingSettingsPage() {
           <h2 className="text-2xl font-bold mb-4">Available Plans</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Free Plan */}
-            <Card>
+            <Card className="hover:shadow-lg transition-all hover:scale-[1.02] duration-200">
               <CardHeader>
                 <CardTitle>Free</CardTitle>
                 <CardDescription>Perfect for trying out FormAI</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">$0</span>
+                  <span className="text-4xl font-bold text-blue-600">$0</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
               </CardHeader>
@@ -77,7 +90,7 @@ export default function BillingSettingsPage() {
                     "Email notifications",
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-indigo-600" />
+                      <Check className="h-4 w-4 text-emerald-600" />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -89,15 +102,17 @@ export default function BillingSettingsPage() {
             </Card>
 
             {/* Pro Plan */}
-            <Card className="border-indigo-600 border-2 relative">
-              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-600">
+            <Card className="border-violet-600 border-2 relative shadow-lg shadow-violet-100 dark:shadow-violet-950/50">
+              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-md">
                 Current Plan
               </Badge>
               <CardHeader>
-                <CardTitle>Pro</CardTitle>
+                <CardTitle className="text-violet-600">Pro</CardTitle>
                 <CardDescription>For growing businesses</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">$29</span>
+                  <span className="text-4xl font-bold text-violet-600">
+                    $29
+                  </span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
               </CardHeader>
@@ -112,13 +127,13 @@ export default function BillingSettingsPage() {
                     "Priority support",
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-indigo-600" />
+                      <Check className="h-4 w-4 text-emerald-600" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
                 <Button
-                  className="w-full bg-indigo-600 hover:bg-indigo-700"
+                  className="w-full bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-700 hover:to-violet-600 shadow-sm"
                   disabled
                 >
                   Current Plan
@@ -127,12 +142,12 @@ export default function BillingSettingsPage() {
             </Card>
 
             {/* Business Plan */}
-            <Card>
+            <Card className="hover:shadow-lg transition-all hover:scale-[1.02] duration-200 border-amber-200 dark:border-amber-900">
               <CardHeader>
-                <CardTitle>Business</CardTitle>
+                <CardTitle className="text-amber-600">Business</CardTitle>
                 <CardDescription>For larger organizations</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">$99</span>
+                  <span className="text-4xl font-bold text-amber-600">$99</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
               </CardHeader>
@@ -147,12 +162,15 @@ export default function BillingSettingsPage() {
                     "Dedicated support",
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-indigo-600" />
+                      <Check className="h-4 w-4 text-emerald-600" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <Button variant="outline" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 dark:hover:bg-amber-950"
+                >
                   Upgrade
                 </Button>
               </CardContent>

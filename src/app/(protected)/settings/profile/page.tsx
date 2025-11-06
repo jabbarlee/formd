@@ -21,19 +21,27 @@ export default function ProfileSettingsPage() {
 
       <div className="space-y-6 max-w-4xl p-6">
         {/* Profile Picture */}
-        <Card>
+        <Card className="border-l-4 border-l-indigo-500">
           <CardHeader>
-            <CardTitle>Profile Picture</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5 text-indigo-600" />
+              Profile Picture
+            </CardTitle>
             <CardDescription>Update your profile photo</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-6">
-              <Avatar className="h-24 w-24">
+              <Avatar className="h-24 w-24 ring-4 ring-indigo-100 dark:ring-indigo-950">
                 <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarFallback className="bg-indigo-600 text-white text-2xl">
+                  JD
+                </AvatarFallback>
               </Avatar>
               <div className="space-y-2">
-                <Button variant="outline">
+                <Button
+                  variant="outline"
+                  className="hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300 dark:hover:bg-indigo-950"
+                >
                   <Upload className="h-4 w-4 mr-2" />
                   Upload New Photo
                 </Button>
@@ -46,9 +54,12 @@ export default function ProfileSettingsPage() {
         </Card>
 
         {/* Personal Information */}
-        <Card>
+        <Card className="border-l-4 border-l-blue-500">
           <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5 text-blue-600" />
+              Personal Information
+            </CardTitle>
             <CardDescription>Update your personal details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -56,11 +67,11 @@ export default function ProfileSettingsPage() {
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                   <Input
                     id="firstName"
                     placeholder="John"
-                    className="pl-10"
+                    className="pl-10 focus:ring-blue-500 focus:border-blue-500"
                     defaultValue="John"
                   />
                 </div>
@@ -68,11 +79,11 @@ export default function ProfileSettingsPage() {
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-600" />
                   <Input
                     id="lastName"
                     placeholder="Doe"
-                    className="pl-10"
+                    className="pl-10 focus:ring-blue-500 focus:border-blue-500"
                     defaultValue="Doe"
                   />
                 </div>
