@@ -1,3 +1,6 @@
+
+"use client";
+
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Home, Plus } from "lucide-react";
 

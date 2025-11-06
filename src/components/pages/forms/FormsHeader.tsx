@@ -1,3 +1,5 @@
+"use client";
+
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FileText, Plus } from "lucide-react";
 
