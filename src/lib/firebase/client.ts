@@ -1,11 +1,11 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+import { getAuth, Auth } from "firebase/auth";
+import { getAnalytics, Analytics } from "firebase/analytics";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+/**
+ * Firebase configuration object
+ * All values are loaded from environment variables for security
+ */
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -16,6 +16,48 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+/**
+ * Validates that all required Firebase configuration values are present
+ * @throws Error if any required configuration is missing
+ */
+const validateFirebaseConfig = (): void => {
+  const requiredKeys = [
+    'apiKey',
+    'authDomain',
+    'projectId',
+    'storageBucket',
+    'messagingSenderId',
+    'appId',
+  ] as const;
+
+  const missingKeys = requiredKeys.filter(
+    (key) => !firebaseConfig[key]
+  );
+
+  if (missingKeys.length > 0) {
+    throw new Error(
+      `Missing required Firebase configuration: ${missingKeys.join(', ')}`
+    );
+  }
+};
+
+/**
+ * Initialize Firebase app (singleton pattern)
+ * Prevents multiple instances from being created
+ */
+const initializeFirebaseApp = (): FirebaseApp => {
+  if (getApps().length === 0) {
+    validateFirebaseConfig();
+    return initializeApp(firebaseConfig);
+  }
+  return getApps()[0];
+};
+
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+export const app = initializeFirebaseApp();
+
+// Initialize Firebase Auth
+export const auth = getAuth(app);
+
+// Initialize Analytics (only in browser environment)
+export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
