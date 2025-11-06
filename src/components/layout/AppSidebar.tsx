@@ -1,18 +1,18 @@
 "use client";
 
 import {
-  Calendar,
   Home,
-  Inbox,
-  Search,
-  Settings,
+  FileText,
   BarChart3,
-  FolderOpen,
-  StickyNote,
-  MessageSquare,
-  Users,
+  Settings,
   Plus,
   LogOut,
+  User,
+  CreditCard,
+  LineChart,
+  Inbox,
+  FolderOpen,
+  Layout,
 } from "lucide-react";
 
 import {
@@ -29,10 +29,9 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
-// Menu items based on documentation
+// Menu items based on actual protected routes
 const mainItems = [
   {
     title: "Dashboard",
@@ -40,48 +39,37 @@ const mainItems = [
     icon: Home,
   },
   {
-    title: "Tasks",
-    url: "/tasks",
-    icon: Inbox,
-    badge: "2",
+    title: "Forms",
+    url: "/forms",
+    icon: FileText,
   },
   {
-    title: "Projects",
-    url: "/projects",
-    icon: FolderOpen,
-  },
-  {
-    title: "Calendar",
-    url: "/calendar",
-    icon: Calendar,
-  },
-  {
-    title: "Notes",
-    url: "/notes",
-    icon: StickyNote,
-  },
-];
-
-const secondaryItems = [
-  {
-    title: "AI Chat",
-    url: "/chat",
-    icon: MessageSquare,
-    badge: "AI",
-  },
-  {
-    title: "Insights",
-    url: "/insights",
+    title: "Analytics",
+    url: "/analytics",
     icon: BarChart3,
-    badge: "Pro",
+  },
+  {
+    title: "Templates",
+    url: "/templates",
+    icon: Layout,
+  },
+  {
+    title: "Responses",
+    url: "/responses",
+    icon: Inbox,
   },
 ];
 
 const settingsItems = [
   {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
+    title: "Profile",
+    url: "/settings/profile",
+    icon: User,
+  },
+  {
+    title: "Billing",
+    url: "/settings/billing",
+    icon: CreditCard,
   },
 ];
 
@@ -91,14 +79,12 @@ export function AppSidebar() {
       <SidebarHeader className="border-b">
         <div className="flex items-center gap-2 px-4 py-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground flex-shrink-0">
-            <span className="text-sm font-bold">P</span>
+            <span className="text-sm font-bold">F</span>
           </div>
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-sm font-semibold truncate">
-              Productivity OS
-            </span>
+            <span className="text-sm font-semibold truncate">FormAI</span>
             <span className="text-xs text-muted-foreground truncate">
-              Free Plan
+              AI Form Builder
             </span>
           </div>
         </div>
@@ -116,41 +102,6 @@ export function AppSidebar() {
                     <Link href={item.url} className="flex items-center min-w-0">
                       <item.icon className="flex-shrink-0" />
                       <span className="truncate">{item.title}</span>
-                      {item.badge && (
-                        <Badge
-                          variant="secondary"
-                          className="ml-auto text-xs flex-shrink-0"
-                        >
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* AI & Analytics */}
-        <SidebarGroup className="border-t">
-          <SidebarGroupLabel>AI & Analytics</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {secondaryItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url} className="flex items-center min-w-0">
-                      <item.icon className="flex-shrink-0" />
-                      <span className="truncate">{item.title}</span>
-                      {item.badge && (
-                        <Badge
-                          variant="secondary"
-                          className="ml-auto text-xs flex-shrink-0"
-                        >
-                          {item.badge}
-                        </Badge>
-                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -164,22 +115,16 @@ export function AppSidebar() {
           <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="px-2 space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start min-w-0"
-              >
-                <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span className="truncate">New Task</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full justify-start min-w-0"
-              >
-                <FolderOpen className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span className="truncate">New Project</span>
-              </Button>
+              <Link href="/forms/new">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start min-w-0"
+                >
+                  <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">New Form</span>
+                </Button>
+              </Link>
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
