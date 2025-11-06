@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -24,9 +30,8 @@ export default function BillingSettingsPage() {
   return (
     <div>
       <BillingHeader />
-      
-      <div className="space-y-6 p-6">
 
+      <div className="space-y-6 p-6">
         {/* Current Plan */}
         <Card>
           <CardHeader>
@@ -37,8 +42,12 @@ export default function BillingSettingsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-2xl font-bold">Pro Plan</h3>
-                <p className="text-muted-foreground">$29/month • Billed monthly</p>
-                <p className="text-sm text-muted-foreground mt-2">Next billing date: February 1, 2024</p>
+                <p className="text-muted-foreground">
+                  $29/month • Billed monthly
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Next billing date: February 1, 2024
+                </p>
               </div>
               <Button variant="outline">Change Plan</Button>
             </div>
@@ -73,7 +82,9 @@ export default function BillingSettingsPage() {
                     </li>
                   ))}
                 </ul>
-                <Button variant="outline" className="w-full">Current Plan</Button>
+                <Button variant="outline" className="w-full">
+                  Current Plan
+                </Button>
               </CardContent>
             </Card>
 
@@ -106,7 +117,10 @@ export default function BillingSettingsPage() {
                     </li>
                   ))}
                 </ul>
-                <Button className="w-full bg-indigo-600 hover:bg-indigo-700" disabled>
+                <Button
+                  className="w-full bg-indigo-600 hover:bg-indigo-700"
+                  disabled
+                >
                   Current Plan
                 </Button>
               </CardContent>
@@ -138,7 +152,9 @@ export default function BillingSettingsPage() {
                     </li>
                   ))}
                 </ul>
-                <Button variant="outline" className="w-full">Upgrade</Button>
+                <Button variant="outline" className="w-full">
+                  Upgrade
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -158,7 +174,9 @@ export default function BillingSettingsPage() {
                 </div>
                 <div>
                   <p className="font-medium">•••• •••• •••• 4242</p>
-                  <p className="text-sm text-muted-foreground">Expires 12/2025</p>
+                  <p className="text-sm text-muted-foreground">
+                    Expires 12/2025
+                  </p>
                 </div>
               </div>
               <Button variant="outline">Update</Button>
@@ -170,7 +188,9 @@ export default function BillingSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Billing History</CardTitle>
-            <CardDescription>View and download your past invoices</CardDescription>
+            <CardDescription>
+              View and download your past invoices
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>

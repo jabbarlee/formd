@@ -2,7 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Upload, Mail, User, Building2 } from "lucide-react";
@@ -12,10 +18,9 @@ export default function ProfileSettingsPage() {
   return (
     <div>
       <ProfileHeader />
-      
-      <div className="space-y-6 max-w-4xl p-6">
 
-      {/* Profile Picture */}
+      <div className="space-y-6 max-w-4xl p-6">
+        {/* Profile Picture */}
         <Card>
           <CardHeader>
             <CardTitle>Profile Picture</CardTitle>
@@ -52,14 +57,24 @@ export default function ProfileSettingsPage() {
                 <Label htmlFor="firstName">First Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input id="firstName" placeholder="John" className="pl-10" defaultValue="John" />
+                  <Input
+                    id="firstName"
+                    placeholder="John"
+                    className="pl-10"
+                    defaultValue="John"
+                  />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input id="lastName" placeholder="Doe" className="pl-10" defaultValue="Doe" />
+                  <Input
+                    id="lastName"
+                    placeholder="Doe"
+                    className="pl-10"
+                    defaultValue="Doe"
+                  />
                 </div>
               </div>
             </div>
@@ -82,7 +97,12 @@ export default function ProfileSettingsPage() {
               <Label htmlFor="company">Company</Label>
               <div className="relative">
                 <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="company" placeholder="Acme Inc." className="pl-10" defaultValue="Acme Inc." />
+                <Input
+                  id="company"
+                  placeholder="Acme Inc."
+                  className="pl-10"
+                  defaultValue="Acme Inc."
+                />
               </div>
             </div>
 
@@ -102,12 +122,18 @@ export default function ProfileSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Account Security</CardTitle>
-            <CardDescription>Manage your password and security settings</CardDescription>
+            <CardDescription>
+              Manage your password and security settings
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
-              <Input id="currentPassword" type="password" placeholder="••••••••" />
+              <Input
+                id="currentPassword"
+                type="password"
+                placeholder="••••••••"
+              />
             </div>
 
             <Separator />
@@ -119,7 +145,11 @@ export default function ProfileSettingsPage() {
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <Input id="confirmPassword" type="password" placeholder="••••••••" />
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+              />
             </div>
 
             <Button variant="outline">Change Password</Button>
@@ -129,7 +159,9 @@ export default function ProfileSettingsPage() {
         {/* Save Changes */}
         <div className="flex justify-end gap-2">
           <Button variant="outline">Cancel</Button>
-          <Button className="bg-indigo-600 hover:bg-indigo-700">Save Changes</Button>
+          <Button className="bg-indigo-600 hover:bg-indigo-700">
+            Save Changes
+          </Button>
         </div>
       </div>
     </div>
