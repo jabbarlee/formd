@@ -4,11 +4,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AuthProvider, useRequireAuth } from "@/lib/auth";
 
-export default function ProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function ProtectedContent({ children }: { children: React.ReactNode }) {
   // Protect all routes under (protected) - redirects to /login if not authenticated
   const { isLoading } = useRequireAuth();
 
@@ -22,14 +18,24 @@ export default function ProtectedLayout({
 
   return (
     <SidebarProvider>
-      <AuthProvider>
-        <div className="flex min-h-screen w-full">
-          <AppSidebar />
-          <main className="flex-1">
-            <div className="">{children}</div>
-          </main>
-        </div>
-      </AuthProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <main className="flex-1">
+          <div className="">{children}</div>
+        </main>
+      </div>
     </SidebarProvider>
+  );
+}
+
+export default function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <AuthProvider>
+      <ProtectedContent>{children}</ProtectedContent>
+    </AuthProvider>
   );
 }

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useRequireGuest } from '@/lib/auth';
-import { SignUpForm } from '@/components/auth';
+import { AuthProvider, useRequireGuest } from "@/lib/auth";
+import { SignUpForm } from "@/components/auth";
 
-export default function SignUpPage() {
+function SignUpContent() {
   // Redirect to dashboard if already authenticated
   const { isLoading } = useRequireGuest();
 
@@ -22,3 +22,10 @@ export default function SignUpPage() {
   );
 }
 
+export default function SignUpPage() {
+  return (
+    <AuthProvider>
+      <SignUpContent />
+    </AuthProvider>
+  );
+}

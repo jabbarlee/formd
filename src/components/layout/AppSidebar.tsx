@@ -184,12 +184,14 @@ export function AppSidebar() {
         <div className="px-3 py-2">
           <div className="flex items-center gap-2 text-sm">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs flex-shrink-0">
-              U
+              {userInitials}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-xs font-medium truncate">User Name</span>
+              <span className="text-xs font-medium truncate">
+                {displayName}
+              </span>
               <span className="text-xs text-muted-foreground truncate">
-                user@email.com
+                {displayEmail}
               </span>
             </div>
           </div>

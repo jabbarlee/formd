@@ -9,7 +9,6 @@ import { FinalCTASection } from "@/components/pages/landing/FinalCTASection";
 export default function Home() {
   return (
     <>
-      <Navbar />
       <main className="min-h-screen">
         <HeroSection />
         <FeaturesSection />

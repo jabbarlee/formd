@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useRequireGuest } from '@/lib/auth';
-import { LoginForm } from '@/components/auth';
+import { AuthProvider, useRequireGuest } from "@/lib/auth";
+import { LoginForm } from "@/components/auth";
 
-export default function LoginPage() {
+function LoginContent() {
   // Redirect to dashboard if already authenticated
   const { isLoading } = useRequireGuest();
 
@@ -22,3 +22,10 @@ export default function LoginPage() {
   );
 }
 
+export default function LoginPage() {
+  return (
+    <AuthProvider>
+      <LoginContent />
+    </AuthProvider>
+  );
+}
