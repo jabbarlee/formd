@@ -79,7 +79,7 @@ export function PropertiesPanel() {
         </TabsList>
 
         <ScrollArea className="flex-1">
-          <TabsContent value="general" className="px-4 pb-4 space-y-4">
+          <TabsContent value="general" className="px-4 pb-8 space-y-4">
             {/* Question Title */}
             <div className="space-y-2">
               <Label htmlFor="question-title">Question Title</Label>
@@ -294,7 +294,7 @@ export function PropertiesPanel() {
           </TabsContent>
 
           {hasOptions && (
-            <TabsContent value="options" className="px-4 pb-4 space-y-4">
+            <TabsContent value="options" className="px-4 pb-8 space-y-4">
               <div className="space-y-2">
                 <Label>Answer Options</Label>
                 <p className="text-xs text-muted-foreground">

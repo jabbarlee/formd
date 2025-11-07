@@ -73,15 +73,15 @@ export function QuestionPalette() {
 
   return (
     <div className="h-full flex flex-col border-r bg-background">
-      <div className="p-4 border-b">
+      <div className="p-4 border-b flex-shrink-0">
         <h2 className="text-lg font-semibold">Add Question</h2>
         <p className="text-sm text-muted-foreground mt-1">
           Click to add to your form
         </p>
       </div>
 
-      <Tabs defaultValue="all" className="flex-1 flex flex-col">
-        <TabsList className="mx-4 mt-4 grid grid-cols-3 gap-1">
+      <Tabs defaultValue="all" className="flex-1 flex flex-col min-h-0">
+        <TabsList className="mx-4 mt-4 grid grid-cols-3 gap-1 flex-shrink-0">
           <TabsTrigger value="all" className="text-xs">
             All
           </TabsTrigger>
@@ -93,8 +93,9 @@ export function QuestionPalette() {
           </TabsTrigger>
         </TabsList>
 
-        <ScrollArea className="flex-1 px-4">
-          <TabsContent value="all" className="mt-4 space-y-4">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <ScrollArea className="h-full px-4">
+            <TabsContent value="all" className="mt-4 space-y-4 pb-6">
             {questionCategories.map((category) => {
               const IconComponent =
                 categoryIcons[category.icon as keyof typeof categoryIcons] ||
@@ -120,7 +121,7 @@ export function QuestionPalette() {
             })}
           </TabsContent>
 
-          <TabsContent value="common" className="mt-4 space-y-2">
+          <TabsContent value="common" className="mt-4 space-y-2 pb-6">
             {[
               "short_text",
               "long_text",
@@ -137,7 +138,7 @@ export function QuestionPalette() {
             ))}
           </TabsContent>
 
-          <TabsContent value="advanced" className="mt-4 space-y-2">
+          <TabsContent value="advanced" className="mt-4 space-y-2 pb-6">
             {[
               "star_rating",
               "nps",
@@ -154,7 +155,8 @@ export function QuestionPalette() {
               />
             ))}
           </TabsContent>
-        </ScrollArea>
+          </ScrollArea>
+        </div>
       </Tabs>
     </div>
   );

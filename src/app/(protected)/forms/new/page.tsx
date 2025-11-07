@@ -24,24 +24,26 @@ export default function FormBuilderPage() {
   }, [resetForm]);
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       {/* Top Toolbar */}
-      <FormBuilderToolbar />
+      <div className="flex-shrink-0 z-10">
+        <FormBuilderToolbar />
+      </div>
 
       {/* Main Content - 3 Column Layout */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex min-h-0">
         {/* Left Sidebar - Question Palette */}
-        <div className="w-[280px] flex-shrink-0">
+        <div className="w-[280px] flex-shrink-0 h-full overflow-hidden">
           <QuestionPalette />
         </div>
 
         {/* Center - Form Canvas */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-w-0 h-full overflow-hidden bg-muted/20">
           <FormCanvas />
         </div>
 
         {/* Right Sidebar - Properties Panel */}
-        <div className="w-[320px] flex-shrink-0">
+        <div className="w-[320px] flex-shrink-0 h-full overflow-hidden">
           <PropertiesPanel />
         </div>
       </div>

@@ -45,7 +45,7 @@ export function FormCanvas() {
 
   return (
     <ScrollArea className="h-full">
-      <div className="max-w-3xl mx-auto p-8 space-y-4">
+      <div className="max-w-3xl mx-auto p-8 pb-16 space-y-4">
         {/* Form Header Section */}
         <div className="mb-8 space-y-2">
           <div className="text-sm text-muted-foreground">Form Preview</div>
