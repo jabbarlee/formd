@@ -3,49 +3,60 @@
  * Zustand store for managing form builder state
  */
 
-import { create } from "zustand"
-import { devtools } from "zustand/middleware"
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 import type {
   Form,
   Question,
   QuestionType,
   FormBuilderState,
   QuestionOption,
-} from "@/lib/types/forms"
-import { questionTypeMetadata } from "@/lib/types/forms"
+} from "@/lib/types/forms";
+import { questionTypeMetadata } from "@/lib/types/forms";
 
 interface FormBuilderActions {
   // Form actions
-  setForm: (form: Partial<Form>) => void
-  updateFormField: <K extends keyof Form>(field: K, value: Form[K]) => void
-  resetForm: () => void
+  setForm: (form: Partial<Form>) => void;
+  updateFormField: <K extends keyof Form>(field: K, value: Form[K]) => void;
+  resetForm: () => void;
 
   // Question actions
-  addQuestion: (type: QuestionType, position?: number) => void
-  updateQuestion: (questionId: string, updates: Partial<Question>) => void
-  deleteQuestion: (questionId: string) => void
-  duplicateQuestion: (questionId: string) => void
-  reorderQuestions: (startIndex: number, endIndex: number) => void
-  selectQuestion: (questionId: string | null) => void
+  addQuestion: (type: QuestionType, position?: number) => void;
+  updateQuestion: (questionId: string, updates: Partial<Question>) => void;
+  deleteQuestion: (questionId: string) => void;
+  duplicateQuestion: (questionId: string) => void;
+  reorderQuestions: (startIndex: number, endIndex: number) => void;
+  selectQuestion: (questionId: string | null) => void;
 
   // Question option actions
-  addQuestionOption: (questionId: string, option: Partial<QuestionOption>) => void
-  updateQuestionOption: (questionId: string, optionId: string, updates: Partial<QuestionOption>) => void
-  deleteQuestionOption: (questionId: string, optionId: string) => void
-  reorderQuestionOptions: (questionId: string, startIndex: number, endIndex: number) => void
+  addQuestionOption: (
+    questionId: string,
+    option: Partial<QuestionOption>
+  ) => void;
+  updateQuestionOption: (
+    questionId: string,
+    optionId: string,
+    updates: Partial<QuestionOption>
+  ) => void;
+  deleteQuestionOption: (questionId: string, optionId: string) => void;
+  reorderQuestionOptions: (
+    questionId: string,
+    startIndex: number,
+    endIndex: number
+  ) => void;
 
   // State management
-  setDirty: (isDirty: boolean) => void
-  setSaving: (isSaving: boolean) => void
-  setError: (error: string | null) => void
+  setDirty: (isDirty: boolean) => void;
+  setSaving: (isSaving: boolean) => void;
+  setError: (error: string | null) => void;
 
   // Save action (mock for now)
-  saveForm: () => Promise<void>
+  saveForm: () => Promise<void>;
 }
 
-type FormBuilderStore = FormBuilderState & FormBuilderActions
+type FormBuilderStore = FormBuilderState & FormBuilderActions;
 
-const generateId = () => Math.random().toString(36).substring(2, 11)
+const generateId = () => Math.random().toString(36).substring(2, 11);
 
 const createDefaultForm = (): Partial<Form> => ({
   title: "Untitled Form",
@@ -81,11 +92,15 @@ const createDefaultForm = (): Partial<Form> => ({
     allowSaveDraft: false,
     requireEmailVerification: false,
   },
-})
+});
 
-const createDefaultQuestion = (type: QuestionType, formId: string, order: number): Question => {
-  const metadata = questionTypeMetadata[type]
-  const id = generateId()
+const createDefaultQuestion = (
+  type: QuestionType,
+  formId: string,
+  order: number
+): Question => {
+  const metadata = questionTypeMetadata[type];
+  const id = generateId();
 
   const baseQuestion: Question = {
     id,
@@ -97,26 +112,44 @@ const createDefaultQuestion = (type: QuestionType, formId: string, order: number
     required: false,
     order,
     createdAt: new Date().toISOString(),
-  }
+  };
 
   // Add default options for choice-based questions
-  if (metadata.supportsOptions && ["multiple_choice", "checkboxes", "dropdown", "image_choice", "ranking"].includes(type)) {
+  if (
+    metadata.supportsOptions &&
+    [
+      "multiple_choice",
+      "checkboxes",
+      "dropdown",
+      "image_choice",
+      "ranking",
+    ].includes(type)
+  ) {
     baseQuestion.options = [
       { id: generateId(), label: "Option 1", value: "option_1", order: 0 },
       { id: generateId(), label: "Option 2", value: "option_2", order: 1 },
       { id: generateId(), label: "Option 3", value: "option_3", order: 2 },
-    ]
+    ];
   }
 
   // Add default settings based on type
   if (type === "star_rating") {
-    baseQuestion.settings = { maxRating: 5, icon: "star" }
+    baseQuestion.settings = { maxRating: 5, icon: "star" };
   } else if (type === "linear_scale") {
-    baseQuestion.settings = { scaleMin: 1, scaleMax: 5, minLabel: "Not likely", maxLabel: "Very likely" }
+    baseQuestion.settings = {
+      scaleMin: 1,
+      scaleMax: 5,
+      minLabel: "Not likely",
+      maxLabel: "Very likely",
+    };
   } else if (type === "nps") {
-    baseQuestion.settings = { scaleMin: 0, scaleMax: 10 }
+    baseQuestion.settings = { scaleMin: 0, scaleMax: 10 };
   } else if (type === "file_upload") {
-    baseQuestion.settings = { maxFileSize: 10, maxFiles: 1, allowedFileTypes: ["pdf", "doc", "docx", "jpg", "png"] }
+    baseQuestion.settings = {
+      maxFileSize: 10,
+      maxFiles: 1,
+      allowedFileTypes: ["pdf", "doc", "docx", "jpg", "png"],
+    };
   } else if (type === "matrix") {
     baseQuestion.settings = {
       rows: [
@@ -127,11 +160,11 @@ const createDefaultQuestion = (type: QuestionType, formId: string, order: number
         { id: generateId(), label: "Column 1", value: "col_1", order: 0 },
         { id: generateId(), label: "Column 2", value: "col_2", order: 1 },
       ],
-    }
+    };
   }
 
-  return baseQuestion
-}
+  return baseQuestion;
+};
 
 export const useFormBuilderStore = create<FormBuilderStore>()(
   devtools(
@@ -146,14 +179,18 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
 
       // Form actions
       setForm: (form) => {
-        set({ form, isDirty: true })
+        set({ form, isDirty: true });
       },
 
       updateFormField: (field, value) => {
         set((state) => ({
-          form: { ...state.form, [field]: value, updatedAt: new Date().toISOString() },
+          form: {
+            ...state.form,
+            [field]: value,
+            updatedAt: new Date().toISOString(),
+          },
           isDirty: true,
-        }))
+        }));
       },
 
       resetForm: () => {
@@ -163,33 +200,34 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
           selectedQuestionId: null,
           isDirty: false,
           error: null,
-        })
+        });
       },
 
       // Question actions
       addQuestion: (type, position) => {
-        const state = get()
-        const formId = state.form.id || "temp-form-id"
-        const order = position !== undefined ? position : state.questions.length
+        const state = get();
+        const formId = state.form.id || "temp-form-id";
+        const order =
+          position !== undefined ? position : state.questions.length;
 
-        const newQuestion = createDefaultQuestion(type, formId, order)
+        const newQuestion = createDefaultQuestion(type, formId, order);
 
         // If position is specified, reorder existing questions
-        let updatedQuestions = [...state.questions]
+        let updatedQuestions = [...state.questions];
         if (position !== undefined && position < state.questions.length) {
           updatedQuestions = updatedQuestions.map((q) =>
             q.order >= position ? { ...q, order: q.order + 1 } : q
-          )
+          );
         }
 
-        updatedQuestions.push(newQuestion)
-        updatedQuestions.sort((a, b) => a.order - b.order)
+        updatedQuestions.push(newQuestion);
+        updatedQuestions.sort((a, b) => a.order - b.order);
 
         set({
           questions: updatedQuestions,
           selectedQuestionId: newQuestion.id,
           isDirty: true,
-        })
+        });
       },
 
       updateQuestion: (questionId, updates) => {
@@ -198,29 +236,33 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
             q.id === questionId ? { ...q, ...updates } : q
           ),
           isDirty: true,
-        }))
+        }));
       },
 
       deleteQuestion: (questionId) => {
         set((state) => {
           const filteredQuestions = state.questions
             .filter((q) => q.id !== questionId)
-            .map((q, index) => ({ ...q, order: index }))
+            .map((q, index) => ({ ...q, order: index }));
 
           return {
             questions: filteredQuestions,
             selectedQuestionId:
-              state.selectedQuestionId === questionId ? null : state.selectedQuestionId,
+              state.selectedQuestionId === questionId
+                ? null
+                : state.selectedQuestionId,
             isDirty: true,
-          }
-        })
+          };
+        });
       },
 
       duplicateQuestion: (questionId) => {
-        const state = get()
-        const questionToDuplicate = state.questions.find((q) => q.id === questionId)
+        const state = get();
+        const questionToDuplicate = state.questions.find(
+          (q) => q.id === questionId
+        );
 
-        if (!questionToDuplicate) return
+        if (!questionToDuplicate) return;
 
         const newQuestion: Question = {
           ...questionToDuplicate,
@@ -232,35 +274,38 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
             ...opt,
             id: generateId(),
           })),
-        }
+        };
 
         const updatedQuestions = state.questions.map((q) =>
           q.order > questionToDuplicate.order ? { ...q, order: q.order + 1 } : q
-        )
+        );
 
-        updatedQuestions.push(newQuestion)
-        updatedQuestions.sort((a, b) => a.order - b.order)
+        updatedQuestions.push(newQuestion);
+        updatedQuestions.sort((a, b) => a.order - b.order);
 
         set({
           questions: updatedQuestions,
           selectedQuestionId: newQuestion.id,
           isDirty: true,
-        })
+        });
       },
 
       reorderQuestions: (startIndex, endIndex) => {
-        const state = get()
-        const questions = [...state.questions]
-        const [movedQuestion] = questions.splice(startIndex, 1)
-        questions.splice(endIndex, 0, movedQuestion)
+        const state = get();
+        const questions = [...state.questions];
+        const [movedQuestion] = questions.splice(startIndex, 1);
+        questions.splice(endIndex, 0, movedQuestion);
 
-        const reorderedQuestions = questions.map((q, index) => ({ ...q, order: index }))
+        const reorderedQuestions = questions.map((q, index) => ({
+          ...q,
+          order: index,
+        }));
 
-        set({ questions: reorderedQuestions, isDirty: true })
+        set({ questions: reorderedQuestions, isDirty: true });
       },
 
       selectQuestion: (questionId) => {
-        set({ selectedQuestionId: questionId })
+        set({ selectedQuestionId: questionId });
       },
 
       // Question option actions
@@ -268,20 +313,20 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
         set((state) => ({
           questions: state.questions.map((q) => {
             if (q.id === questionId) {
-              const currentOptions = q.options || []
+              const currentOptions = q.options || [];
               const newOption: QuestionOption = {
                 id: generateId(),
                 label: option.label || `Option ${currentOptions.length + 1}`,
                 value: option.value || `option_${currentOptions.length + 1}`,
                 order: currentOptions.length,
                 image: option.image,
-              }
-              return { ...q, options: [...currentOptions, newOption] }
+              };
+              return { ...q, options: [...currentOptions, newOption] };
             }
-            return q
+            return q;
           }),
           isDirty: true,
-        }))
+        }));
       },
 
       updateQuestionOption: (questionId, optionId, updates) => {
@@ -293,12 +338,12 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
                 options: q.options.map((opt) =>
                   opt.id === optionId ? { ...opt, ...updates } : opt
                 ),
-              }
+              };
             }
-            return q
+            return q;
           }),
           isDirty: true,
-        }))
+        }));
       },
 
       deleteQuestionOption: (questionId, optionId) => {
@@ -310,30 +355,33 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
                 options: q.options
                   .filter((opt) => opt.id !== optionId)
                   .map((opt, index) => ({ ...opt, order: index })),
-              }
+              };
             }
-            return q
+            return q;
           }),
           isDirty: true,
-        }))
+        }));
       },
 
       reorderQuestionOptions: (questionId, startIndex, endIndex) => {
         set((state) => ({
           questions: state.questions.map((q) => {
             if (q.id === questionId && q.options) {
-              const options = [...q.options]
-              const [movedOption] = options.splice(startIndex, 1)
-              options.splice(endIndex, 0, movedOption)
+              const options = [...q.options];
+              const [movedOption] = options.splice(startIndex, 1);
+              options.splice(endIndex, 0, movedOption);
               return {
                 ...q,
-                options: options.map((opt, index) => ({ ...opt, order: index })),
-              }
+                options: options.map((opt, index) => ({
+                  ...opt,
+                  order: index,
+                })),
+              };
             }
-            return q
+            return q;
           }),
           isDirty: true,
-        }))
+        }));
       },
 
       // State management
@@ -343,29 +391,30 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
 
       // Save action (mock implementation)
       saveForm: async () => {
-        const state = get()
-        set({ isSaving: true, error: null })
+        const state = get();
+        set({ isSaving: true, error: null });
 
         try {
           // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000))
+          await new Promise((resolve) => setTimeout(resolve, 1000));
 
           // In a real implementation, you would save to database here
           console.log("Saving form:", {
             form: state.form,
             questions: state.questions,
-          })
+          });
 
-          set({ isDirty: false, isSaving: false })
+          set({ isDirty: false, isSaving: false });
         } catch (error) {
           set({
             isSaving: false,
-            error: error instanceof Error ? error.message : "Failed to save form",
-          })
-          throw error
+            error:
+              error instanceof Error ? error.message : "Failed to save form",
+          });
+          throw error;
         }
       },
     }),
     { name: "FormBuilder" }
   )
-)
+);
