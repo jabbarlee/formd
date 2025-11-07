@@ -3,19 +3,19 @@
  * Individual question card displayed in the form canvas
  */
 
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { Question } from "@/lib/types/forms"
-import { useFormBuilderStore } from "@/lib/stores/formBuilderStore"
-import { questionTypeMetadata } from "@/lib/types/forms"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import type { Question } from "@/lib/types/forms";
+import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
+import { questionTypeMetadata } from "@/lib/types/forms";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   GripVertical,
   Copy,
@@ -23,45 +23,49 @@ import {
   Settings,
   ChevronDown,
   ChevronUp,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface QuestionBlockProps {
-  question: Question
-  isSelected: boolean
-  index: number
+  question: Question;
+  isSelected: boolean;
+  index: number;
 }
 
-export function QuestionBlock({ question, isSelected, index }: QuestionBlockProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
+export function QuestionBlock({
+  question,
+  isSelected,
+  index,
+}: QuestionBlockProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
   const { updateQuestion, deleteQuestion, duplicateQuestion, selectQuestion } =
-    useFormBuilderStore()
+    useFormBuilderStore();
 
-  const metadata = questionTypeMetadata[question.type]
+  const metadata = questionTypeMetadata[question.type];
 
   const handleSelect = () => {
-    selectQuestion(question.id)
-  }
+    selectQuestion(question.id);
+  };
 
   const handleTitleChange = (value: string) => {
-    updateQuestion(question.id, { title: value })
-  }
+    updateQuestion(question.id, { title: value });
+  };
 
   const handleDescriptionChange = (value: string) => {
-    updateQuestion(question.id, { description: value })
-  }
+    updateQuestion(question.id, { description: value });
+  };
 
   const handleRequiredToggle = (checked: boolean) => {
-    updateQuestion(question.id, { required: checked })
-  }
+    updateQuestion(question.id, { required: checked });
+  };
 
   const handleDuplicate = () => {
-    duplicateQuestion(question.id)
-  }
+    duplicateQuestion(question.id);
+  };
 
   const handleDelete = () => {
-    deleteQuestion(question.id)
-  }
+    deleteQuestion(question.id);
+  };
 
   // Render question preview based on type
   const renderQuestionPreview = () => {
@@ -76,7 +80,7 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
             disabled
             className="mt-2"
           />
-        )
+        );
 
       case "long_text":
         return (
@@ -86,7 +90,7 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
             rows={3}
             className="mt-2"
           />
-        )
+        );
 
       case "multiple_choice":
       case "checkboxes":
@@ -104,28 +108,30 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
               </div>
             ))}
           </div>
-        )
+        );
 
       case "dropdown":
         return (
           <div className="mt-2 px-3 py-2 border rounded-md text-sm text-muted-foreground bg-background">
             Select an option
           </div>
-        )
+        );
 
       case "star_rating":
         return (
           <div className="mt-3 flex gap-1">
-            {Array.from({ length: question.settings?.maxRating || 5 }).map((_, idx) => (
-              <div
-                key={idx}
-                className="h-8 w-8 rounded text-yellow-400 border border-muted-foreground/20"
-              >
-                ★
-              </div>
-            ))}
+            {Array.from({ length: question.settings?.maxRating || 5 }).map(
+              (_, idx) => (
+                <div
+                  key={idx}
+                  className="h-8 w-8 rounded text-yellow-400 border border-muted-foreground/20"
+                >
+                  ★
+                </div>
+              )
+            )}
           </div>
-        )
+        );
 
       case "linear_scale":
         return (
@@ -137,7 +143,9 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
             <div className="flex gap-2">
               {Array.from({
                 length:
-                  (question.settings?.scaleMax || 5) - (question.settings?.scaleMin || 1) + 1,
+                  (question.settings?.scaleMax || 5) -
+                  (question.settings?.scaleMin || 1) +
+                  1,
               }).map((_, idx) => (
                 <div
                   key={idx}
@@ -148,40 +156,48 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
               ))}
             </div>
           </div>
-        )
+        );
 
       case "date":
       case "time":
       case "datetime":
         return (
           <Input
-            type={question.type === "time" ? "time" : question.type === "datetime" ? "datetime-local" : "date"}
+            type={
+              question.type === "time"
+                ? "time"
+                : question.type === "datetime"
+                ? "datetime-local"
+                : "date"
+            }
             disabled
             className="mt-2"
           />
-        )
+        );
 
       case "file_upload":
         return (
           <div className="mt-2 border-2 border-dashed rounded-lg p-6 text-center">
-            <p className="text-sm text-muted-foreground">Click or drag file to upload</p>
+            <p className="text-sm text-muted-foreground">
+              Click or drag file to upload
+            </p>
           </div>
-        )
+        );
 
       case "section_heading":
-        return null
+        return null;
 
       case "divider":
-        return <div className="mt-4 border-t" />
+        return <div className="mt-4 border-t" />;
 
       default:
         return (
           <div className="mt-2 px-3 py-2 border rounded-md text-xs text-muted-foreground bg-muted/30">
             {metadata.description}
           </div>
-        )
+        );
     }
-  }
+  };
 
   return (
     <Card
@@ -250,8 +266,8 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
               variant="ghost"
               size="sm"
               onClick={(e) => {
-                e.stopPropagation()
-                setIsExpanded(!isExpanded)
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
               }}
             >
               {isExpanded ? (
@@ -264,8 +280,8 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
               variant="ghost"
               size="sm"
               onClick={(e) => {
-                e.stopPropagation()
-                handleDuplicate()
+                e.stopPropagation();
+                handleDuplicate();
               }}
             >
               <Copy className="h-4 w-4" />
@@ -274,8 +290,8 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
               variant="ghost"
               size="sm"
               onClick={(e) => {
-                e.stopPropagation()
-                handleDelete()
+                e.stopPropagation();
+                handleDelete();
               }}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
@@ -284,7 +300,9 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
         </div>
 
         {/* Question Preview */}
-        {isExpanded && question.type !== "section_heading" && renderQuestionPreview()}
+        {isExpanded &&
+          question.type !== "section_heading" &&
+          renderQuestionPreview()}
 
         {/* Required Toggle */}
         {isExpanded &&
@@ -308,5 +326,5 @@ export function QuestionBlock({ question, isSelected, index }: QuestionBlockProp
           )}
       </div>
     </Card>
-  )
+  );
 }

@@ -3,14 +3,14 @@
  * Left sidebar with draggable question types organized by category
  */
 
-"use client"
+"use client";
 
-import { questionCategories, questionTypeMetadata } from "@/lib/types/forms"
-import type { QuestionType } from "@/lib/types/forms"
-import { useFormBuilderStore } from "@/lib/stores/formBuilderStore"
-import { Card } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { questionCategories, questionTypeMetadata } from "@/lib/types/forms";
+import type { QuestionType } from "@/lib/types/forms";
+import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
+import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Type,
   CheckSquare,
@@ -19,8 +19,8 @@ import {
   Sparkles,
   Layout,
   Plus,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const categoryIcons = {
   Type,
@@ -29,15 +29,15 @@ const categoryIcons = {
   Calendar,
   Sparkles,
   Layout,
-}
+};
 
 interface QuestionTypeCardProps {
-  type: QuestionType
-  onClick: () => void
+  type: QuestionType;
+  onClick: () => void;
 }
 
 function QuestionTypeCard({ type, onClick }: QuestionTypeCardProps) {
-  const metadata = questionTypeMetadata[type]
+  const metadata = questionTypeMetadata[type];
 
   return (
     <Card
@@ -61,15 +61,15 @@ function QuestionTypeCard({ type, onClick }: QuestionTypeCardProps) {
         </div>
       </div>
     </Card>
-  )
+  );
 }
 
 export function QuestionPalette() {
-  const addQuestion = useFormBuilderStore((state) => state.addQuestion)
+  const addQuestion = useFormBuilderStore((state) => state.addQuestion);
 
   const handleAddQuestion = (type: QuestionType) => {
-    addQuestion(type)
-  }
+    addQuestion(type);
+  };
 
   return (
     <div className="h-full flex flex-col border-r bg-background">
@@ -97,7 +97,8 @@ export function QuestionPalette() {
           <TabsContent value="all" className="mt-4 space-y-4">
             {questionCategories.map((category) => {
               const IconComponent =
-                categoryIcons[category.icon as keyof typeof categoryIcons] || Layout
+                categoryIcons[category.icon as keyof typeof categoryIcons] ||
+                Layout;
 
               return (
                 <div key={category.id} className="space-y-2">
@@ -115,7 +116,7 @@ export function QuestionPalette() {
                     ))}
                   </div>
                 </div>
-              )
+              );
             })}
           </TabsContent>
 
@@ -156,5 +157,5 @@ export function QuestionPalette() {
         </ScrollArea>
       </Tabs>
     </div>
-  )
+  );
 }

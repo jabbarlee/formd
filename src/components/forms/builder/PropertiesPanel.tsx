@@ -3,27 +3,27 @@
  * Right sidebar for editing selected question properties
  */
 
-"use client"
+"use client";
 
-import { useFormBuilderStore } from "@/lib/stores/formBuilderStore"
-import { questionTypeMetadata } from "@/lib/types/forms"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
+import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
+import { questionTypeMetadata } from "@/lib/types/forms";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Settings as SettingsIcon,
   Palette,
   Plus,
   GripVertical,
   X,
-} from "lucide-react"
-import { Card } from "@/components/ui/card"
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 export function PropertiesPanel() {
   const {
@@ -33,9 +33,9 @@ export function PropertiesPanel() {
     addQuestionOption,
     updateQuestionOption,
     deleteQuestionOption,
-  } = useFormBuilderStore()
+  } = useFormBuilderStore();
 
-  const selectedQuestion = questions.find((q) => q.id === selectedQuestionId)
+  const selectedQuestion = questions.find((q) => q.id === selectedQuestionId);
 
   if (!selectedQuestion) {
     return (
@@ -48,11 +48,11 @@ export function PropertiesPanel() {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
-  const metadata = questionTypeMetadata[selectedQuestion.type]
-  const hasOptions = metadata.supportsOptions && selectedQuestion.options
+  const metadata = questionTypeMetadata[selectedQuestion.type];
+  const hasOptions = metadata.supportsOptions && selectedQuestion.options;
 
   return (
     <div className="h-full flex flex-col border-l bg-background">
@@ -97,7 +97,8 @@ export function PropertiesPanel() {
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="question-description">
-                Description <span className="text-muted-foreground">(optional)</span>
+                Description{" "}
+                <span className="text-muted-foreground">(optional)</span>
               </Label>
               <Textarea
                 id="question-description"
@@ -118,7 +119,8 @@ export function PropertiesPanel() {
             ) && (
               <div className="space-y-2">
                 <Label htmlFor="question-placeholder">
-                  Placeholder <span className="text-muted-foreground">(optional)</span>
+                  Placeholder{" "}
+                  <span className="text-muted-foreground">(optional)</span>
                 </Label>
                 <Input
                   id="question-placeholder"
@@ -324,9 +326,7 @@ export function PropertiesPanel() {
                         onClick={() =>
                           deleteQuestionOption(selectedQuestion.id, option.id)
                         }
-                        disabled={
-                          (selectedQuestion.options?.length || 0) <= 1
-                        }
+                        disabled={(selectedQuestion.options?.length || 0) <= 1}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -403,5 +403,5 @@ export function PropertiesPanel() {
         </ScrollArea>
       </Tabs>
     </div>
-  )
+  );
 }

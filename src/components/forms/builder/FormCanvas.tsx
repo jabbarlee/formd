@@ -3,20 +3,20 @@
  * Central area for displaying and editing form questions
  */
 
-"use client"
+"use client";
 
-import { useFormBuilderStore } from "@/lib/stores/formBuilderStore"
-import { QuestionBlock } from "./QuestionBlock"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Button } from "@/components/ui/button"
-import { Plus, FileText } from "lucide-react"
+import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
+import { QuestionBlock } from "./QuestionBlock";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Plus, FileText } from "lucide-react";
 
 export function FormCanvas() {
-  const { questions, selectedQuestionId, addQuestion } = useFormBuilderStore()
+  const { questions, selectedQuestionId, addQuestion } = useFormBuilderStore();
 
   const handleAddQuestion = () => {
-    addQuestion("short_text")
-  }
+    addQuestion("short_text");
+  };
 
   if (questions.length === 0) {
     return (
@@ -40,7 +40,7 @@ export function FormCanvas() {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -50,7 +50,8 @@ export function FormCanvas() {
         <div className="mb-8 space-y-2">
           <div className="text-sm text-muted-foreground">Form Preview</div>
           <div className="text-xs text-muted-foreground">
-            {questions.length} {questions.length === 1 ? "question" : "questions"}
+            {questions.length}{" "}
+            {questions.length === 1 ? "question" : "questions"}
           </div>
         </div>
 
@@ -75,5 +76,5 @@ export function FormCanvas() {
         </Button>
       </div>
     </ScrollArea>
-  )
+  );
 }
