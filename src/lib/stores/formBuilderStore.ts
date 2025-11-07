@@ -49,6 +49,7 @@ interface FormBuilderActions {
   setDirty: (isDirty: boolean) => void;
   setSaving: (isSaving: boolean) => void;
   setError: (error: string | null) => void;
+  setPreviewMode: (isPreview: boolean) => void;
 
   // Save action (mock for now)
   saveForm: () => Promise<void>;
@@ -176,6 +177,7 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
       isDirty: false,
       isSaving: false,
       error: null,
+      isPreviewMode: false,
 
       // Form actions
       setForm: (form) => {
@@ -388,6 +390,7 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
       setDirty: (isDirty) => set({ isDirty }),
       setSaving: (isSaving) => set({ isSaving }),
       setError: (error) => set({ error }),
+      setPreviewMode: (isPreviewMode) => set({ isPreviewMode }),
 
       // Save action (mock implementation)
       saveForm: async () => {

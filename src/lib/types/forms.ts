@@ -253,6 +253,7 @@ export interface FormBuilderState {
   isDirty: boolean;
   isSaving: boolean;
   error: string | null;
+  isPreviewMode: boolean;
 }
 
 // ============================================================================

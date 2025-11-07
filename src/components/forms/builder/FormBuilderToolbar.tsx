@@ -36,13 +36,22 @@ import {
   Download,
   Trash2,
   Loader2,
+  Edit3,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export function FormBuilderToolbar() {
   const router = useRouter();
-  const { form, isDirty, isSaving, updateFormField, saveForm } =
-    useFormBuilderStore();
+  const {
+    form,
+    isDirty,
+    isSaving,
+    isPreviewMode,
+    updateFormField,
+    saveForm,
+    setPreviewMode,
+  } = useFormBuilderStore();
   const [isSavingLocal, setIsSavingLocal] = useState(false);
 
   const handleSave = async () => {
@@ -55,10 +64,6 @@ export function FormBuilderToolbar() {
     } finally {
       setIsSavingLocal(false);
     }
-  };
-
-  const handlePreview = () => {
-    toast.info("Preview feature coming soon");
   };
 
   const handleShare = () => {
@@ -142,11 +147,35 @@ export function FormBuilderToolbar() {
 
           <div className="h-6 w-px bg-border" />
 
-          {/* Preview Button */}
-          <Button variant="outline" size="sm" onClick={handlePreview}>
-            <Eye className="h-4 w-4 mr-2" />
-            Preview
-          </Button>
+          {/* Edit/Preview Toggle */}
+          <div className="flex items-center border rounded-md">
+            <Button
+              variant={!isPreviewMode ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setPreviewMode(false)}
+              className={cn(
+                "rounded-r-none border-r-0",
+                !isPreviewMode && "pointer-events-none"
+              )}
+            >
+              <Edit3 className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+            <Button
+              variant={isPreviewMode ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setPreviewMode(true)}
+              className={cn(
+                "rounded-l-none",
+                isPreviewMode && "pointer-events-none"
+              )}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Preview
+            </Button>
+          </div>
+
+          <div className="h-6 w-px bg-border" />
 
           {/* Share Button */}
           <Button variant="outline" size="sm" onClick={handleShare}>
