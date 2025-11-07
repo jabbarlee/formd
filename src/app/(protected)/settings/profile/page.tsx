@@ -170,9 +170,7 @@ export default function ProfileSettingsPage() {
         {/* Save Changes */}
         <div className="flex justify-end gap-2">
           <Button variant="outline">Cancel</Button>
-          <Button className="bg-indigo-600 hover:bg-indigo-700">
-            Save Changes
-          </Button>
+          <Button>Save Changes</Button>
         </div>
       </div>
     </div>

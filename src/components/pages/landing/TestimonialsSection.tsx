@@ -19,7 +19,7 @@ const testimonials = [
     fallback: "SJ",
     rating: 5,
     content:
-      "FormAI completely transformed how we collect user feedback. The AI insights are incredibly valuable and save us hours of analysis time.",
+      "FormD completely transformed how we collect user feedback. The AI insights are incredibly valuable and save us hours of analysis time.",
   },
   {
     name: "Michael Chen",
@@ -28,7 +28,7 @@ const testimonials = [
     fallback: "MC",
     rating: 5,
     content:
-      "The most beautiful form builder I've ever used. Our response rates increased by 40% just from switching to FormAI's elegant designs.",
+      "The most beautiful form builder I've ever used. Our response rates increased by 40% just from switching to FormD's elegant designs.",
   },
   {
     name: "Emily Rodriguez",
@@ -64,7 +64,7 @@ const testimonials = [
     fallback: "JW",
     rating: 5,
     content:
-      "The integrations with our existing tools made rollout seamless. FormAI fits perfectly into our workflow.",
+      "The integrations with our existing tools made rollout seamless. FormD fits perfectly into our workflow.",
   },
 ];
 
@@ -75,7 +75,8 @@ export function TestimonialsSection() {
         <div className="text-center mb-16">
           <h2 className="text-5xl font-bold mb-4">Loved by thousands</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            See what our customers have to say about FormAI
+            See what our customers have to say about Form
+            <span className="italic">D</span>
           </p>
         </div>
 

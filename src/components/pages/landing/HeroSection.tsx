@@ -39,17 +39,12 @@ export function HeroSection() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white group">
+          <Button className="group">
             Get Started Free
             <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Button>
 
-          <Button
-            variant="outline"
-            className="border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-100 dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-900/50"
-          >
-            View Demo
-          </Button>
+          <Button variant="outline">View Demo</Button>
         </div>
 
         {/* Social Proof */}

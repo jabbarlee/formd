@@ -31,6 +31,9 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import { useAuth, getUserInitials } from "@/lib/auth";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // Menu items based on actual protected routes
 const mainItems = [
@@ -75,22 +78,38 @@ const settingsItems = [
 ];
 
 export function AppSidebar() {
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    const result = await signOut();
+    if (result.success) {
+      toast.success("Signed out successfully");
+      router.push("/login");
+    } else if (result.error) {
+      toast.error(result.error.message);
+    }
+  };
+
+  const userInitials = getUserInitials(user);
+  const displayName = user?.displayName || "User";
+  const displayEmail = user?.email || "user@email.com";
+
   return (
     <Sidebar>
       <SidebarHeader className="h-16 px-6 justify-center border-b bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
-            <span className="text-primary-foreground text-lg font-bold">F</span>
-          </div>
+        <div className="flex items-center gap-3">
           <div className="flex flex-col">
-            <span className="text-base font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              FormAI
-            </span>
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <span className="text-xl font-bold text-gray-900">
+                Form<span className="italic text-indigo-600">D</span>
+              </span>
+            </Link>
             <span className="text-xs text-muted-foreground">
               AI Form Builder
             </span>
           </div>
-        </Link>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -149,7 +168,10 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
               <SidebarMenuItem>
-                <SidebarMenuButton className="flex items-center min-w-0">
+                <SidebarMenuButton
+                  className="flex items-center min-w-0 cursor-pointer"
+                  onClick={handleSignOut}
+                >
                   <LogOut className="flex-shrink-0" />
                   <span className="truncate">Sign Out</span>
                 </SidebarMenuButton>
@@ -162,12 +184,14 @@ export function AppSidebar() {
         <div className="px-3 py-2">
           <div className="flex items-center gap-2 text-sm">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs flex-shrink-0">
-              U
+              {userInitials}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-xs font-medium truncate">User Name</span>
+              <span className="text-xs font-medium truncate">
+                {displayName}
+              </span>
               <span className="text-xs text-muted-foreground truncate">
-                user@email.com
+                {displayEmail}
               </span>
             </div>
           </div>

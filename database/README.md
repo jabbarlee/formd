@@ -1,8 +1,8 @@
-# FormAI Database Schema
+# FormD Database Schema
 
 ## Overview
 
-This is a comprehensive, production-ready database schema for **FormAI**, an AI-powered form builder SaaS platform. The schema is designed for PostgreSQL (via Supabase) with Prisma ORM, emphasizing scalability, security, and performance.
+This is a comprehensive, production-ready database schema for **FormD**, an AI-powered form builder SaaS platform. The schema is designed for PostgreSQL (via Supabase) with Prisma ORM, emphasizing scalability, security, and performance.
 
 ## Architecture
 
@@ -281,10 +281,10 @@ supabase start
 
 ```bash
 # Apply main schema
-psql -U postgres -d formai -f database/schema.sql
+psql -U postgres -d formd -f database/schema.sql
 
 # Apply RLS policies
-psql -U postgres -d formai -f database/rls-policies.sql
+psql -U postgres -d formd -f database/rls-policies.sql
 ```
 
 ### 3. Setup Prisma
@@ -307,8 +307,8 @@ npx prisma db push
 ### 4. Environment Variables
 
 ```env
-DATABASE_URL="postgresql://user:password@host:5432/formai"
-DIRECT_URL="postgresql://user:password@host:5432/formai" # For Prisma Migrate
+DATABASE_URL="postgresql://user:password@host:5432/formd"
+DIRECT_URL="postgresql://user:password@host:5432/formd" # For Prisma Migrate
 ```
 
 ## Migrations
@@ -415,5 +415,5 @@ ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 
 ## License
 
-Proprietary - FormAI Database Schema
-© 2024 FormAI. All rights reserved.
+Proprietary - FormD Database Schema
+© 2024 FormD. All rights reserved.

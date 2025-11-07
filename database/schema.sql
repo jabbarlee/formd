@@ -1,5 +1,5 @@
 -- ============================================
--- FormAI Database Schema
+-- FormD Database Schema
 -- ============================================
 -- Database: PostgreSQL (Supabase)
 -- ORM: Prisma

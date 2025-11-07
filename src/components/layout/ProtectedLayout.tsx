@@ -59,7 +59,9 @@ export function AppSidebar() {
       <SidebarHeader className="border-b px-6 py-4">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-blue-600" />
-          <span className="text-xl font-bold">FormAI</span>
+          <span className="text-xl font-bold">
+            Form<span className="italic text-indigo-600">D</span>
+          </span>
         </Link>
       </SidebarHeader>
 

@@ -1,6 +1,6 @@
 {
   "project": {
-    "name": "FormAI",
+    "name": "FormD",
     "tagline": "Beautiful forms, intelligent insights — the AI-powered survey platform that actually delights",
     "description": "A next-generation form and survey platform combining stunning design, intuitive UX, and deep AI integration to revolutionize data collection and analysis",
     "version": "1.0.0",
@@ -64,11 +64,26 @@
         "description": "User accounts",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "firebase_uid", "type": "STRING", "unique": true, "required": true },
-          { "name": "email", "type": "STRING", "unique": true, "required": true },
+          {
+            "name": "firebase_uid",
+            "type": "STRING",
+            "unique": true,
+            "required": true
+          },
+          {
+            "name": "email",
+            "type": "STRING",
+            "unique": true,
+            "required": true
+          },
           { "name": "name", "type": "STRING", "required": true },
           { "name": "avatar_url", "type": "STRING", "nullable": true },
-          { "name": "plan", "type": "ENUM", "values": ["free", "pro", "business", "enterprise"], "default": "free" },
+          {
+            "name": "plan",
+            "type": "ENUM",
+            "values": ["free", "pro", "business", "enterprise"],
+            "default": "free"
+          },
           { "name": "stripe_customer_id", "type": "STRING", "nullable": true },
           { "name": "created_at", "type": "TIMESTAMP", "default": "now()" },
           { "name": "updated_at", "type": "TIMESTAMP", "default": "now()" }
@@ -81,9 +96,24 @@
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
           { "name": "name", "type": "STRING", "required": true },
-          { "name": "slug", "type": "STRING", "unique": true, "required": true },
-          { "name": "owner_id", "type": "UUID", "foreignKey": "users.id", "required": true },
-          { "name": "plan", "type": "ENUM", "values": ["free", "pro", "business"], "default": "free" },
+          {
+            "name": "slug",
+            "type": "STRING",
+            "unique": true,
+            "required": true
+          },
+          {
+            "name": "owner_id",
+            "type": "UUID",
+            "foreignKey": "users.id",
+            "required": true
+          },
+          {
+            "name": "plan",
+            "type": "ENUM",
+            "values": ["free", "pro", "business"],
+            "default": "free"
+          },
           { "name": "custom_domain", "type": "STRING", "nullable": true },
           { "name": "branding", "type": "JSONB", "nullable": true },
           { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
@@ -95,9 +125,18 @@
         "description": "Team membership",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "workspace_id", "type": "UUID", "foreignKey": "workspaces.id" },
+          {
+            "name": "workspace_id",
+            "type": "UUID",
+            "foreignKey": "workspaces.id"
+          },
           { "name": "user_id", "type": "UUID", "foreignKey": "users.id" },
-          { "name": "role", "type": "ENUM", "values": ["owner", "admin", "editor", "viewer"], "default": "viewer" },
+          {
+            "name": "role",
+            "type": "ENUM",
+            "values": ["owner", "admin", "editor", "viewer"],
+            "default": "viewer"
+          },
           { "name": "joined_at", "type": "TIMESTAMP", "default": "now()" }
         ]
       },
@@ -107,12 +146,27 @@
         "description": "Form definitions",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "workspace_id", "type": "UUID", "foreignKey": "workspaces.id", "required": true },
-          { "name": "created_by", "type": "UUID", "foreignKey": "users.id", "required": true },
+          {
+            "name": "workspace_id",
+            "type": "UUID",
+            "foreignKey": "workspaces.id",
+            "required": true
+          },
+          {
+            "name": "created_by",
+            "type": "UUID",
+            "foreignKey": "users.id",
+            "required": true
+          },
           { "name": "title", "type": "STRING", "required": true },
           { "name": "description", "type": "TEXT", "nullable": true },
           { "name": "slug", "type": "STRING", "required": true },
-          { "name": "status", "type": "ENUM", "values": ["draft", "published", "closed", "archived"], "default": "draft" },
+          {
+            "name": "status",
+            "type": "ENUM",
+            "values": ["draft", "published", "closed", "archived"],
+            "default": "draft"
+          },
           { "name": "theme", "type": "JSONB", "nullable": true },
           { "name": "settings", "type": "JSONB", "nullable": true },
           { "name": "cover_image", "type": "STRING", "nullable": true },
@@ -123,7 +177,11 @@
           { "name": "close_date", "type": "TIMESTAMP", "nullable": true },
           { "name": "requires_password", "type": "BOOLEAN", "default": false },
           { "name": "password_hash", "type": "STRING", "nullable": true },
-          { "name": "allow_multiple_responses", "type": "BOOLEAN", "default": false },
+          {
+            "name": "allow_multiple_responses",
+            "type": "BOOLEAN",
+            "default": false
+          },
           { "name": "show_progress_bar", "type": "BOOLEAN", "default": true },
           { "name": "created_at", "type": "TIMESTAMP", "default": "now()" },
           { "name": "updated_at", "type": "TIMESTAMP", "default": "now()" }
@@ -135,15 +193,43 @@
         "description": "Form questions",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "form_id", "type": "UUID", "foreignKey": "forms.id", "onDelete": "CASCADE" },
-          { "name": "type", "type": "ENUM", "values": [
-            "short_text", "long_text", "email", "number", "phone",
-            "multiple_choice", "checkboxes", "dropdown", "star_rating",
-            "linear_scale", "nps", "emoji_rating", "date", "time",
-            "datetime", "file_upload", "signature", "matrix", "ranking",
-            "payment", "location", "image_choice", "section_heading",
-            "text_content", "divider"
-          ]},
+          {
+            "name": "form_id",
+            "type": "UUID",
+            "foreignKey": "forms.id",
+            "onDelete": "CASCADE"
+          },
+          {
+            "name": "type",
+            "type": "ENUM",
+            "values": [
+              "short_text",
+              "long_text",
+              "email",
+              "number",
+              "phone",
+              "multiple_choice",
+              "checkboxes",
+              "dropdown",
+              "star_rating",
+              "linear_scale",
+              "nps",
+              "emoji_rating",
+              "date",
+              "time",
+              "datetime",
+              "file_upload",
+              "signature",
+              "matrix",
+              "ranking",
+              "payment",
+              "location",
+              "image_choice",
+              "section_heading",
+              "text_content",
+              "divider"
+            ]
+          },
           { "name": "title", "type": "STRING", "required": true },
           { "name": "description", "type": "TEXT", "nullable": true },
           { "name": "placeholder", "type": "STRING", "nullable": true },
@@ -162,10 +248,20 @@
         "description": "Form submissions",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "form_id", "type": "UUID", "foreignKey": "forms.id", "required": true },
+          {
+            "name": "form_id",
+            "type": "UUID",
+            "foreignKey": "forms.id",
+            "required": true
+          },
           { "name": "respondent_email", "type": "STRING", "nullable": true },
           { "name": "respondent_name", "type": "STRING", "nullable": true },
-          { "name": "status", "type": "ENUM", "values": ["in_progress", "completed", "flagged"], "default": "in_progress" },
+          {
+            "name": "status",
+            "type": "ENUM",
+            "values": ["in_progress", "completed", "flagged"],
+            "default": "in_progress"
+          },
           { "name": "quality_score", "type": "INTEGER", "nullable": true },
           { "name": "time_spent", "type": "INTEGER", "nullable": true },
           { "name": "device_type", "type": "STRING", "nullable": true },
@@ -183,13 +279,27 @@
         "description": "Individual question answers",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "response_id", "type": "UUID", "foreignKey": "responses.id", "onDelete": "CASCADE" },
-          { "name": "question_id", "type": "UUID", "foreignKey": "questions.id" },
+          {
+            "name": "response_id",
+            "type": "UUID",
+            "foreignKey": "responses.id",
+            "onDelete": "CASCADE"
+          },
+          {
+            "name": "question_id",
+            "type": "UUID",
+            "foreignKey": "questions.id"
+          },
           { "name": "answer_text", "type": "TEXT", "nullable": true },
           { "name": "answer_number", "type": "FLOAT", "nullable": true },
           { "name": "answer_json", "type": "JSONB", "nullable": true },
           { "name": "answer_file_url", "type": "STRING", "nullable": true },
-          { "name": "ai_sentiment", "type": "ENUM", "values": ["positive", "neutral", "negative", "mixed"], "nullable": true },
+          {
+            "name": "ai_sentiment",
+            "type": "ENUM",
+            "values": ["positive", "neutral", "negative", "mixed"],
+            "nullable": true
+          },
           { "name": "ai_sentiment_score", "type": "FLOAT", "nullable": true },
           { "name": "ai_themes", "type": "STRING[]", "nullable": true },
           { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
@@ -201,7 +311,12 @@
         "description": "Form templates",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "created_by", "type": "UUID", "foreignKey": "users.id", "nullable": true },
+          {
+            "name": "created_by",
+            "type": "UUID",
+            "foreignKey": "users.id",
+            "nullable": true
+          },
           { "name": "title", "type": "STRING", "required": true },
           { "name": "description", "type": "TEXT", "nullable": true },
           { "name": "category", "type": "STRING", "required": true },
@@ -220,10 +335,25 @@
         "description": "AI assistant conversation history",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "user_id", "type": "UUID", "foreignKey": "users.id", "required": true },
-          { "name": "form_id", "type": "UUID", "foreignKey": "forms.id", "nullable": true },
+          {
+            "name": "user_id",
+            "type": "UUID",
+            "foreignKey": "users.id",
+            "required": true
+          },
+          {
+            "name": "form_id",
+            "type": "UUID",
+            "foreignKey": "forms.id",
+            "nullable": true
+          },
           { "name": "session_id", "type": "UUID", "required": true },
-          { "name": "role", "type": "ENUM", "values": ["user", "assistant"], "required": true },
+          {
+            "name": "role",
+            "type": "ENUM",
+            "values": ["user", "assistant"],
+            "required": true
+          },
           { "name": "content", "type": "TEXT", "required": true },
           { "name": "context_data", "type": "JSONB", "nullable": true },
           { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
@@ -235,9 +365,31 @@
         "description": "Connected third-party integrations",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "workspace_id", "type": "UUID", "foreignKey": "workspaces.id" },
-          { "name": "form_id", "type": "UUID", "foreignKey": "forms.id", "nullable": true },
-          { "name": "service", "type": "ENUM", "values": ["slack", "discord", "notion", "airtable", "hubspot", "salesforce", "zapier", "webhook"] },
+          {
+            "name": "workspace_id",
+            "type": "UUID",
+            "foreignKey": "workspaces.id"
+          },
+          {
+            "name": "form_id",
+            "type": "UUID",
+            "foreignKey": "forms.id",
+            "nullable": true
+          },
+          {
+            "name": "service",
+            "type": "ENUM",
+            "values": [
+              "slack",
+              "discord",
+              "notion",
+              "airtable",
+              "hubspot",
+              "salesforce",
+              "zapier",
+              "webhook"
+            ]
+          },
           { "name": "config", "type": "JSONB", "required": true },
           { "name": "enabled", "type": "BOOLEAN", "default": true },
           { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
@@ -250,7 +402,12 @@
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
           { "name": "form_id", "type": "UUID", "foreignKey": "forms.id" },
-          { "name": "response_id", "type": "UUID", "foreignKey": "responses.id", "nullable": true },
+          {
+            "name": "response_id",
+            "type": "UUID",
+            "foreignKey": "responses.id",
+            "nullable": true
+          },
           { "name": "event_type", "type": "STRING", "required": true },
           { "name": "event_data", "type": "JSONB", "nullable": true },
           { "name": "timestamp", "type": "TIMESTAMP", "default": "now()" }
@@ -262,11 +419,32 @@
         "description": "Stripe subscription data",
         "fields": [
           { "name": "id", "type": "UUID", "primaryKey": true },
-          { "name": "user_id", "type": "UUID", "foreignKey": "users.id", "unique": true },
-          { "name": "stripe_subscription_id", "type": "STRING", "nullable": true },
-          { "name": "plan", "type": "ENUM", "values": ["free", "pro", "business", "enterprise"] },
-          { "name": "status", "type": "ENUM", "values": ["active", "canceled", "past_due"] },
-          { "name": "current_period_end", "type": "TIMESTAMP", "nullable": true },
+          {
+            "name": "user_id",
+            "type": "UUID",
+            "foreignKey": "users.id",
+            "unique": true
+          },
+          {
+            "name": "stripe_subscription_id",
+            "type": "STRING",
+            "nullable": true
+          },
+          {
+            "name": "plan",
+            "type": "ENUM",
+            "values": ["free", "pro", "business", "enterprise"]
+          },
+          {
+            "name": "status",
+            "type": "ENUM",
+            "values": ["active", "canceled", "past_due"]
+          },
+          {
+            "name": "current_period_end",
+            "type": "TIMESTAMP",
+            "nullable": true
+          },
           { "name": "created_at", "type": "TIMESTAMP", "default": "now()" }
         ]
       }
@@ -274,12 +452,11 @@
   },
 
   "pages": [
-
     {
       "id": "landing",
       "name": "Homepage",
       "route": "/",
-      "description": "Marketing landing page showcasing FormAI's unique value proposition",
+      "description": "Marketing landing page showcasing FormD's unique value proposition",
       "layout": "marketing-single-page",
       "sections": [
         {
@@ -497,7 +674,6 @@
         }
       ]
     }
-
   ],
 
   "settingsPages": [
@@ -506,8 +682,16 @@
       "route": "/settings/profile",
       "name": "Profile Settings",
       "sections": [
-        { "id": "profile", "name": "Profile", "components": ["Input", "AvatarUpload"] },
-        { "id": "security", "name": "Security", "components": ["Input", "Button"] }
+        {
+          "id": "profile",
+          "name": "Profile",
+          "components": ["Input", "AvatarUpload"]
+        },
+        {
+          "id": "security",
+          "name": "Security",
+          "components": ["Input", "Button"]
+        }
       ]
     },
     {
