@@ -73,10 +73,19 @@ export function QuestionBlock({
       case "short_text":
       case "email":
       case "phone":
-      case "number":
         return (
           <Input
             placeholder={question.placeholder || "Your answer"}
+            disabled
+            className="mt-2"
+          />
+        );
+
+      case "number":
+        return (
+          <Input
+            type="number"
+            placeholder={question.placeholder || "Enter a number"}
             disabled
             className="mt-2"
           />
@@ -112,8 +121,179 @@ export function QuestionBlock({
 
       case "dropdown":
         return (
-          <div className="mt-2 px-3 py-2 border rounded-md text-sm text-muted-foreground bg-background">
-            Select an option
+          <div className="mt-2 space-y-1">
+            <div className="px-3 py-2 border rounded-md text-sm text-muted-foreground bg-background flex items-center justify-between">
+              <span>Select an option</span>
+              <ChevronDown className="h-4 w-4" />
+            </div>
+            {question.options && question.options.length > 0 && (
+              <div className="text-xs text-muted-foreground pl-1">
+                {question.options.length} option(s)
+              </div>
+            )}
+          </div>
+        );
+
+      case "nps":
+        return (
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Not likely</span>
+              <span>Very likely</span>
+            </div>
+            <div className="flex gap-1">
+              {Array.from({ length: 11 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    "h-8 flex-1 flex items-center justify-center border rounded text-xs font-medium",
+                    idx <= 6 && "border-red-200 bg-red-50 text-red-700",
+                    idx >= 7 &&
+                      idx <= 8 &&
+                      "border-yellow-200 bg-yellow-50 text-yellow-700",
+                    idx >= 9 && "border-green-200 bg-green-50 text-green-700"
+                  )}
+                >
+                  {idx}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "emoji_rating":
+        return (
+          <div className="mt-3 flex gap-2 justify-center">
+            {["😡", "😞", "😐", "😊", "😍"].map((emoji, idx) => (
+              <div
+                key={idx}
+                className="text-3xl hover:scale-110 transition-transform cursor-pointer"
+              >
+                {emoji}
+              </div>
+            ))}
+          </div>
+        );
+
+      case "signature":
+        return (
+          <div className="mt-2 border-2 rounded-lg p-3 bg-white">
+            <div className="border-b-2 border-muted h-24 flex items-end justify-center pb-2">
+              <p className="text-xs text-muted-foreground italic">Sign here</p>
+            </div>
+          </div>
+        );
+
+      case "matrix":
+        const matrixRows = question.settings?.rows || [];
+        const matrixColumns = question.settings?.columns || [];
+        return (
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full border-collapse text-xs">
+              <thead>
+                <tr>
+                  <th className="border p-2 bg-muted/50"></th>
+                  {matrixColumns.slice(0, 3).map((col) => (
+                    <th key={col.id} className="border p-2 bg-muted/50">
+                      {col.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {matrixRows.slice(0, 2).map((row) => (
+                  <tr key={row.id}>
+                    <td className="border p-2 font-medium">{row.label}</td>
+                    {matrixColumns.slice(0, 3).map((col) => (
+                      <td key={col.id} className="border p-2 text-center">
+                        <div className="h-3 w-3 rounded-full border mx-auto" />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+
+      case "ranking":
+        return (
+          <div className="mt-2 space-y-1">
+            {question.options?.slice(0, 3).map((option, idx) => (
+              <div
+                key={option.id}
+                className="flex items-center gap-2 p-2 border rounded-md text-sm bg-white"
+              >
+                <GripVertical className="h-4 w-4 text-muted-foreground" />
+                <span className="w-5 h-5 rounded bg-muted text-xs flex items-center justify-center">
+                  {idx + 1}
+                </span>
+                <span className="flex-1 truncate">{option.label}</span>
+              </div>
+            ))}
+          </div>
+        );
+
+      case "payment":
+        return (
+          <div className="mt-2 p-3 border rounded-lg bg-muted/30 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">Amount:</span>
+              <span className="text-lg font-bold">
+                {question.settings?.currency || "$"}
+                {question.settings?.amount || "0.00"}
+              </span>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              🔒 Secure payment
+            </div>
+          </div>
+        );
+
+      case "location":
+        return (
+          <div className="mt-2 space-y-2">
+            <Input
+              placeholder="Search location..."
+              disabled
+              className="text-sm"
+            />
+            <div className="border rounded h-24 bg-muted/30 flex items-center justify-center">
+              <p className="text-xs text-muted-foreground">Map view</p>
+            </div>
+          </div>
+        );
+
+      case "image_choice":
+        const imageSize = question.settings?.imageSize || "medium";
+        const gridCols =
+          imageSize === "large" ? 2 : imageSize === "small" ? 4 : 3;
+        return (
+          <div
+            className="mt-2 grid gap-2"
+            style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}
+          >
+            {question.options?.slice(0, gridCols).map((option) => (
+              <div
+                key={option.id}
+                className="border rounded overflow-hidden hover:border-primary transition-colors"
+              >
+                <div className="aspect-square bg-muted flex items-center justify-center text-xs">
+                  {option.image ? (
+                    <img
+                      src={option.image}
+                      alt={option.label}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    "Image"
+                  )}
+                </div>
+                <div className="p-1 text-xs text-center truncate">
+                  {option.label}
+                </div>
+              </div>
+            ))}
           </div>
         );
 

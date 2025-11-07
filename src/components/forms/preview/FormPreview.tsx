@@ -48,19 +48,40 @@ function QuestionPreview({
   const renderQuestionInput = () => {
     switch (question.type) {
       case "short_text":
-      case "email":
-      case "phone":
-      case "number":
         return (
           <Input
             placeholder={question.placeholder || metadata.defaultTitle}
-            type={
-              question.type === "email"
-                ? "email"
-                : question.type === "number"
-                ? "number"
-                : "text"
-            }
+            type="text"
+            disabled
+          />
+        );
+
+      case "email":
+        return (
+          <Input
+            placeholder={question.placeholder || "email@example.com"}
+            type="email"
+            disabled
+          />
+        );
+
+      case "phone":
+        return (
+          <Input
+            placeholder={question.placeholder || "+1 (555) 000-0000"}
+            type="tel"
+            disabled
+          />
+        );
+
+      case "number":
+        return (
+          <Input
+            placeholder={question.placeholder || "Enter a number"}
+            type="number"
+            min={question.settings?.min}
+            max={question.settings?.max}
+            step={question.settings?.step || 1}
             disabled
           />
         );
@@ -252,6 +273,172 @@ function QuestionPreview({
 
       case "divider":
         return <Separator className="my-4" />;
+
+      case "signature":
+        return (
+          <div className="border-2 rounded-lg p-4 bg-white">
+            <div className="border-b-2 border-muted h-32 flex items-end justify-center pb-2">
+              <p className="text-sm text-muted-foreground italic">Sign here</p>
+            </div>
+            <div className="mt-2 flex justify-between items-center">
+              <p className="text-xs text-muted-foreground">
+                Draw your signature above
+              </p>
+              <Button variant="ghost" size="sm" disabled>
+                Clear
+              </Button>
+            </div>
+          </div>
+        );
+
+      case "matrix":
+        const matrixRows = question.settings?.rows || [];
+        const matrixColumns = question.settings?.columns || [];
+        return (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="border p-3 bg-muted/50"></th>
+                  {matrixColumns.map((col) => (
+                    <th
+                      key={col.id}
+                      className="border p-3 bg-muted/50 text-sm font-medium"
+                    >
+                      {col.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {matrixRows.map((row) => (
+                  <tr key={row.id}>
+                    <td className="border p-3 font-medium text-sm">
+                      {row.label}
+                    </td>
+                    {matrixColumns.map((col) => (
+                      <td key={col.id} className="border p-3 text-center">
+                        <RadioGroupItem
+                          value={`${row.id}-${col.id}`}
+                          disabled
+                          className="mx-auto"
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+
+      case "ranking":
+        return (
+          <div className="space-y-2">
+            {question.options?.map((option, idx) => (
+              <div
+                key={option.id}
+                className="flex items-center gap-3 p-3 border rounded-lg bg-white hover:shadow-sm transition-shadow"
+              >
+                <div className="flex items-center justify-center w-8 h-8 rounded bg-muted text-sm font-medium">
+                  {idx + 1}
+                </div>
+                <div className="flex-1">{option.label}</div>
+                <div className="text-muted-foreground">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </div>
+              </div>
+            ))}
+            <p className="text-xs text-muted-foreground mt-2">
+              Drag to reorder by preference
+            </p>
+          </div>
+        );
+
+      case "payment":
+        return (
+          <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Amount:</span>
+              <span className="text-2xl font-bold">
+                {question.settings?.currency || "$"}
+                {question.settings?.amount || "0.00"}
+              </span>
+            </div>
+            <div className="space-y-2">
+              <Input placeholder="Card number" disabled />
+              <div className="grid grid-cols-2 gap-2">
+                <Input placeholder="MM/YY" disabled />
+                <Input placeholder="CVC" disabled />
+              </div>
+              <Input placeholder="Cardholder name" disabled />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              🔒 Secure payment processing
+            </p>
+          </div>
+        );
+
+      case "location":
+        return (
+          <div className="space-y-2">
+            <Input
+              placeholder="Search for a location..."
+              disabled
+              className="mb-2"
+            />
+            <div className="border rounded-lg h-48 bg-muted/30 flex items-center justify-center">
+              <p className="text-sm text-muted-foreground">Map view</p>
+            </div>
+          </div>
+        );
+
+      case "image_choice":
+        const imageSize = question.settings?.imageSize || "medium";
+        const gridCols =
+          imageSize === "large"
+            ? "grid-cols-2"
+            : imageSize === "small"
+            ? "grid-cols-4"
+            : "grid-cols-3";
+        return (
+          <div className={`grid ${gridCols} gap-3`}>
+            {question.options?.map((option) => (
+              <div
+                key={option.id}
+                className="relative border-2 rounded-lg overflow-hidden hover:border-primary transition-colors cursor-pointer"
+              >
+                <div className="aspect-square bg-muted flex items-center justify-center">
+                  {option.image ? (
+                    <img
+                      src={option.image}
+                      alt={option.label}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <FileText className="h-8 w-8 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="p-2 text-center text-sm">{option.label}</div>
+                <div className="absolute top-2 right-2">
+                  <div className="w-5 h-5 rounded-full border-2 bg-white"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
 
       default:
         return (

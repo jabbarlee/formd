@@ -256,6 +256,129 @@ export function PropertiesPanel() {
                 </>
               )}
 
+              {selectedQuestion.type === "number" && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="number-min">Minimum Value</Label>
+                      <Input
+                        id="number-min"
+                        type="number"
+                        value={selectedQuestion.settings?.min ?? 0}
+                        onChange={(e) =>
+                          updateQuestion(selectedQuestion.id, {
+                            settings: {
+                              ...selectedQuestion.settings,
+                              min: parseFloat(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="number-max">Maximum Value</Label>
+                      <Input
+                        id="number-max"
+                        type="number"
+                        value={selectedQuestion.settings?.max ?? 100}
+                        onChange={(e) =>
+                          updateQuestion(selectedQuestion.id, {
+                            settings: {
+                              ...selectedQuestion.settings,
+                              max: parseFloat(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="number-step">Step</Label>
+                    <Input
+                      id="number-step"
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={selectedQuestion.settings?.step ?? 1}
+                      onChange={(e) =>
+                        updateQuestion(selectedQuestion.id, {
+                          settings: {
+                            ...selectedQuestion.settings,
+                            step: parseFloat(e.target.value),
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+
+              {selectedQuestion.type === "payment" && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="currency">Currency</Label>
+                    <Input
+                      id="currency"
+                      value={selectedQuestion.settings?.currency || "$"}
+                      onChange={(e) =>
+                        updateQuestion(selectedQuestion.id, {
+                          settings: {
+                            ...selectedQuestion.settings,
+                            currency: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="$"
+                      maxLength={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Amount</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={selectedQuestion.settings?.amount ?? 0}
+                      onChange={(e) =>
+                        updateQuestion(selectedQuestion.id, {
+                          settings: {
+                            ...selectedQuestion.settings,
+                            amount: parseFloat(e.target.value),
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+
+              {selectedQuestion.type === "image_choice" && (
+                <div className="space-y-2">
+                  <Label htmlFor="image-size">Image Size</Label>
+                  <select
+                    id="image-size"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={selectedQuestion.settings?.imageSize || "medium"}
+                    onChange={(e) =>
+                      updateQuestion(selectedQuestion.id, {
+                        settings: {
+                          ...selectedQuestion.settings,
+                          imageSize: e.target.value as
+                            | "small"
+                            | "medium"
+                            | "large",
+                        },
+                      })
+                    }
+                  >
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                  </select>
+                </div>
+              )}
+
               {selectedQuestion.type === "file_upload" && (
                 <>
                   <div className="space-y-2">

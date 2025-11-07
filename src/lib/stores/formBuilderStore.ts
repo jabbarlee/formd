@@ -156,11 +156,28 @@ const createDefaultQuestion = (
       rows: [
         { id: generateId(), label: "Row 1", value: "row_1", order: 0 },
         { id: generateId(), label: "Row 2", value: "row_2", order: 1 },
+        { id: generateId(), label: "Row 3", value: "row_3", order: 2 },
       ],
       columns: [
         { id: generateId(), label: "Column 1", value: "col_1", order: 0 },
         { id: generateId(), label: "Column 2", value: "col_2", order: 1 },
+        { id: generateId(), label: "Column 3", value: "col_3", order: 2 },
       ],
+    };
+  } else if (type === "payment") {
+    baseQuestion.settings = {
+      currency: "$",
+      amount: 0,
+    };
+  } else if (type === "image_choice") {
+    baseQuestion.settings = {
+      imageSize: "medium",
+    };
+  } else if (type === "number") {
+    baseQuestion.settings = {
+      min: 0,
+      max: 100,
+      step: 1,
     };
   }
 
