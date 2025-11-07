@@ -289,7 +289,7 @@ export default function ResponsesPage() {
                     View and manage all form responses
                   </CardDescription>
                 </div>
-                <Button className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700">
+                <Button>
                   <Download className="h-4 w-4 mr-2" />
                   Export
                 </Button>

@@ -8,7 +8,9 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-gray-900">Form<span className="italic text-indigo-600">D</span></span>
+            <span className="text-xl font-bold text-gray-900">
+              Form<span className="italic text-indigo-600">D</span>
+            </span>
           </Link>
 
           {/* Navigation Links */}
@@ -41,17 +43,10 @@ export function Navbar() {
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden sm:inline-flex hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400"
-            >
+            <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link href="/login">Sign In</Link>
             </Button>
-            <Button
-              size="sm"
-              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white"
-            >
+            <Button size="sm">
               <Link href="/signup">Get Started</Link>
             </Button>
           </div>

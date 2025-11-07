@@ -2,7 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -74,7 +80,7 @@ export default function FormBuilderPage() {
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700">
+            <Button>
               <Save className="h-4 w-4 mr-2" />
               Save
             </Button>
