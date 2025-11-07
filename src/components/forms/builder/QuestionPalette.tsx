@@ -96,65 +96,69 @@ export function QuestionPalette() {
         <div className="flex-1 min-h-0 overflow-hidden">
           <ScrollArea className="h-full px-4">
             <TabsContent value="all" className="mt-4 space-y-4 pb-6">
-            {questionCategories.map((category) => {
-              const IconComponent =
-                categoryIcons[category.icon as keyof typeof categoryIcons] ||
-                Layout;
+              {questionCategories.map((category) => {
+                const IconComponent =
+                  categoryIcons[category.icon as keyof typeof categoryIcons] ||
+                  Layout;
 
-              return (
-                <div key={category.id} className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <IconComponent className="h-4 w-4" />
-                    <span>{category.name}</span>
+                return (
+                  <div key={category.id} className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <IconComponent className="h-4 w-4" />
+                      <span>{category.name}</span>
+                    </div>
+                    <div className="space-y-2">
+                      {category.questions.map((questionType) => (
+                        <QuestionTypeCard
+                          key={questionType}
+                          type={questionType}
+                          onClick={() => handleAddQuestion(questionType)}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    {category.questions.map((questionType) => (
-                      <QuestionTypeCard
-                        key={questionType}
-                        type={questionType}
-                        onClick={() => handleAddQuestion(questionType)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </TabsContent>
+                );
+              })}
+            </TabsContent>
 
-          <TabsContent value="common" className="mt-4 space-y-2 pb-6">
-            {[
-              "short_text",
-              "long_text",
-              "email",
-              "multiple_choice",
-              "checkboxes",
-              "dropdown",
-            ].map((questionType) => (
-              <QuestionTypeCard
-                key={questionType}
-                type={questionType as QuestionType}
-                onClick={() => handleAddQuestion(questionType as QuestionType)}
-              />
-            ))}
-          </TabsContent>
+            <TabsContent value="common" className="mt-4 space-y-2 pb-6">
+              {[
+                "short_text",
+                "long_text",
+                "email",
+                "multiple_choice",
+                "checkboxes",
+                "dropdown",
+              ].map((questionType) => (
+                <QuestionTypeCard
+                  key={questionType}
+                  type={questionType as QuestionType}
+                  onClick={() =>
+                    handleAddQuestion(questionType as QuestionType)
+                  }
+                />
+              ))}
+            </TabsContent>
 
-          <TabsContent value="advanced" className="mt-4 space-y-2 pb-6">
-            {[
-              "star_rating",
-              "nps",
-              "file_upload",
-              "signature",
-              "matrix",
-              "payment",
-              "location",
-            ].map((questionType) => (
-              <QuestionTypeCard
-                key={questionType}
-                type={questionType as QuestionType}
-                onClick={() => handleAddQuestion(questionType as QuestionType)}
-              />
-            ))}
-          </TabsContent>
+            <TabsContent value="advanced" className="mt-4 space-y-2 pb-6">
+              {[
+                "star_rating",
+                "nps",
+                "file_upload",
+                "signature",
+                "matrix",
+                "payment",
+                "location",
+              ].map((questionType) => (
+                <QuestionTypeCard
+                  key={questionType}
+                  type={questionType as QuestionType}
+                  onClick={() =>
+                    handleAddQuestion(questionType as QuestionType)
+                  }
+                />
+              ))}
+            </TabsContent>
           </ScrollArea>
         </div>
       </Tabs>
