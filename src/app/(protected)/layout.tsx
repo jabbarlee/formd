@@ -1,8 +1,21 @@
 "use client";
 
-import { SidebarProvider } from "@/components/ui/sidebar";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AuthProvider, useRequireAuth } from "@/lib/auth";
+
+function FloatingToggle() {
+  const { open } = useSidebar();
+
+  // Only show when sidebar is closed
+  if (open) return null;
+
+  return <SidebarTrigger className="fixed bottom-4 left-4 z-50 shadow-lg" />;
+}
 
 function ProtectedContent({ children }: { children: React.ReactNode }) {
   // Protect all routes under (protected) - redirects to /login if not authenticated
@@ -20,7 +33,8 @@ function ProtectedContent({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <main className="flex-1">
+        <main className="flex-1 relative">
+          <FloatingToggle />
           <div className="">{children}</div>
         </main>
       </div>
