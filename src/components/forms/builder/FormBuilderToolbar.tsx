@@ -3,28 +3,28 @@
  * Top toolbar with form title, actions, and status
  */
 
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useFormBuilderStore } from "@/lib/stores/formBuilderStore"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   ArrowLeft,
   Save,
@@ -36,44 +36,44 @@ import {
   Download,
   Trash2,
   Loader2,
-} from "lucide-react"
-import { toast } from "sonner"
+} from "lucide-react";
+import { toast } from "sonner";
 
 export function FormBuilderToolbar() {
-  const router = useRouter()
+  const router = useRouter();
   const { form, isDirty, isSaving, updateFormField, saveForm } =
-    useFormBuilderStore()
-  const [isSavingLocal, setIsSavingLocal] = useState(false)
+    useFormBuilderStore();
+  const [isSavingLocal, setIsSavingLocal] = useState(false);
 
   const handleSave = async () => {
-    setIsSavingLocal(true)
+    setIsSavingLocal(true);
     try {
-      await saveForm()
-      toast.success("Form saved successfully")
+      await saveForm();
+      toast.success("Form saved successfully");
     } catch (error) {
-      toast.error("Failed to save form")
+      toast.error("Failed to save form");
     } finally {
-      setIsSavingLocal(false)
+      setIsSavingLocal(false);
     }
-  }
+  };
 
   const handlePreview = () => {
-    toast.info("Preview feature coming soon")
-  }
+    toast.info("Preview feature coming soon");
+  };
 
   const handleShare = () => {
-    toast.info("Share feature coming soon")
-  }
+    toast.info("Share feature coming soon");
+  };
 
   const handleBack = () => {
     if (isDirty) {
       const confirm = window.confirm(
         "You have unsaved changes. Are you sure you want to leave?"
-      )
-      if (!confirm) return
+      );
+      if (!confirm) return;
     }
-    router.push("/forms")
-  }
+    router.push("/forms");
+  };
 
   return (
     <div className="border-b bg-background">
@@ -206,5 +206,5 @@ export function FormBuilderToolbar() {
         </div>
       </div>
     </div>
-  )
+  );
 }
