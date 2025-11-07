@@ -98,9 +98,9 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="h-16 px-6 justify-center border-b bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <div className="flex flex-col">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/dashboard" className="flex items-center gap-2">
               <span className="text-xl font-bold text-gray-900">
                 Form<span className="italic text-indigo-600">D</span>
               </span>
@@ -109,7 +109,7 @@ export function AppSidebar() {
               AI Form Builder
             </span>
           </div>
-        </Link>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
