@@ -2,6 +2,7 @@
 
 import { AuthProvider, useRequireGuest } from "@/lib/auth";
 import { LoginForm } from "@/components/auth";
+import { Navbar } from "@/components/layout/Navbar";
 
 function LoginContent() {
   // Redirect to dashboard if already authenticated
@@ -16,9 +17,12 @@ function LoginContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <LoginForm />
-    </div>
+    <>
+      <Navbar />
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <LoginForm />
+      </div>
+    </>
   );
 }
 
