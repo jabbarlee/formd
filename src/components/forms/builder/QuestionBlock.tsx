@@ -6,6 +6,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import type { Question } from "@/lib/types/forms";
 import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
 import { questionTypeMetadata } from "@/lib/types/forms";
@@ -17,13 +18,14 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
-  GripVertical,
   Copy,
   Trash2,
   Settings,
   ChevronDown,
   ChevronUp,
   AlertCircle,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -39,12 +41,22 @@ export function QuestionBlock({
   index,
 }: QuestionBlockProps) {
   const [isExpanded, setIsExpanded] = useState(true);
-  const { updateQuestion, deleteQuestion, duplicateQuestion, selectQuestion } =
-    useFormBuilderStore();
+
+  const {
+    questions,
+    updateQuestion,
+    deleteQuestion,
+    duplicateQuestion,
+    selectQuestion,
+    moveQuestionUp,
+    moveQuestionDown,
+  } = useFormBuilderStore();
 
   const metadata = questionTypeMetadata[question.type];
+  const isFirst = index === 0;
+  const isLast = index === questions.length - 1;
 
-  const handleSelect = () => {
+  const handleSelect = (e: React.MouseEvent) => {
     selectQuestion(question.id);
   };
 
@@ -66,6 +78,16 @@ export function QuestionBlock({
 
   const handleDelete = () => {
     deleteQuestion(question.id);
+  };
+
+  const handleMoveUp = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    moveQuestionUp(question.id);
+  };
+
+  const handleMoveDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    moveQuestionDown(question.id);
   };
 
   // Check if question type is under development
@@ -234,7 +256,6 @@ export function QuestionBlock({
                 key={option.id}
                 className="flex items-center gap-2 p-2 border rounded-md text-sm bg-white"
               >
-                <GripVertical className="h-4 w-4 text-muted-foreground" />
                 <span className="w-5 h-5 rounded bg-muted text-xs flex items-center justify-center">
                   {idx + 1}
                 </span>
@@ -390,166 +411,196 @@ export function QuestionBlock({
   };
 
   return (
-    <Card
-      className={cn(
-        "group relative transition-all duration-200 cursor-pointer overflow-hidden",
-        isSelected ? "shadow-lg bg-primary/3" : "hover:shadow-md bg-white"
-      )}
-      onClick={handleSelect}
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{
+        layout: { type: "spring", stiffness: 300, damping: 30 },
+        opacity: { duration: 0.2 },
+      }}
     >
-      {/* Selection Indicator Bar */}
-      {isSelected && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
-      )}
-
-      {/* Drag Handle */}
-      <div className="absolute left-3 top-6 opacity-0 group-hover:opacity-100 transition-opacity cursor-move">
-        <GripVertical className="h-5 w-5 text-muted-foreground/60 hover:text-muted-foreground" />
-      </div>
-
-      {/* Question Content */}
-      <div className="pl-12 pr-4 py-5">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex-1 space-y-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                {index + 1}
-              </div>
-              <Badge
-                variant="secondary"
-                className="text-xs font-medium bg-muted/50"
-              >
-                {metadata.label}
-              </Badge>
-              {question.required && (
-                <Badge
-                  variant="destructive"
-                  className="text-xs bg-red-100 text-red-700 hover:bg-red-100"
-                >
-                  Required
-                </Badge>
-              )}
-            </div>
-
-            {/* Editable Title */}
-            {question.type === "section_heading" ? (
-              <div className="relative group/title">
-                <Input
-                  value={question.title}
-                  onChange={(e) => handleTitleChange(e.target.value)}
-                  className="text-xl font-bold border-0 px-0 py-1 focus-visible:ring-0 bg-transparent shadow-none hover:bg-muted/30 focus:bg-muted/50 transition-colors rounded-sm"
-                  placeholder="Section Title"
-                />
-              </div>
-            ) : (
-              <div className="relative group/title">
-                <Input
-                  value={question.title}
-                  onChange={(e) => handleTitleChange(e.target.value)}
-                  className="text-base font-semibold border-0 px-0 py-1 focus-visible:ring-0 bg-transparent shadow-none hover:bg-muted/30 focus:bg-muted/50 transition-colors rounded-sm placeholder:text-muted-foreground/40"
-                  placeholder="Click to add question title..."
-                />
-              </div>
-            )}
-
-            {/* Description */}
-            {isExpanded && question.type !== "divider" && (
-              <div className="relative group/desc">
-                <Textarea
-                  value={question.description || ""}
-                  onChange={(e) => handleDescriptionChange(e.target.value)}
-                  className="text-sm text-muted-foreground border-0 px-0 py-1 focus-visible:ring-0 min-h-[50px] bg-transparent shadow-none hover:bg-muted/30 focus:bg-muted/50 transition-colors resize-none rounded-sm placeholder:text-muted-foreground/40"
-                  placeholder="Click to add description (optional)..."
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsExpanded(!isExpanded);
-              }}
-            >
-              {isExpanded ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDuplicate();
-              }}
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete();
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Question Preview */}
-        {isExpanded &&
-          question.type !== "section_heading" &&
-          renderQuestionPreview()}
-
-        {/* Under Development Notice */}
-        {isExpanded && isUnderDevelopment && (
-          <div className="mt-4 flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-amber-900">
-                Under Development
-              </p>
-              <p className="text-xs text-amber-700 mt-0.5">
-                This question type is still under development. You can preview
-                it for now, but it won't be functional in the final form yet!
-              </p>
-            </div>
-          </div>
+      <Card
+        className={cn(
+          "group relative transition-all duration-200 cursor-pointer overflow-hidden",
+          isSelected ? "shadow-lg bg-primary/3" : "hover:shadow-md bg-white"
+        )}
+        onClick={handleSelect}
+      >
+        {/* Selection Indicator Bar */}
+        {isSelected && (
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
         )}
 
-        {/* Required Toggle */}
-        {isExpanded &&
-          question.type !== "section_heading" &&
-          question.type !== "text_content" &&
-          question.type !== "divider" && (
-            <div className="flex items-center gap-3 mt-5 pt-4 border-t border-dashed">
-              <Switch
-                id={`required-${question.id}`}
-                checked={question.required}
-                onCheckedChange={handleRequiredToggle}
-                onClick={(e) => e.stopPropagation()}
-              />
-              <Label
-                htmlFor={`required-${question.id}`}
-                className="text-sm cursor-pointer font-medium"
+        {/* Reorder Controls */}
+        <div className="absolute left-3 top-6 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleMoveUp}
+            disabled={isFirst}
+            title="Move up"
+          >
+            <ArrowUp className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleMoveDown}
+            disabled={isLast}
+            title="Move down"
+          >
+            <ArrowDown className="h-3 w-3" />
+          </Button>
+        </div>
+
+        {/* Question Content */}
+        <div className="pl-12 pr-4 py-5">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                  {index + 1}
+                </div>
+                <Badge
+                  variant="secondary"
+                  className="text-xs font-medium bg-muted/50"
+                >
+                  {metadata.label}
+                </Badge>
+                {question.required && (
+                  <Badge
+                    variant="destructive"
+                    className="text-xs bg-red-100 text-red-700 hover:bg-red-100"
+                  >
+                    Required
+                  </Badge>
+                )}
+              </div>
+
+              {/* Editable Title */}
+              {question.type === "section_heading" ? (
+                <div className="relative group/title">
+                  <Input
+                    value={question.title}
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    className="text-xl font-bold border-0 px-0 py-1 focus-visible:ring-0 bg-transparent shadow-none hover:bg-muted/30 focus:bg-muted/50 transition-colors rounded-sm"
+                    placeholder="Section Title"
+                  />
+                </div>
+              ) : (
+                <div className="relative group/title">
+                  <Input
+                    value={question.title}
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    className="text-base font-semibold border-0 px-0 py-1 focus-visible:ring-0 bg-transparent shadow-none hover:bg-muted/30 focus:bg-muted/50 transition-colors rounded-sm placeholder:text-muted-foreground/40"
+                    placeholder="Click to add question title..."
+                  />
+                </div>
+              )}
+
+              {/* Description */}
+              {isExpanded && question.type !== "divider" && (
+                <div className="relative group/desc">
+                  <Textarea
+                    value={question.description || ""}
+                    onChange={(e) => handleDescriptionChange(e.target.value)}
+                    className="text-sm text-muted-foreground border-0 px-0 py-1 focus-visible:ring-0 min-h-[50px] bg-transparent shadow-none hover:bg-muted/30 focus:bg-muted/50 transition-colors resize-none rounded-sm placeholder:text-muted-foreground/40"
+                    placeholder="Click to add description (optional)..."
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(!isExpanded);
+                }}
               >
-                Required field
-              </Label>
+                {isExpanded ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDuplicate();
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Question Preview */}
+          {isExpanded &&
+            question.type !== "section_heading" &&
+            renderQuestionPreview()}
+
+          {/* Under Development Notice */}
+          {isExpanded && isUnderDevelopment && (
+            <div className="mt-4 flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-amber-900">
+                  Under Development
+                </p>
+                <p className="text-xs text-amber-700 mt-0.5">
+                  This question type is still under development. You can preview
+                  it for now, but it won't be functional in the final form yet!
+                </p>
+              </div>
             </div>
           )}
-      </div>
-    </Card>
+
+          {/* Required Toggle */}
+          {isExpanded &&
+            question.type !== "section_heading" &&
+            question.type !== "text_content" &&
+            question.type !== "divider" && (
+              <div className="flex items-center gap-3 mt-5 pt-4 border-t border-dashed">
+                <Switch
+                  id={`required-${question.id}`}
+                  checked={question.required}
+                  onCheckedChange={handleRequiredToggle}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <Label
+                  htmlFor={`required-${question.id}`}
+                  className="text-sm cursor-pointer font-medium"
+                >
+                  Required field
+                </Label>
+              </div>
+            )}
+        </div>
+      </Card>
+    </motion.div>
   );
 }

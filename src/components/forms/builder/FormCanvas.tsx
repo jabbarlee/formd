@@ -5,6 +5,7 @@
 
 "use client";
 
+import { AnimatePresence } from "framer-motion";
 import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
 import { QuestionBlock } from "./QuestionBlock";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -30,8 +31,8 @@ export function FormCanvas() {
               Start Building Your Form
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Add questions from the left sidebar to get started, or click the
-              button below to add your first question.
+              Click on question types from the left sidebar to add them to your
+              form.
             </p>
           </div>
           <Button onClick={handleAddQuestion} size="lg">
@@ -55,15 +56,17 @@ export function FormCanvas() {
           </div>
         </div>
 
-        {/* Questions List */}
-        {questions.map((question, index) => (
-          <QuestionBlock
-            key={question.id}
-            question={question}
-            isSelected={selectedQuestionId === question.id}
-            index={index}
-          />
-        ))}
+        {/* Questions List with Animation */}
+        <AnimatePresence mode="popLayout">
+          {questions.map((question, index) => (
+            <QuestionBlock
+              key={question.id}
+              question={question}
+              isSelected={selectedQuestionId === question.id}
+              index={index}
+            />
+          ))}
+        </AnimatePresence>
 
         {/* Add Question Button */}
         <Button

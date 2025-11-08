@@ -26,6 +26,8 @@ interface FormBuilderActions {
   deleteQuestion: (questionId: string) => void;
   duplicateQuestion: (questionId: string) => void;
   reorderQuestions: (startIndex: number, endIndex: number) => void;
+  moveQuestionUp: (questionId: string) => void;
+  moveQuestionDown: (questionId: string) => void;
   selectQuestion: (questionId: string | null) => void;
 
   // Question option actions
@@ -321,6 +323,46 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
         }));
 
         set({ questions: reorderedQuestions, isDirty: true });
+      },
+
+      moveQuestionUp: (questionId) => {
+        const state = get();
+        const currentIndex = state.questions.findIndex(
+          (q) => q.id === questionId
+        );
+
+        if (currentIndex > 0) {
+          const questions = [...state.questions];
+          const [movedQuestion] = questions.splice(currentIndex, 1);
+          questions.splice(currentIndex - 1, 0, movedQuestion);
+
+          const reorderedQuestions = questions.map((q, index) => ({
+            ...q,
+            order: index,
+          }));
+
+          set({ questions: reorderedQuestions, isDirty: true });
+        }
+      },
+
+      moveQuestionDown: (questionId) => {
+        const state = get();
+        const currentIndex = state.questions.findIndex(
+          (q) => q.id === questionId
+        );
+
+        if (currentIndex < state.questions.length - 1) {
+          const questions = [...state.questions];
+          const [movedQuestion] = questions.splice(currentIndex, 1);
+          questions.splice(currentIndex + 1, 0, movedQuestion);
+
+          const reorderedQuestions = questions.map((q, index) => ({
+            ...q,
+            order: index,
+          }));
+
+          set({ questions: reorderedQuestions, isDirty: true });
+        }
       },
 
       selectQuestion: (questionId) => {
