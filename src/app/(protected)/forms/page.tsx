@@ -180,17 +180,21 @@ export default function FormsPage() {
                       </div>
                       <div className="flex gap-2 pt-2">
                         <Button
+                          size="sm"
+                          className="flex-1"
+                          asChild
+                        >
+                          <Link href={`/forms/${form.id}/responses`}>
+                            View Responses
+                          </Link>
+                        </Button>
+                        <Button
                           variant="outline"
                           size="sm"
                           className="flex-1"
                           asChild
                         >
                           <Link href={`/forms/${form.id}/edit`}>Edit</Link>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/forms/${form.id}/responses`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
                         </Button>
                       </div>
                     </div>
