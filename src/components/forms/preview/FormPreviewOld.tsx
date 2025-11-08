@@ -1,11 +1,10 @@
 /**
- * Interactive Form Preview Component
- * Shows how the form will look to respondents with working inputs
+ * Form Preview Component
+ * Shows how the form will look to respondents
  */
 
 "use client";
 
-import { useState } from "react";
 import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
 import { questionTypeMetadata } from "@/lib/types/forms";
 import type { Question } from "@/lib/types/forms";
@@ -25,23 +24,19 @@ import {
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { FileText, ArrowRight, Star, Upload } from "lucide-react";
+import { FileText, ArrowRight, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QuestionPreviewProps {
   question: Question;
   index: number;
   totalQuestions: number;
-  value: any;
-  onChange: (value: any) => void;
 }
 
 function QuestionPreview({
   question,
   index,
   totalQuestions,
-  value,
-  onChange,
 }: QuestionPreviewProps) {
   const metadata = questionTypeMetadata[question.type];
 
@@ -57,8 +52,7 @@ function QuestionPreview({
           <Input
             placeholder={question.placeholder || metadata.defaultTitle}
             type="text"
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            disabled
           />
         );
 
@@ -67,8 +61,7 @@ function QuestionPreview({
           <Input
             placeholder={question.placeholder || "email@example.com"}
             type="email"
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            disabled
           />
         );
 
@@ -77,8 +70,7 @@ function QuestionPreview({
           <Input
             placeholder={question.placeholder || "+1 (555) 000-0000"}
             type="tel"
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            disabled
           />
         );
 
@@ -90,8 +82,7 @@ function QuestionPreview({
             min={question.settings?.min}
             max={question.settings?.max}
             step={question.settings?.step || 1}
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            disabled
           />
         );
 
@@ -100,14 +91,13 @@ function QuestionPreview({
           <Textarea
             placeholder={question.placeholder || metadata.defaultTitle}
             rows={4}
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            disabled
           />
         );
 
       case "multiple_choice":
         return (
-          <RadioGroup value={value || ""} onValueChange={onChange}>
+          <RadioGroup disabled>
             {question.options?.map((option) => (
               <div key={option.id} className="flex items-center space-x-2">
                 <RadioGroupItem value={option.value} id={option.id} />
@@ -123,24 +113,11 @@ function QuestionPreview({
         );
 
       case "checkboxes":
-        const selectedValues = value || [];
         return (
           <div className="space-y-3">
             {question.options?.map((option) => (
               <div key={option.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={option.id}
-                  checked={selectedValues.includes(option.value)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      onChange([...selectedValues, option.value]);
-                    } else {
-                      onChange(
-                        selectedValues.filter((v: string) => v !== option.value)
-                      );
-                    }
-                  }}
-                />
+                <Checkbox id={option.id} disabled />
                 <Label
                   htmlFor={option.id}
                   className="font-normal cursor-pointer"
@@ -154,7 +131,7 @@ function QuestionPreview({
 
       case "dropdown":
         return (
-          <Select value={value || ""} onValueChange={onChange}>
+          <Select disabled>
             <SelectTrigger>
               <SelectValue placeholder="Select an option" />
             </SelectTrigger>
@@ -170,24 +147,15 @@ function QuestionPreview({
 
       case "star_rating":
         const maxRating = question.settings?.maxRating || 5;
-        const selectedRating = value || 0;
         return (
           <div className="flex gap-2">
             {Array.from({ length: maxRating }).map((_, idx) => (
               <button
                 key={idx}
-                type="button"
-                onClick={() => onChange(idx + 1)}
-                className="transition-colors cursor-pointer"
+                className="text-3xl text-gray-300 hover:text-yellow-400 transition-colors cursor-pointer disabled:cursor-default"
+                disabled
               >
-                <Star
-                  className={cn(
-                    "h-8 w-8",
-                    idx < selectedRating
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "fill-gray-200 text-gray-300 hover:text-yellow-400"
-                  )}
-                />
+                <Star className="h-8 w-8 fill-gray-200" />
               </button>
             ))}
           </div>
@@ -196,7 +164,6 @@ function QuestionPreview({
       case "linear_scale":
         const scaleMin = question.settings?.scaleMin || 1;
         const scaleMax = question.settings?.scaleMax || 5;
-        const selectedScale = value;
         return (
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -204,30 +171,20 @@ function QuestionPreview({
               <span>{question.settings?.maxLabel || "Very likely"}</span>
             </div>
             <div className="flex gap-2 justify-between">
-              {Array.from({ length: scaleMax - scaleMin + 1 }).map((_, idx) => {
-                const scaleValue = scaleMin + idx;
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => onChange(scaleValue)}
-                    className={cn(
-                      "h-12 w-12 flex items-center justify-center border-2 rounded-lg transition-colors",
-                      selectedScale === scaleValue
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "hover:border-primary hover:bg-primary/5"
-                    )}
-                  >
-                    <span className="text-sm font-medium">{scaleValue}</span>
-                  </button>
-                );
-              })}
+              {Array.from({ length: scaleMax - scaleMin + 1 }).map((_, idx) => (
+                <button
+                  key={idx}
+                  className="h-12 w-12 flex items-center justify-center border-2 rounded-lg hover:border-primary hover:bg-primary/5 transition-colors disabled:cursor-default"
+                  disabled
+                >
+                  <span className="text-sm font-medium">{scaleMin + idx}</span>
+                </button>
+              ))}
             </div>
           </div>
         );
 
       case "nps":
-        const selectedNPS = value;
         return (
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -238,24 +195,15 @@ function QuestionPreview({
               {Array.from({ length: 11 }).map((_, idx) => (
                 <button
                   key={idx}
-                  type="button"
-                  onClick={() => onChange(idx)}
                   className={cn(
-                    "h-12 flex-1 flex items-center justify-center border-2 rounded-lg transition-colors",
-                    selectedNPS === idx
-                      ? idx <= 6
-                        ? "border-red-500 bg-red-500 text-white"
-                        : idx <= 8
-                        ? "border-yellow-500 bg-yellow-500 text-white"
-                        : "border-green-500 bg-green-500 text-white"
-                      : cn(
-                          idx <= 6 && "hover:border-red-400 hover:bg-red-50",
-                          idx >= 7 &&
-                            idx <= 8 &&
-                            "hover:border-yellow-400 hover:bg-yellow-50",
-                          idx >= 9 && "hover:border-green-400 hover:bg-green-50"
-                        )
+                    "h-12 flex-1 flex items-center justify-center border-2 rounded-lg transition-colors disabled:cursor-default",
+                    idx <= 6 && "hover:border-red-400 hover:bg-red-50",
+                    idx >= 7 &&
+                      idx <= 8 &&
+                      "hover:border-yellow-400 hover:bg-yellow-50",
+                    idx >= 9 && "hover:border-green-400 hover:bg-green-50"
                   )}
+                  disabled
                 >
                   <span className="text-sm font-medium">{idx}</span>
                 </button>
@@ -266,20 +214,13 @@ function QuestionPreview({
 
       case "emoji_rating":
         const emojis = ["😡", "😞", "😐", "😊", "😍"];
-        const selectedEmoji = value;
         return (
           <div className="flex gap-3 justify-center">
             {emojis.map((emoji, idx) => (
               <button
                 key={idx}
-                type="button"
-                onClick={() => onChange(idx)}
-                className={cn(
-                  "text-5xl transition-transform",
-                  selectedEmoji === idx
-                    ? "scale-125"
-                    : "hover:scale-110 opacity-60 hover:opacity-100"
-                )}
+                className="text-5xl hover:scale-110 transition-transform disabled:cursor-default"
+                disabled
               >
                 {emoji}
               </button>
@@ -288,38 +229,20 @@ function QuestionPreview({
         );
 
       case "date":
-        return (
-          <Input
-            type="date"
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
-          />
-        );
+        return <Input type="date" disabled />;
 
       case "time":
-        return (
-          <Input
-            type="time"
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
-          />
-        );
+        return <Input type="time" disabled />;
 
       case "datetime":
-        return (
-          <Input
-            type="datetime-local"
-            value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
-          />
-        );
+        return <Input type="datetime-local" disabled />;
 
       case "file_upload":
         return (
-          <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
+          <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
             <div className="space-y-2">
               <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                <Upload className="h-6 w-6 text-muted-foreground" />
+                <FileText className="h-6 w-6 text-muted-foreground" />
               </div>
               <div>
                 <p className="text-sm font-medium">
@@ -351,18 +274,169 @@ function QuestionPreview({
       case "divider":
         return <Separator className="my-4" />;
 
-      // Complex question types - keep as display only
       case "signature":
-      case "matrix":
-      case "ranking":
-      case "payment":
-      case "location":
-      case "image_choice":
         return (
-          <div className="p-4 border-2 border-dashed rounded-lg bg-muted/30 text-center">
-            <p className="text-sm text-muted-foreground">
-              {metadata.label} - Preview not available in test mode
+          <div className="border-2 rounded-lg p-4 bg-white">
+            <div className="border-b-2 border-muted h-32 flex items-end justify-center pb-2">
+              <p className="text-sm text-muted-foreground italic">Sign here</p>
+            </div>
+            <div className="mt-2 flex justify-between items-center">
+              <p className="text-xs text-muted-foreground">
+                Draw your signature above
+              </p>
+              <Button variant="ghost" size="sm" disabled>
+                Clear
+              </Button>
+            </div>
+          </div>
+        );
+
+      case "matrix":
+        const matrixRows = question.settings?.rows || [];
+        const matrixColumns = question.settings?.columns || [];
+        return (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="border p-3 bg-muted/50"></th>
+                  {matrixColumns.map((col) => (
+                    <th
+                      key={col.id}
+                      className="border p-3 bg-muted/50 text-sm font-medium"
+                    >
+                      {col.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {matrixRows.map((row) => (
+                  <tr key={row.id}>
+                    <td className="border p-3 font-medium text-sm">
+                      {row.label}
+                    </td>
+                    {matrixColumns.map((col) => (
+                      <td key={col.id} className="border p-3 text-center">
+                        <RadioGroupItem
+                          value={`${row.id}-${col.id}`}
+                          disabled
+                          className="mx-auto"
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+
+      case "ranking":
+        return (
+          <div className="space-y-2">
+            {question.options?.map((option, idx) => (
+              <div
+                key={option.id}
+                className="flex items-center gap-3 p-3 border rounded-lg bg-white hover:shadow-sm transition-shadow"
+              >
+                <div className="flex items-center justify-center w-8 h-8 rounded bg-muted text-sm font-medium">
+                  {idx + 1}
+                </div>
+                <div className="flex-1">{option.label}</div>
+                <div className="text-muted-foreground">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </div>
+              </div>
+            ))}
+            <p className="text-xs text-muted-foreground mt-2">
+              Drag to reorder by preference
             </p>
+          </div>
+        );
+
+      case "payment":
+        return (
+          <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Amount:</span>
+              <span className="text-2xl font-bold">
+                {question.settings?.currency || "$"}
+                {question.settings?.amount || "0.00"}
+              </span>
+            </div>
+            <div className="space-y-2">
+              <Input placeholder="Card number" disabled />
+              <div className="grid grid-cols-2 gap-2">
+                <Input placeholder="MM/YY" disabled />
+                <Input placeholder="CVC" disabled />
+              </div>
+              <Input placeholder="Cardholder name" disabled />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              🔒 Secure payment processing
+            </p>
+          </div>
+        );
+
+      case "location":
+        return (
+          <div className="space-y-2">
+            <Input
+              placeholder="Search for a location..."
+              disabled
+              className="mb-2"
+            />
+            <div className="border rounded-lg h-48 bg-muted/30 flex items-center justify-center">
+              <p className="text-sm text-muted-foreground">Map view</p>
+            </div>
+          </div>
+        );
+
+      case "image_choice":
+        const imageSize = question.settings?.imageSize || "medium";
+        const gridCols =
+          imageSize === "large"
+            ? "grid-cols-2"
+            : imageSize === "small"
+            ? "grid-cols-4"
+            : "grid-cols-3";
+        return (
+          <div className={`grid ${gridCols} gap-3`}>
+            {question.options?.map((option) => (
+              <div
+                key={option.id}
+                className="relative border-2 rounded-lg overflow-hidden hover:border-primary transition-colors cursor-pointer"
+              >
+                <div className="aspect-square bg-muted flex items-center justify-center">
+                  {option.image ? (
+                    <img
+                      src={option.image}
+                      alt={option.label}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <FileText className="h-8 w-8 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="p-2 text-center text-sm">{option.label}</div>
+                <div className="absolute top-2 right-2">
+                  <div className="w-5 h-5 rounded-full border-2 bg-white"></div>
+                </div>
+              </div>
+            ))}
           </div>
         );
 
@@ -429,29 +503,11 @@ function QuestionPreview({
 
 export function FormPreview() {
   const { form, questions } = useFormBuilderStore();
-  const [formData, setFormData] = useState<Record<string, any>>({});
 
   const visibleQuestions = questions.filter(
     (q) => !["divider", "text_content", "section_heading"].includes(q.type)
   );
-
-  const answeredCount = Object.keys(formData).length;
-  const progress =
-    visibleQuestions.length > 0
-      ? Math.round((answeredCount / visibleQuestions.length) * 100)
-      : 0;
-
-  const handleQuestionChange = (questionId: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
-  };
-
-  const handleSubmit = () => {
-    console.log("Form submitted:", formData);
-    alert("Form submitted! Check console for data.");
-  };
+  const progress = 0; // Would be calculated based on answered questions
 
   if (questions.length === 0) {
     return (
@@ -515,10 +571,6 @@ export function FormPreview() {
                     question={question}
                     index={visibleIndex >= 0 ? visibleIndex : index}
                     totalQuestions={visibleQuestions.length}
-                    value={formData[question.id]}
-                    onChange={(value) =>
-                      handleQuestionChange(question.id, value)
-                    }
                   />
                 </div>
               );
@@ -527,7 +579,7 @@ export function FormPreview() {
 
           {/* Submit Button */}
           <div className="mt-8 bg-card rounded-lg shadow-sm border p-6">
-            <Button className="w-full" size="lg" onClick={handleSubmit}>
+            <Button className="w-full" size="lg" disabled>
               Submit
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
