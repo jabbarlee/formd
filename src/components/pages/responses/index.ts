@@ -2,6 +2,7 @@
 export { ResponsesListView } from "./ResponsesListView";
 export { ResponsesTableView } from "./ResponsesTableView";
 export { ResponsesGridView } from "./ResponsesGridView";
+export { ResponsesSummaryView } from "./ResponsesSummaryView";
 
 // Supporting components
 export { ResponseDetailSheet } from "./ResponseDetailSheet";

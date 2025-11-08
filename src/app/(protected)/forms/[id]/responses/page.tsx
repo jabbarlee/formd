@@ -11,7 +11,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Download, Table as TableIcon, Sparkles } from "lucide-react";
+import {
+  Download,
+  Table as TableIcon,
+  Sparkles,
+  BarChart3,
+} from "lucide-react";
 import { mockResponses, mockFormWithQuestions } from "@/lib/mock-data";
 import {
   FormResponse,
@@ -19,6 +24,7 @@ import {
   ResponseStats,
 } from "@/lib/types/forms";
 import { ResponsesTableView } from "@/components/pages/responses/ResponsesTableView";
+import { ResponsesSummaryView } from "@/components/pages/responses/ResponsesSummaryView";
 import { ResponseDetailSheet } from "@/components/pages/responses/ResponseDetailSheet";
 import { ResponsesFilters } from "@/components/pages/responses/ResponsesFilters";
 import { ResponsesStats } from "@/components/pages/responses/ResponsesStats";
@@ -214,6 +220,10 @@ export default function FormResponsesPage({
               <TableIcon className="h-4 w-4" />
               <span className="hidden sm:inline">Table View</span>
             </TabsTrigger>
+            <TabsTrigger value="summary" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Summary</span>
+            </TabsTrigger>
             <TabsTrigger value="insights" className="gap-2">
               <Sparkles className="h-4 w-4" />
               <span className="hidden sm:inline">AI Insights</span>
@@ -226,6 +236,13 @@ export default function FormResponsesPage({
             responses={transformedResponses}
             onView={handleViewResponse}
             onDelete={handleDeleteResponse}
+          />
+        </TabsContent>
+
+        <TabsContent value="summary" className="mt-0">
+          <ResponsesSummaryView
+            questions={form.questions}
+            responses={filteredResponses}
           />
         </TabsContent>
 

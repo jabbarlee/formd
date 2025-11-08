@@ -116,16 +116,16 @@ export function ResponseDetailSheet({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-lg">
-        <SheetHeader>
+      <SheetContent className="w-full sm:max-w-lg overflow-hidden flex flex-col">
+        <SheetHeader className="px-6 pt-6">
           <SheetTitle>Response Details</SheetTitle>
           <SheetDescription>
             View complete submission details and metadata
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-120px)] pr-4 mt-6">
-          <div className="space-y-6">
+        <ScrollArea className="flex-1 px-6">
+          <div className="space-y-6 py-6">
             {/* Respondent Info */}
             <div className="flex items-start gap-4">
               <Avatar className="h-16 w-16">
@@ -229,7 +229,7 @@ export function ResponseDetailSheet({
             <Separator />
 
             {/* Actions */}
-            <div className="space-y-2 pb-4">
+            <div className="space-y-2 pb-6">
               <Button variant="outline" className="w-full" size="sm">
                 <Download className="h-4 w-4 mr-2" />
                 Export Response
