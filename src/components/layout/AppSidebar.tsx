@@ -57,11 +57,6 @@ const mainItems = [
     url: "/templates",
     icon: Layout,
   },
-  {
-    title: "Responses",
-    url: "/responses",
-    icon: Inbox,
-  },
 ];
 
 const settingsItems = [
@@ -141,7 +136,7 @@ export function AppSidebar() {
                 <Button
                   variant="default"
                   size="sm"
-                  className="w-full justify-start min-w-0 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-sm"
+                  className="w-full justify-start min-w-0 "
                 >
                   <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
                   <span className="truncate">New Form</span>
@@ -194,6 +189,7 @@ export function AppSidebar() {
                 {displayEmail}
               </span>
             </div>
+            <SidebarTrigger className="flex-shrink-0 z-50" />
           </div>
         </div>
       </SidebarFooter>

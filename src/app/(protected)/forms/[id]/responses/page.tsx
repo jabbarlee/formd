@@ -1,245 +1,428 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Download, Search, Filter, Eye, Trash2, TrendingUp, Users, Clock } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+"use client";
 
-export default function FormResponsesPage() {
-  const responses = [
-    { id: "R001", name: "Sarah Johnson", email: "sarah@example.com", submitted: "2 hours ago", status: "completed" },
-    { id: "R002", name: "Michael Chen", email: "michael@example.com", submitted: "5 hours ago", status: "completed" },
-    { id: "R003", name: "Emily Rodriguez", email: "emily@example.com", submitted: "1 day ago", status: "completed" },
-    { id: "R004", name: "David Park", email: "david@example.com", submitted: "1 day ago", status: "flagged" },
-    { id: "R005", name: "Lisa Thompson", email: "lisa@example.com", submitted: "2 days ago", status: "completed" },
-    { id: "R006", name: "James Wilson", email: "james@example.com", submitted: "3 days ago", status: "completed" },
-  ];
+import { use, useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table as TableIcon, Sparkles, BarChart3 } from "lucide-react";
+import { mockResponses, mockFormWithQuestions } from "@/lib/mock-data";
+import {
+  FormResponse,
+  ResponseFilters,
+  ResponseStats,
+} from "@/lib/types/forms";
+import { ResponsesTableView } from "@/components/pages/responses/ResponsesTableView";
+import { ResponsesSummaryView } from "@/components/pages/responses/ResponsesSummaryView";
+import { ResponseDetailSheet } from "@/components/pages/responses/ResponseDetailSheet";
+import { ResponsesFilters } from "@/components/pages/responses/ResponsesFilters";
+import { ResponsesStats } from "@/components/pages/responses/ResponsesStats";
+import { FormResponsesHeader } from "@/components/pages/responses/FormResponsesHeader";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+export default function FormResponsesPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const [filters, setFilters] = useState<ResponseFilters>({
+    search: undefined,
+    status: undefined,
+    device: undefined,
+  });
+  const [selectedResponse, setSelectedResponse] = useState<FormResponse | null>(
+    null
+  );
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  // In a real app, fetch form and responses based on id
+  const form = mockFormWithQuestions;
+  // For now, show all responses for formId "1" regardless of the URL param
+  // In production, you'd filter by id
+  const allResponses = mockResponses.filter((r) => r.formId === "1");
+
+  console.log("Form ID:", id);
+  console.log("All responses:", allResponses.length);
+  console.log("Mock responses:", mockResponses.length);
+
+  // Filter responses
+  const filteredResponses = useMemo(() => {
+    return allResponses.filter((response) => {
+      // Search filter
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        const matchesSearch =
+          response.id.toLowerCase().includes(searchLower) ||
+          response.respondent.name?.toLowerCase().includes(searchLower) ||
+          response.respondent.email?.toLowerCase().includes(searchLower);
+        if (!matchesSearch) return false;
+      }
+
+      // Status filter
+      if (filters.status && filters.status !== "all") {
+        if (response.status !== filters.status) return false;
+      }
+
+      // Device filter
+      if (filters.device && filters.device !== "all") {
+        if (response.device !== filters.device) return false;
+      }
+
+      return true;
+    });
+  }, [allResponses, filters]);
+
+  // Transform responses for view components
+  const transformedResponses = useMemo(() => {
+    return filteredResponses.map((r) => ({
+      id: r.id,
+      formName: form.title,
+      respondent: r.respondent.name || r.respondent.email || "Anonymous",
+      submittedAt: r.submittedAt,
+      status: r.status,
+      score: r.data.q1_satisfaction,
+      duration: r.completionTime
+        ? `${Math.floor(r.completionTime / 60)}m ${r.completionTime % 60}s`
+        : "N/A",
+      answers: Object.keys(r.data).length,
+      totalQuestions: form.questions.length,
+    }));
+  }, [filteredResponses, form]);
+
+  // Calculate stats
+  const stats: ResponseStats = useMemo(() => {
+    const total = allResponses.length;
+    const completed = allResponses.filter(
+      (r) => r.status === "completed"
+    ).length;
+    const partial = allResponses.filter((r) => r.status === "partial").length;
+    const flagged = allResponses.filter((r) => r.status === "flagged").length;
+    const completionRate = total > 0 ? (completed / total) * 100 : 0;
+
+    // Calculate average completion time
+    const completedWithTime = allResponses.filter(
+      (r) => r.status === "completed" && r.completionTime
+    );
+    const averageTime =
+      completedWithTime.length > 0
+        ? completedWithTime.reduce(
+            (sum, r) => sum + (r.completionTime || 0),
+            0
+          ) / completedWithTime.length
+        : 0;
+
+    // Count today's responses (mock data)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayCount = allResponses.filter((r) => {
+      const responseDate = new Date(r.submittedAt);
+      responseDate.setHours(0, 0, 0, 0);
+      return responseDate.getTime() === today.getTime();
+    }).length;
+
+    return {
+      total,
+      completed,
+      partial,
+      flagged,
+      completionRate,
+      averageTime: Math.round(averageTime),
+      todayCount,
+      weekGrowth: 12,
+    };
+  }, [allResponses]);
+
+  const handleViewResponse = (id: string) => {
+    const response = filteredResponses.find((r) => r.id === id);
+    if (response) {
+      setSelectedResponse(response);
+      setIsDetailOpen(true);
+    }
+  };
+
+  const handleDeleteResponse = (id: string) => {
+    console.log("Delete response:", id);
+  };
+
+  const handleFlagResponse = (id: string) => {
+    console.log("Flag response:", id);
+  };
+
+  const handleExport = () => {
+    console.log("Export responses");
+  };
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/forms">Forms</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/forms/1/edit">Customer Feedback Survey</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Responses</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="flex items-center justify-between mt-4">
-          <div>
-            <h1 className="text-3xl font-bold">Responses</h1>
-            <p className="text-muted-foreground">234 total responses</p>
+    <div>
+      <FormResponsesHeader
+        formTitle={form.title}
+        formId={id}
+        totalResponses={stats.total}
+        onExport={handleExport}
+      />
+
+      <div className="space-y-6 p-6">
+        <ResponsesStats stats={stats} />
+
+        <ResponsesFilters
+          filters={filters}
+          onFiltersChange={setFilters}
+          totalCount={allResponses.length}
+          filteredCount={filteredResponses.length}
+        />
+
+        <Tabs defaultValue="table" className="w-full">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList>
+              <TabsTrigger value="table" className="gap-2">
+                <TableIcon className="h-4 w-4" />
+                <span className="hidden sm:inline">Table View</span>
+              </TabsTrigger>
+              <TabsTrigger value="summary" className="gap-2">
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Summary</span>
+              </TabsTrigger>
+              <TabsTrigger value="insights" className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                <span className="hidden sm:inline">AI Insights</span>
+              </TabsTrigger>
+            </TabsList>
           </div>
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Responses</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">234</div>
-            <p className="text-xs text-muted-foreground">+12 from last week</p>
-          </CardContent>
-        </Card>
+          <TabsContent value="table" className="mt-0">
+            <ResponsesTableView
+              responses={transformedResponses}
+              onView={handleViewResponse}
+              onDelete={handleDeleteResponse}
+            />
+          </TabsContent>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">68%</div>
-            <p className="text-xs text-muted-foreground">+2% from last week</p>
-          </CardContent>
-        </Card>
+          <TabsContent value="summary" className="mt-0">
+            <ResponsesSummaryView
+              questions={form.questions}
+              responses={filteredResponses}
+            />
+          </TabsContent>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Avg Completion Time</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">3.2 min</div>
-            <p className="text-xs text-muted-foreground">-0.3 min from last week</p>
-          </CardContent>
-        </Card>
-      </div>
+          <TabsContent value="insights" className="mt-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sentiment Analysis</CardTitle>
+                  <CardDescription>
+                    Overall sentiment from text responses
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium">Positive</span>
+                        <span className="text-sm text-muted-foreground">
+                          68%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-green-500"
+                          style={{ width: "68%" }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium">Neutral</span>
+                        <span className="text-sm text-muted-foreground">
+                          22%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gray-500"
+                          style={{ width: "22%" }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium">Negative</span>
+                        <span className="text-sm text-muted-foreground">
+                          10%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-red-500"
+                          style={{ width: "10%" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-      <Tabs defaultValue="table" className="w-full">
-        <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="table">Table View</TabsTrigger>
-            <TabsTrigger value="insights">AI Insights</TabsTrigger>
-          </TabsList>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Common Themes</CardTitle>
+                  <CardDescription>
+                    AI-identified topics from responses
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { theme: "Customer Service", count: 45 },
+                      { theme: "Product Quality", count: 38 },
+                      { theme: "Pricing", count: 29 },
+                      { theme: "Delivery Speed", count: 22 },
+                      { theme: "User Experience", count: 18 },
+                    ].map((item, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="text-sm font-medium">
+                          {item.theme}
+                        </span>
+                        <Badge variant="secondary">{item.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
-          <div className="flex gap-2">
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search responses..." className="pl-10" />
-            </div>
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="flagged">Flagged</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <TabsContent value="table" className="mt-4">
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Respondent</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Submitted</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {responses.map((response) => (
-                    <TableRow key={response.id}>
-                      <TableCell className="font-medium">{response.id}</TableCell>
-                      <TableCell>{response.name}</TableCell>
-                      <TableCell className="text-muted-foreground">{response.email}</TableCell>
-                      <TableCell className="text-muted-foreground">{response.submitted}</TableCell>
-                      <TableCell>
-                        <Badge variant={response.status === "completed" ? "default" : "destructive"}>
-                          {response.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Response Trends</CardTitle>
+                  <CardDescription>Daily submission patterns</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Monday</span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500"
+                            style={{ width: "75%" }}
+                          />
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                        <span className="font-medium">32</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Tuesday</span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500"
+                            style={{ width: "85%" }}
+                          />
+                        </div>
+                        <span className="font-medium">38</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Wednesday</span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500"
+                            style={{ width: "90%" }}
+                          />
+                        </div>
+                        <span className="font-medium">42</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Thursday</span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500"
+                            style={{ width: "70%" }}
+                          />
+                        </div>
+                        <span className="font-medium">28</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Friday</span>
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500"
+                            style={{ width: "55%" }}
+                          />
+                        </div>
+                        <span className="font-medium">24</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-        <TabsContent value="insights" className="mt-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sentiment Analysis</CardTitle>
-                <CardDescription>Overall sentiment from text responses</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Positive</span>
-                      <span className="text-sm text-muted-foreground">68%</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-green-500" style={{ width: "68%" }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Neutral</span>
-                      <span className="text-sm text-muted-foreground">22%</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-gray-500" style={{ width: "22%" }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Negative</span>
-                      <span className="text-sm text-muted-foreground">10%</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-red-500" style={{ width: "10%" }} />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Key Insights</CardTitle>
+                  <CardDescription>AI-generated summary</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3 text-sm">
+                    <li className="flex gap-2">
+                      <span className="text-green-600 font-bold">+</span>
+                      <span>
+                        Customers highly appreciate the responsive customer
+                        service team
+                      </span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-green-600 font-bold">+</span>
+                      <span>
+                        Product quality consistently receives positive feedback
+                      </span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-yellow-600 font-bold">~</span>
+                      <span>
+                        Response times could be improved during peak hours
+                      </span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-red-600 font-bold">-</span>
+                      <span>
+                        Checkout process has reported bugs that need attention
+                      </span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-blue-600 font-bold">→</span>
+                      <span>
+                        Mobile experience improvements requested by multiple
+                        users
+                      </span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Common Themes</CardTitle>
-                <CardDescription>AI-identified topics from responses</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    { theme: "Customer Service", count: 45 },
-                    { theme: "Product Quality", count: 38 },
-                    { theme: "Pricing", count: 29 },
-                    { theme: "Delivery Speed", count: 22 },
-                    { theme: "User Experience", count: 18 },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{item.theme}</span>
-                      <Badge variant="secondary">{item.count}</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+        <ResponseDetailSheet
+          response={selectedResponse}
+          isOpen={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+          onDelete={handleDeleteResponse}
+          onFlag={handleFlagResponse}
+          formQuestions={form.questions}
+        />
+      </div>
     </div>
   );
 }
