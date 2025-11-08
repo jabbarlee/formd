@@ -11,15 +11,6 @@ export function ProfileHeader() {
       icon={User}
       iconColor="text-indigo-600"
       iconBgColor="bg-indigo-50 dark:bg-indigo-950"
-      actionButton={{
-        label: "Save Changes",
-        icon: Save,
-        variant: "default",
-        onClick: () => {
-          // Handle save changes
-          console.log("Save changes clicked");
-        },
-      }}
     />
   );
 }

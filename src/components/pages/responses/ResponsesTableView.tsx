@@ -33,7 +33,6 @@ import { useState } from "react";
 
 interface Response {
   id: string;
-  formName: string;
   respondent: string;
   submittedAt: string;
   status: "completed" | "partial" | "flagged";
@@ -183,17 +182,7 @@ export function ResponsesTableView({
                   <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
               </TableHead>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-2 hover:bg-transparent"
-                  onClick={() => handleSort("formName")}
-                >
-                  Form
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
+
               <TableHead>Respondent</TableHead>
               <TableHead>
                 <Button
@@ -239,9 +228,6 @@ export function ResponsesTableView({
                 </TableCell>
                 <TableCell className="font-mono text-xs">
                   {response.id}
-                </TableCell>
-                <TableCell className="font-medium">
-                  {response.formName}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2 text-sm">

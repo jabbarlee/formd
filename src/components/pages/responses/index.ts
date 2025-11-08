@@ -9,3 +9,4 @@ export { ResponseDetailSheet } from "./ResponseDetailSheet";
 export { ResponsesFilters } from "./ResponsesFilters";
 export { ResponsesStats } from "./ResponsesStats";
 export { ResponsesHeader } from "./ResponsesHeader";
+export { FormResponsesHeader } from "./FormResponsesHeader";
