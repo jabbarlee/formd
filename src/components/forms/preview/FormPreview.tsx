@@ -26,7 +26,14 @@ import {
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { FileText, ArrowRight, Star, Upload, Calendar, MapPin } from "lucide-react";
+import {
+  FileText,
+  ArrowRight,
+  Star,
+  Upload,
+  Calendar,
+  MapPin,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QuestionPreviewProps {
