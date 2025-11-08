@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { use, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -40,8 +40,9 @@ import { Badge } from "@/components/ui/badge";
 export default function FormResponsesPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const [filters, setFilters] = useState<ResponseFilters>({
     search: undefined,
     status: undefined,
@@ -52,13 +53,13 @@ export default function FormResponsesPage({
   );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // In a real app, fetch form and responses based on params.id
+  // In a real app, fetch form and responses based on id
   const form = mockFormWithQuestions;
   // For now, show all responses for formId "1" regardless of the URL param
-  // In production, you'd filter by params.id
+  // In production, you'd filter by id
   const allResponses = mockResponses.filter((r) => r.formId === "1");
 
-  console.log("Form ID:", params.id);
+  console.log("Form ID:", id);
   console.log("All responses:", allResponses.length);
   console.log("Mock responses:", mockResponses.length);
 
@@ -179,7 +180,7 @@ export default function FormResponsesPage({
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href={`/forms/${params.id}/edit`}>
+              <BreadcrumbLink href={`/forms/${id}/edit`}>
                 {form.title}
               </BreadcrumbLink>
             </BreadcrumbItem>

@@ -57,11 +57,6 @@ const mainItems = [
     url: "/templates",
     icon: Layout,
   },
-  {
-    title: "Responses",
-    url: "/responses",
-    icon: Inbox,
-  },
 ];
 
 const settingsItems = [
