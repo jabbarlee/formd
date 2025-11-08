@@ -382,31 +382,43 @@ export function QuestionBlock({
   return (
     <Card
       className={cn(
-        "group relative transition-all",
-        isSelected && "ring-2 ring-primary shadow-lg",
-        !isSelected && "hover:shadow-md"
+        "group relative transition-all duration-200 cursor-pointer overflow-hidden",
+        isSelected
+          ? "shadow-lg bg-primary/3"
+          : "hover:shadow-md bg-white"
       )}
       onClick={handleSelect}
     >
+      {/* Selection Indicator Bar */}
+      {isSelected && (
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+      )}
+
       {/* Drag Handle */}
-      <div className="absolute left-2 top-4 opacity-0 group-hover:opacity-100 transition-opacity cursor-move">
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
+      <div className="absolute left-3 top-6 opacity-0 group-hover:opacity-100 transition-opacity cursor-move">
+        <GripVertical className="h-5 w-5 text-muted-foreground/60 hover:text-muted-foreground" />
       </div>
 
       {/* Question Content */}
-      <div className="pl-10 pr-4 py-4">
+      <div className="pl-12 pr-4 py-5">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-3">
-          <div className="flex-1 space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground">
-                {index + 1}.
-              </span>
-              <Badge variant="outline" className="text-xs">
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex-1 space-y-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                {index + 1}
+              </div>
+              <Badge
+                variant="secondary"
+                className="text-xs font-medium bg-muted/50"
+              >
                 {metadata.label}
               </Badge>
               {question.required && (
-                <Badge variant="destructive" className="text-xs">
+                <Badge
+                  variant="destructive"
+                  className="text-xs bg-red-100 text-red-700 hover:bg-red-100"
+                >
                   Required
                 </Badge>
               )}
@@ -414,29 +426,35 @@ export function QuestionBlock({
 
             {/* Editable Title */}
             {question.type === "section_heading" ? (
-              <Input
-                value={question.title}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                className="text-xl font-bold border-0 px-0 focus-visible:ring-0"
-                placeholder="Section Title"
-              />
+              <div className="relative group/title">
+                <Input
+                  value={question.title}
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  className="text-xl font-bold border-0 px-0 py-1 focus-visible:ring-0 bg-transparent shadow-none hover:bg-muted/30 focus:bg-muted/50 transition-colors rounded-sm"
+                  placeholder="Section Title"
+                />
+              </div>
             ) : (
-              <Input
-                value={question.title}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                className="font-medium border-0 px-0 focus-visible:ring-0"
-                placeholder="Question title"
-              />
+              <div className="relative group/title">
+                <Input
+                  value={question.title}
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  className="text-base font-semibold border-0 px-0 py-1 focus-visible:ring-0 bg-transparent shadow-none hover:bg-muted/30 focus:bg-muted/50 transition-colors rounded-sm placeholder:text-muted-foreground/40"
+                  placeholder="Click to add question title..."
+                />
+              </div>
             )}
 
             {/* Description */}
             {isExpanded && question.type !== "divider" && (
-              <Textarea
-                value={question.description || ""}
-                onChange={(e) => handleDescriptionChange(e.target.value)}
-                className="text-sm border-0 px-0 focus-visible:ring-0 min-h-[60px]"
-                placeholder="Add description (optional)"
-              />
+              <div className="relative group/desc">
+                <Textarea
+                  value={question.description || ""}
+                  onChange={(e) => handleDescriptionChange(e.target.value)}
+                  className="text-sm text-muted-foreground border-0 px-0 py-1 focus-visible:ring-0 min-h-[50px] bg-transparent shadow-none hover:bg-muted/30 focus:bg-muted/50 transition-colors resize-none rounded-sm placeholder:text-muted-foreground/40"
+                  placeholder="Click to add description (optional)..."
+                />
+              </div>
             )}
           </div>
 
@@ -445,6 +463,7 @@ export function QuestionBlock({
             <Button
               variant="ghost"
               size="sm"
+              className="h-8 w-8 p-0"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsExpanded(!isExpanded);
@@ -459,6 +478,7 @@ export function QuestionBlock({
             <Button
               variant="ghost"
               size="sm"
+              className="h-8 w-8 p-0"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDuplicate();
@@ -469,12 +489,13 @@ export function QuestionBlock({
             <Button
               variant="ghost"
               size="sm"
+              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDelete();
               }}
             >
-              <Trash2 className="h-4 w-4 text-destructive" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -489,7 +510,7 @@ export function QuestionBlock({
           question.type !== "section_heading" &&
           question.type !== "text_content" &&
           question.type !== "divider" && (
-            <div className="flex items-center gap-2 mt-4 pt-3 border-t">
+            <div className="flex items-center gap-3 mt-5 pt-4 border-t border-dashed">
               <Switch
                 id={`required-${question.id}`}
                 checked={question.required}
@@ -498,9 +519,9 @@ export function QuestionBlock({
               />
               <Label
                 htmlFor={`required-${question.id}`}
-                className="text-sm cursor-pointer"
+                className="text-sm cursor-pointer font-medium"
               >
-                Required
+                Required field
               </Label>
             </div>
           )}
