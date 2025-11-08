@@ -173,14 +173,17 @@ export function PropertiesPanel() {
                     min="3"
                     max="10"
                     value={selectedQuestion.settings?.maxRating || 5}
-                    onChange={(e) =>
-                      updateQuestion(selectedQuestion.id, {
-                        settings: {
-                          ...selectedQuestion.settings,
-                          maxRating: parseInt(e.target.value),
-                        },
-                      })
-                    }
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (!isNaN(val)) {
+                        updateQuestion(selectedQuestion.id, {
+                          settings: {
+                            ...selectedQuestion.settings,
+                            maxRating: val,
+                          },
+                        });
+                      }
+                    }}
                   />
                 </div>
               )}
@@ -194,14 +197,17 @@ export function PropertiesPanel() {
                         id="scale-min"
                         type="number"
                         value={selectedQuestion.settings?.scaleMin || 1}
-                        onChange={(e) =>
-                          updateQuestion(selectedQuestion.id, {
-                            settings: {
-                              ...selectedQuestion.settings,
-                              scaleMin: parseInt(e.target.value),
-                            },
-                          })
-                        }
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (!isNaN(val)) {
+                            updateQuestion(selectedQuestion.id, {
+                              settings: {
+                                ...selectedQuestion.settings,
+                                scaleMin: val,
+                              },
+                            });
+                          }
+                        }}
                       />
                     </div>
                     <div className="space-y-2">
@@ -210,14 +216,17 @@ export function PropertiesPanel() {
                         id="scale-max"
                         type="number"
                         value={selectedQuestion.settings?.scaleMax || 5}
-                        onChange={(e) =>
-                          updateQuestion(selectedQuestion.id, {
-                            settings: {
-                              ...selectedQuestion.settings,
-                              scaleMax: parseInt(e.target.value),
-                            },
-                          })
-                        }
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (!isNaN(val)) {
+                            updateQuestion(selectedQuestion.id, {
+                              settings: {
+                                ...selectedQuestion.settings,
+                                scaleMax: val,
+                              },
+                            });
+                          }
+                        }}
                       />
                     </div>
                   </div>
@@ -265,14 +274,17 @@ export function PropertiesPanel() {
                         id="number-min"
                         type="number"
                         value={selectedQuestion.settings?.min ?? 0}
-                        onChange={(e) =>
-                          updateQuestion(selectedQuestion.id, {
-                            settings: {
-                              ...selectedQuestion.settings,
-                              min: parseFloat(e.target.value),
-                            },
-                          })
-                        }
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          if (!isNaN(val)) {
+                            updateQuestion(selectedQuestion.id, {
+                              settings: {
+                                ...selectedQuestion.settings,
+                                min: val,
+                              },
+                            });
+                          }
+                        }}
                       />
                     </div>
                     <div className="space-y-2">
@@ -281,14 +293,17 @@ export function PropertiesPanel() {
                         id="number-max"
                         type="number"
                         value={selectedQuestion.settings?.max ?? 100}
-                        onChange={(e) =>
-                          updateQuestion(selectedQuestion.id, {
-                            settings: {
-                              ...selectedQuestion.settings,
-                              max: parseFloat(e.target.value),
-                            },
-                          })
-                        }
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          if (!isNaN(val)) {
+                            updateQuestion(selectedQuestion.id, {
+                              settings: {
+                                ...selectedQuestion.settings,
+                                max: val,
+                              },
+                            });
+                          }
+                        }}
                       />
                     </div>
                   </div>
@@ -300,14 +315,17 @@ export function PropertiesPanel() {
                       min="0.01"
                       step="0.01"
                       value={selectedQuestion.settings?.step ?? 1}
-                      onChange={(e) =>
-                        updateQuestion(selectedQuestion.id, {
-                          settings: {
-                            ...selectedQuestion.settings,
-                            step: parseFloat(e.target.value),
-                          },
-                        })
-                      }
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val)) {
+                          updateQuestion(selectedQuestion.id, {
+                            settings: {
+                              ...selectedQuestion.settings,
+                              step: val,
+                            },
+                          });
+                        }
+                      }}
                     />
                   </div>
                 </div>
@@ -340,14 +358,17 @@ export function PropertiesPanel() {
                       min="0"
                       step="0.01"
                       value={selectedQuestion.settings?.amount ?? 0}
-                      onChange={(e) =>
-                        updateQuestion(selectedQuestion.id, {
-                          settings: {
-                            ...selectedQuestion.settings,
-                            amount: parseFloat(e.target.value),
-                          },
-                        })
-                      }
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (!isNaN(val)) {
+                          updateQuestion(selectedQuestion.id, {
+                            settings: {
+                              ...selectedQuestion.settings,
+                              amount: val,
+                            },
+                          });
+                        }
+                      }}
                     />
                   </div>
                 </div>
@@ -389,14 +410,17 @@ export function PropertiesPanel() {
                       min="1"
                       max="100"
                       value={selectedQuestion.settings?.maxFileSize || 10}
-                      onChange={(e) =>
-                        updateQuestion(selectedQuestion.id, {
-                          settings: {
-                            ...selectedQuestion.settings,
-                            maxFileSize: parseInt(e.target.value),
-                          },
-                        })
-                      }
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val)) {
+                          updateQuestion(selectedQuestion.id, {
+                            settings: {
+                              ...selectedQuestion.settings,
+                              maxFileSize: val,
+                            },
+                          });
+                        }
+                      }}
                     />
                   </div>
                   <div className="space-y-2">
@@ -407,14 +431,17 @@ export function PropertiesPanel() {
                       min="1"
                       max="10"
                       value={selectedQuestion.settings?.maxFiles || 1}
-                      onChange={(e) =>
-                        updateQuestion(selectedQuestion.id, {
-                          settings: {
-                            ...selectedQuestion.settings,
-                            maxFiles: parseInt(e.target.value),
-                          },
-                        })
-                      }
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val)) {
+                          updateQuestion(selectedQuestion.id, {
+                            settings: {
+                              ...selectedQuestion.settings,
+                              maxFiles: val,
+                            },
+                          });
+                        }
+                      }}
                     />
                   </div>
                 </>
