@@ -163,7 +163,12 @@ export function ResponsesGridView({
                           : "text-muted-foreground"
                       )}
                     />
-                    <span className={cn("text-lg font-bold", getScoreColor(response.score))}>
+                    <span
+                      className={cn(
+                        "text-lg font-bold",
+                        getScoreColor(response.score)
+                      )}
+                    >
                       {response.score.toFixed(1)}
                     </span>
                   </div>

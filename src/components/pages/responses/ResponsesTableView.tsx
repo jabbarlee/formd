@@ -144,9 +144,7 @@ export function ResponsesTableView({
             <Button
               size="sm"
               variant="outline"
-              onClick={() =>
-                onBulkAction?.(Array.from(selectedIds), "export")
-              }
+              onClick={() => onBulkAction?.(Array.from(selectedIds), "export")}
             >
               <Download className="h-4 w-4 mr-2" />
               Export Selected
@@ -155,9 +153,7 @@ export function ResponsesTableView({
               size="sm"
               variant="outline"
               className="hover:bg-rose-100 hover:text-rose-600"
-              onClick={() =>
-                onBulkAction?.(Array.from(selectedIds), "delete")
-              }
+              onClick={() => onBulkAction?.(Array.from(selectedIds), "delete")}
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete Selected
