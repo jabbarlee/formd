@@ -163,7 +163,116 @@ export function PropertiesPanel() {
                   </div>
                 )}
 
+              <Separator />
+
               {/* Type-specific settings */}
+
+              {/* Short Text Settings */}
+              {selectedQuestion.type === "short_text" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Text Settings</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="min-length">Min Length</Label>
+                      <Input
+                        id="min-length"
+                        type="number"
+                        min="0"
+                        value={selectedQuestion.settings?.minLength ?? ""}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (!isNaN(val) || e.target.value === "") {
+                            updateQuestion(selectedQuestion.id, {
+                              settings: {
+                                ...selectedQuestion.settings,
+                                minLength:
+                                  e.target.value === "" ? undefined : val,
+                              },
+                            });
+                          }
+                        }}
+                        placeholder="No limit"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="max-length">Max Length</Label>
+                      <Input
+                        id="max-length"
+                        type="number"
+                        min="1"
+                        value={selectedQuestion.settings?.maxLength ?? ""}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (!isNaN(val) || e.target.value === "") {
+                            updateQuestion(selectedQuestion.id, {
+                              settings: {
+                                ...selectedQuestion.settings,
+                                maxLength:
+                                  e.target.value === "" ? undefined : val,
+                              },
+                            });
+                          }
+                        }}
+                        placeholder="No limit"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Long Text Settings */}
+              {selectedQuestion.type === "long_text" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Textarea Settings</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="min-length">Min Length</Label>
+                      <Input
+                        id="min-length"
+                        type="number"
+                        min="0"
+                        value={selectedQuestion.settings?.minLength ?? ""}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (!isNaN(val) || e.target.value === "") {
+                            updateQuestion(selectedQuestion.id, {
+                              settings: {
+                                ...selectedQuestion.settings,
+                                minLength:
+                                  e.target.value === "" ? undefined : val,
+                              },
+                            });
+                          }
+                        }}
+                        placeholder="No limit"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="max-length">Max Length</Label>
+                      <Input
+                        id="max-length"
+                        type="number"
+                        min="1"
+                        value={selectedQuestion.settings?.maxLength ?? ""}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          if (!isNaN(val) || e.target.value === "") {
+                            updateQuestion(selectedQuestion.id, {
+                              settings: {
+                                ...selectedQuestion.settings,
+                                maxLength:
+                                  e.target.value === "" ? undefined : val,
+                              },
+                            });
+                          }
+                        }}
+                        placeholder="No limit"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {selectedQuestion.type === "star_rating" && (
                 <div className="space-y-2">
                   <Label htmlFor="max-rating">Maximum Stars</Label>
@@ -331,6 +440,161 @@ export function PropertiesPanel() {
                 </div>
               )}
 
+              {/* Multiple Choice & Checkboxes Settings */}
+              {(selectedQuestion.type === "multiple_choice" ||
+                selectedQuestion.type === "checkboxes") && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">
+                    {selectedQuestion.type === "multiple_choice"
+                      ? "Radio Button Settings"
+                      : "Checkbox Settings"}
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Randomize Options</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Show options in random order
+                      </p>
+                    </div>
+                    <Switch
+                      checked={
+                        selectedQuestion.settings?.randomizeOptions || false
+                      }
+                      onCheckedChange={(checked) =>
+                        updateQuestion(selectedQuestion.id, {
+                          settings: {
+                            ...selectedQuestion.settings,
+                            randomizeOptions: checked,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Allow "Other" Option</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Let respondents add their own answer
+                      </p>
+                    </div>
+                    <Switch
+                      checked={selectedQuestion.settings?.allowOther || false}
+                      onCheckedChange={(checked) =>
+                        updateQuestion(selectedQuestion.id, {
+                          settings: {
+                            ...selectedQuestion.settings,
+                            allowOther: checked,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Dropdown Settings */}
+              {selectedQuestion.type === "dropdown" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Dropdown Settings</h3>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Allow "Other" Option</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Let respondents add custom answer
+                      </p>
+                    </div>
+                    <Switch
+                      checked={selectedQuestion.settings?.allowOther || false}
+                      onCheckedChange={(checked) =>
+                        updateQuestion(selectedQuestion.id, {
+                          settings: {
+                            ...selectedQuestion.settings,
+                            allowOther: checked,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Email Settings */}
+              {selectedQuestion.type === "email" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Email Validation</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Email format is automatically validated
+                  </p>
+                </div>
+              )}
+
+              {/* Phone Settings */}
+              {selectedQuestion.type === "phone" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Phone Settings</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Basic phone format validation applied
+                  </p>
+                </div>
+              )}
+
+              {/* Date/Time Settings */}
+              {(selectedQuestion.type === "date" ||
+                selectedQuestion.type === "time" ||
+                selectedQuestion.type === "datetime") && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">
+                    {selectedQuestion.type === "date"
+                      ? "Date Picker"
+                      : selectedQuestion.type === "time"
+                      ? "Time Picker"
+                      : "Date & Time Picker"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Uses browser's native {selectedQuestion.type} picker
+                  </p>
+                </div>
+              )}
+
+              {/* NPS Settings */}
+              {selectedQuestion.type === "nps" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">NPS Settings</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Net Promoter Score scale (0-10) with color coding:
+                  </p>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-red-500" />
+                      <span>0-6: Detractors</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-yellow-500" />
+                      <span>7-8: Passives</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-green-500" />
+                      <span>9-10: Promoters</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Emoji Rating Settings */}
+              {selectedQuestion.type === "emoji_rating" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Emoji Rating</h3>
+                  <p className="text-xs text-muted-foreground">
+                    5-point emoji scale from angry to loving
+                  </p>
+                  <div className="flex justify-between text-3xl">
+                    {["😡", "😞", "😐", "😊", "😍"].map((emoji, idx) => (
+                      <span key={idx}>{emoji}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {selectedQuestion.type === "payment" && (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -374,34 +638,124 @@ export function PropertiesPanel() {
                 </div>
               )}
 
+              {/* Ranking Settings */}
+              {selectedQuestion.type === "ranking" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Ranking Settings</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Respondents will drag items to rank them by preference.
+                    Configure options in the "Options" tab.
+                  </p>
+                </div>
+              )}
+
+              {/* Matrix Settings */}
+              {selectedQuestion.type === "matrix" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Matrix Settings</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Configure rows and columns to create a grid of questions
+                  </p>
+                  <div className="space-y-2">
+                    <Label>Current Configuration</Label>
+                    <div className="text-xs space-y-1">
+                      <div>
+                        Rows: {selectedQuestion.settings?.rows?.length || 0}
+                      </div>
+                      <div>
+                        Columns:{" "}
+                        {selectedQuestion.settings?.columns?.length || 0}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Signature Settings */}
+              {selectedQuestion.type === "signature" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Signature Settings</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Allows respondents to draw their signature
+                  </p>
+                </div>
+              )}
+
+              {/* Location Settings */}
+              {selectedQuestion.type === "location" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Location Settings</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Respondents can search and select a location
+                  </p>
+                </div>
+              )}
+
+              {/* Section Heading Settings */}
+              {selectedQuestion.type === "section_heading" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Section Heading</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Use this to organize your form into sections
+                  </p>
+                </div>
+              )}
+
+              {/* Text Content Settings */}
+              {selectedQuestion.type === "text_content" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Text Content</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Display informational text without requiring an answer
+                  </p>
+                </div>
+              )}
+
+              {/* Divider Settings */}
+              {selectedQuestion.type === "divider" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Divider</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Visual separator between form sections
+                  </p>
+                </div>
+              )}
+
               {selectedQuestion.type === "image_choice" && (
-                <div className="space-y-2">
-                  <Label htmlFor="image-size">Image Size</Label>
-                  <select
-                    id="image-size"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={selectedQuestion.settings?.imageSize || "medium"}
-                    onChange={(e) =>
-                      updateQuestion(selectedQuestion.id, {
-                        settings: {
-                          ...selectedQuestion.settings,
-                          imageSize: e.target.value as
-                            | "small"
-                            | "medium"
-                            | "large",
-                        },
-                      })
-                    }
-                  >
-                    <option value="small">Small</option>
-                    <option value="medium">Medium</option>
-                    <option value="large">Large</option>
-                  </select>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Image Choice Settings</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="image-size">Image Size</Label>
+                    <select
+                      id="image-size"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={selectedQuestion.settings?.imageSize || "medium"}
+                      onChange={(e) =>
+                        updateQuestion(selectedQuestion.id, {
+                          settings: {
+                            ...selectedQuestion.settings,
+                            imageSize: e.target.value as
+                              | "small"
+                              | "medium"
+                              | "large",
+                          },
+                        })
+                      }
+                    >
+                      <option value="small">Small (4 columns)</option>
+                      <option value="medium">Medium (3 columns)</option>
+                      <option value="large">Large (2 columns)</option>
+                    </select>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Configure image options in the "Options" tab
+                  </p>
                 </div>
               )}
 
               {selectedQuestion.type === "file_upload" && (
-                <>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">File Upload Settings</h3>
                   <div className="space-y-2">
                     <Label htmlFor="max-file-size">Max File Size (MB)</Label>
                     <Input
@@ -444,7 +798,33 @@ export function PropertiesPanel() {
                       }}
                     />
                   </div>
-                </>
+                  <div className="space-y-2">
+                    <Label htmlFor="file-types">Allowed File Types</Label>
+                    <Input
+                      id="file-types"
+                      value={
+                        selectedQuestion.settings?.allowedFileTypes?.join(
+                          ", "
+                        ) || "pdf, doc, docx, jpg, png"
+                      }
+                      onChange={(e) =>
+                        updateQuestion(selectedQuestion.id, {
+                          settings: {
+                            ...selectedQuestion.settings,
+                            allowedFileTypes: e.target.value
+                              .split(",")
+                              .map((type) => type.trim())
+                              .filter(Boolean),
+                          },
+                        })
+                      }
+                      placeholder="pdf, doc, docx, jpg, png"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Comma-separated file extensions
+                    </p>
+                  </div>
+                </div>
               )}
             </TabsContent>
 
