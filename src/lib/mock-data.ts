@@ -1,5 +1,7 @@
 // Mock data for forms, responses, templates, and analytics
 
+import { QuestionType } from "./types/forms";
+
 export interface Form {
   id: string;
   title: string;
@@ -36,7 +38,7 @@ export interface Response {
 export interface FormWithQuestions extends Form {
   questions: {
     id: string;
-    type: string;
+    type: QuestionType;
     title: string;
     required: boolean;
   }[];
