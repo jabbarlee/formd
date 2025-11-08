@@ -11,32 +11,31 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  Download,
-  LayoutList,
-  Table as TableIcon,
-  LayoutGrid,
-} from "lucide-react";
+import { Download, Table as TableIcon, Sparkles } from "lucide-react";
 import { mockResponses, mockFormWithQuestions } from "@/lib/mock-data";
 import {
   FormResponse,
   ResponseFilters,
-  ResponseViewMode,
   ResponseStats,
 } from "@/lib/types/forms";
-import { ResponsesListView } from "@/components/pages/responses/ResponsesListView";
 import { ResponsesTableView } from "@/components/pages/responses/ResponsesTableView";
-import { ResponsesGridView } from "@/components/pages/responses/ResponsesGridView";
 import { ResponseDetailSheet } from "@/components/pages/responses/ResponseDetailSheet";
 import { ResponsesFilters } from "@/components/pages/responses/ResponsesFilters";
 import { ResponsesStats } from "@/components/pages/responses/ResponsesStats";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function FormResponsesPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const [viewMode, setViewMode] = useState<ResponseViewMode>("list");
   const [filters, setFilters] = useState<ResponseFilters>({
     search: undefined,
     status: undefined,
@@ -49,7 +48,13 @@ export default function FormResponsesPage({
 
   // In a real app, fetch form and responses based on params.id
   const form = mockFormWithQuestions;
-  const allResponses = mockResponses.filter((r) => r.formId === params.id);
+  // For now, show all responses for formId "1" regardless of the URL param
+  // In production, you'd filter by params.id
+  const allResponses = mockResponses.filter((r) => r.formId === "1");
+
+  console.log("Form ID:", params.id);
+  console.log("All responses:", allResponses.length);
+  console.log("Mock responses:", mockResponses.length);
 
   // Filter responses
   const filteredResponses = useMemo(() => {
@@ -202,34 +207,19 @@ export default function FormResponsesPage({
         filteredCount={filteredResponses.length}
       />
 
-      <Tabs
-        value={viewMode}
-        onValueChange={(v) => setViewMode(v as ResponseViewMode)}
-      >
+      <Tabs defaultValue="table" className="w-full">
         <div className="flex items-center justify-between mb-4">
           <TabsList>
-            <TabsTrigger value="list" className="gap-2">
-              <LayoutList className="h-4 w-4" />
-              <span className="hidden sm:inline">List</span>
-            </TabsTrigger>
             <TabsTrigger value="table" className="gap-2">
               <TableIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Table</span>
+              <span className="hidden sm:inline">Table View</span>
             </TabsTrigger>
-            <TabsTrigger value="grid" className="gap-2">
-              <LayoutGrid className="h-4 w-4" />
-              <span className="hidden sm:inline">Grid</span>
+            <TabsTrigger value="insights" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline">AI Insights</span>
             </TabsTrigger>
           </TabsList>
         </div>
-
-        <TabsContent value="list" className="mt-0">
-          <ResponsesListView
-            responses={transformedResponses}
-            onView={handleViewResponse}
-            onDelete={handleDeleteResponse}
-          />
-        </TabsContent>
 
         <TabsContent value="table" className="mt-0">
           <ResponsesTableView
@@ -239,12 +229,195 @@ export default function FormResponsesPage({
           />
         </TabsContent>
 
-        <TabsContent value="grid" className="mt-0">
-          <ResponsesGridView
-            responses={transformedResponses}
-            onView={handleViewResponse}
-            onDelete={handleDeleteResponse}
-          />
+        <TabsContent value="insights" className="mt-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Sentiment Analysis</CardTitle>
+                <CardDescription>
+                  Overall sentiment from text responses
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Positive</span>
+                      <span className="text-sm text-muted-foreground">68%</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-green-500"
+                        style={{ width: "68%" }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Neutral</span>
+                      <span className="text-sm text-muted-foreground">22%</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gray-500"
+                        style={{ width: "22%" }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Negative</span>
+                      <span className="text-sm text-muted-foreground">10%</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-red-500"
+                        style={{ width: "10%" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Common Themes</CardTitle>
+                <CardDescription>
+                  AI-identified topics from responses
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { theme: "Customer Service", count: 45 },
+                    { theme: "Product Quality", count: 38 },
+                    { theme: "Pricing", count: 29 },
+                    { theme: "Delivery Speed", count: 22 },
+                    { theme: "User Experience", count: 18 },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{item.theme}</span>
+                      <Badge variant="secondary">{item.count}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Response Trends</CardTitle>
+                <CardDescription>Daily submission patterns</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Monday</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500"
+                          style={{ width: "75%" }}
+                        />
+                      </div>
+                      <span className="font-medium">32</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Tuesday</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500"
+                          style={{ width: "85%" }}
+                        />
+                      </div>
+                      <span className="font-medium">38</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Wednesday</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500"
+                          style={{ width: "90%" }}
+                        />
+                      </div>
+                      <span className="font-medium">42</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Thursday</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500"
+                          style={{ width: "70%" }}
+                        />
+                      </div>
+                      <span className="font-medium">28</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Friday</span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500"
+                          style={{ width: "55%" }}
+                        />
+                      </div>
+                      <span className="font-medium">24</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Key Insights</CardTitle>
+                <CardDescription>AI-generated summary</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex gap-2">
+                    <span className="text-green-600 font-bold">+</span>
+                    <span>
+                      Customers highly appreciate the responsive customer
+                      service team
+                    </span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-green-600 font-bold">+</span>
+                    <span>
+                      Product quality consistently receives positive feedback
+                    </span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-yellow-600 font-bold">~</span>
+                    <span>
+                      Response times could be improved during peak hours
+                    </span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-red-600 font-bold">-</span>
+                    <span>
+                      Checkout process has reported bugs that need attention
+                    </span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-blue-600 font-bold">→</span>
+                    <span>
+                      Mobile experience improvements requested by multiple users
+                    </span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
 
