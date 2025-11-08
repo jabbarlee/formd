@@ -23,6 +23,7 @@ import {
   Settings,
   ChevronDown,
   ChevronUp,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +67,15 @@ export function QuestionBlock({
   const handleDelete = () => {
     deleteQuestion(question.id);
   };
+
+  // Check if question type is under development
+  const isUnderDevelopment = [
+    "payment",
+    "image_choice",
+    "location",
+    "signature",
+    "file_upload",
+  ].includes(question.type);
 
   // Render question preview based on type
   const renderQuestionPreview = () => {
@@ -383,9 +393,7 @@ export function QuestionBlock({
     <Card
       className={cn(
         "group relative transition-all duration-200 cursor-pointer overflow-hidden",
-        isSelected
-          ? "shadow-lg bg-primary/3"
-          : "hover:shadow-md bg-white"
+        isSelected ? "shadow-lg bg-primary/3" : "hover:shadow-md bg-white"
       )}
       onClick={handleSelect}
     >
@@ -504,6 +512,22 @@ export function QuestionBlock({
         {isExpanded &&
           question.type !== "section_heading" &&
           renderQuestionPreview()}
+
+        {/* Under Development Notice */}
+        {isExpanded && isUnderDevelopment && (
+          <div className="mt-4 flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-amber-900">
+                Under Development
+              </p>
+              <p className="text-xs text-amber-700 mt-0.5">
+                This question type is still under development. You can preview
+                it for now, but it won't be functional in the final form yet!
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Required Toggle */}
         {isExpanded &&

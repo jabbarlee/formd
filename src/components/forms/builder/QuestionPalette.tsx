@@ -10,6 +10,7 @@ import { questionCategories, questionTypeMetadata } from "@/lib/types/forms";
 import type { QuestionType } from "@/lib/types/forms";
 import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,15 @@ function QuestionTypeCard({ type, onClick }: QuestionTypeCardProps) {
     ? require("lucide-react")[metadata.icon]
     : null;
 
+  // Check if question type is under development
+  const isUnderDevelopment = [
+    "payment",
+    "image_choice",
+    "location",
+    "signature",
+    "file_upload",
+  ].includes(type);
+
   return (
     <Card
       className={cn(
@@ -59,9 +69,19 @@ function QuestionTypeCard({ type, onClick }: QuestionTypeCardProps) {
           {IconComponent && <IconComponent className="h-4 w-4" />}
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-medium leading-tight mb-1">
-            {metadata.label}
-          </h4>
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="text-sm font-medium leading-tight">
+              {metadata.label}
+            </h4>
+            {isUnderDevelopment && (
+              <Badge
+                variant="secondary"
+                className="text-[10px] px-1.5 py-0 h-4 bg-amber-100 text-amber-700 border-amber-200"
+              >
+                Dev
+              </Badge>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground line-clamp-1">
             {metadata.description}
           </p>
