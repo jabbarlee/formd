@@ -29,6 +29,7 @@ interface FormBuilderActions {
   moveQuestionUp: (questionId: string) => void;
   moveQuestionDown: (questionId: string) => void;
   selectQuestion: (questionId: string | null) => void;
+  selectFormHeader: () => void;
 
   // Question option actions
   addQuestionOption: (
@@ -367,6 +368,10 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
 
       selectQuestion: (questionId) => {
         set({ selectedQuestionId: questionId });
+      },
+
+      selectFormHeader: () => {
+        set({ selectedQuestionId: "form-header" });
       },
 
       // Question option actions
