@@ -26,14 +26,15 @@ import {
   Clock,
   AlertCircle,
   FileText,
-  List,
-  LayoutGrid,
-  TableIcon,
+  Mail,
+  Calendar,
+  Star,
+  Eye,
+  Trash2,
 } from "lucide-react";
 import { ResponsesHeader } from "@/components/pages/responses/ResponsesHeader";
-import { ResponsesListView } from "@/components/pages/responses/ResponsesListView";
-import { ResponsesTableView } from "@/components/pages/responses/ResponsesTableView";
-import { ResponsesGridView } from "@/components/pages/responses/ResponsesGridView";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 export default function ResponsesPage() {
   const responses = [

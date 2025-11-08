@@ -581,3 +581,49 @@ export const questionTypeMetadata: Record<QuestionType, QuestionTypeMetadata> =
       supportsLogic: false,
     },
   };
+
+// ============================================================================
+// Response Types
+// ============================================================================
+
+export interface Respondent {
+  name?: string;
+  email?: string;
+  userId?: string;
+}
+
+export type ResponseStatus = "completed" | "partial" | "flagged";
+export type DeviceType = "desktop" | "mobile" | "tablet";
+
+export interface FormResponse {
+  id: string;
+  formId: string;
+  submittedAt: string;
+  status: ResponseStatus;
+  respondent: Respondent;
+  completionTime?: number; // in seconds
+  device?: DeviceType;
+  location?: string;
+  data: Record<string, any>;
+}
+
+export interface ResponseFilters {
+  search?: string;
+  status?: ResponseStatus | "all";
+  dateFrom?: string;
+  dateTo?: string;
+  device?: DeviceType | "all";
+}
+
+export type ResponseViewMode = "list" | "table" | "grid";
+
+export interface ResponseStats {
+  total: number;
+  completed: number;
+  partial: number;
+  flagged: number;
+  completionRate: number;
+  averageTime: number; // in seconds
+  todayCount: number;
+  weekGrowth: number; // percentage
+}
