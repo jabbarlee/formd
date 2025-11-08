@@ -59,6 +59,15 @@ function QuestionPreview({
             type="text"
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
+            minLength={question.settings?.minLength}
+            maxLength={question.settings?.maxLength}
+            className={
+              value &&
+              question.settings?.minLength &&
+              value.length < question.settings.minLength
+                ? "border-yellow-300"
+                : ""
+            }
           />
         );
 
@@ -69,6 +78,12 @@ function QuestionPreview({
             type="email"
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
+            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+            className={
+              value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                ? "border-red-300 focus-visible:ring-red-500"
+                : ""
+            }
           />
         );
 
@@ -78,7 +93,13 @@ function QuestionPreview({
             placeholder={question.placeholder || "+1 (555) 000-0000"}
             type="tel"
             value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => {
+              // Allow only numbers, spaces, dashes, parentheses, and plus sign
+              const val = e.target.value;
+              if (/^[0-9\s\-\(\)\+]*$/.test(val)) {
+                onChange(val);
+              }
+            }}
           />
         );
 
@@ -91,7 +112,33 @@ function QuestionPreview({
             max={question.settings?.max}
             step={question.settings?.step || 1}
             value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              // Allow empty string or valid number
+              if (val === "" || !isNaN(Number(val))) {
+                onChange(val);
+              }
+            }}
+            onKeyDown={(e) => {
+              // Prevent non-numeric characters (except special keys)
+              const allowedKeys = [
+                "Backspace",
+                "Delete",
+                "ArrowLeft",
+                "ArrowRight",
+                "Tab",
+                ".",
+                "-",
+              ];
+              if (
+                !allowedKeys.includes(e.key) &&
+                (e.key < "0" || e.key > "9") &&
+                !e.ctrlKey &&
+                !e.metaKey
+              ) {
+                e.preventDefault();
+              }
+            }}
           />
         );
 
@@ -102,6 +149,15 @@ function QuestionPreview({
             rows={4}
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
+            minLength={question.settings?.minLength}
+            maxLength={question.settings?.maxLength}
+            className={
+              value &&
+              question.settings?.minLength &&
+              value.length < question.settings.minLength
+                ? "border-yellow-300"
+                : ""
+            }
           />
         );
 
