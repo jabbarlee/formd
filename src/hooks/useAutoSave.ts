@@ -68,13 +68,13 @@ export function useAutoSave(
       // If no formId, create a new form first
       if (!formId) {
         console.log("🆕 Creating new form on first save...");
-        
+
         // Ensure slug is set
         const formData = {
           ...form,
           slug: form.slug || `form-${Date.now()}`,
         };
-        
+
         const { form: newForm } = await formsApi.createForm(formData);
         console.log("✅ Form created with ID:", newForm.id);
 
