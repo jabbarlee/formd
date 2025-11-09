@@ -30,6 +30,7 @@ import {
   sanitizeInput,
 } from "../utils";
 import { AUTH_SUCCESS_MESSAGES } from "../constants";
+import { userService } from "@/lib/database/services";
 
 /**
  * Authentication Service
@@ -39,6 +40,7 @@ import { AUTH_SUCCESS_MESSAGES } from "../constants";
 class AuthService {
   /**
    * Signs up a new user with email and password
+   * Creates user in Firebase Auth and syncs to Supabase database
    */
   async signUp(credentials: SignUpCredentials): Promise<AuthResult> {
     try {
@@ -64,18 +66,34 @@ class AuthService {
         ? sanitizeInput(credentials.displayName)
         : null;
 
-      // Create user
+      // Step 1: Create user in Firebase Auth
       const userCredential: UserCredential =
         await createUserWithEmailAndPassword(auth, email, credentials.password);
 
-      // Update profile with display name if provided
+      // Step 2: Update profile with display name if provided
       if (displayName && userCredential.user) {
         await updateProfile(userCredential.user, { displayName });
       }
 
-      // Send email verification
+      // Step 3: Send email verification
       if (userCredential.user) {
         await sendEmailVerification(userCredential.user);
+      }
+
+      // Step 4: Create user in Supabase database
+      const dbResult = await userService.createUser({
+        firebaseUid: userCredential.user.uid,
+        email: userCredential.user.email || email,
+        name: displayName || email.split("@")[0], // Fallback to email username if no display name
+        avatarUrl: userCredential.user.photoURL,
+        emailVerified: userCredential.user.emailVerified,
+      });
+
+      if (!dbResult.success) {
+        console.error("Failed to create user in database:", dbResult.error);
+        // Note: Firebase user is already created, but database sync failed
+        // In production, you might want to implement a retry mechanism or background job
+        // For now, we'll continue but log the error
       }
 
       const user = mapFirebaseUser(userCredential.user);
@@ -94,6 +112,7 @@ class AuthService {
 
   /**
    * Signs in an existing user with email and password
+   * Updates last login timestamp in database
    */
   async signIn(credentials: SignInCredentials): Promise<AuthResult> {
     try {
@@ -104,6 +123,9 @@ class AuthService {
         email,
         credentials.password
       );
+
+      // Update last login timestamp in database
+      await userService.updateLastLogin(userCredential.user.uid);
 
       const user = mapFirebaseUser(userCredential.user);
 
