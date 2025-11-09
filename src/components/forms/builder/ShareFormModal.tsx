@@ -26,7 +26,6 @@ interface ShareFormModalProps {
   onClose: () => void;
   formId: string;
   formTitle: string;
-  formSlug?: string;
 }
 
 export function ShareFormModal({
@@ -34,14 +33,13 @@ export function ShareFormModal({
   onClose,
   formId,
   formTitle,
-  formSlug,
 }: ShareFormModalProps) {
   const [copied, setCopied] = useState(false);
 
-  // Generate the public URL - prefer slug over UUID
+  // Generate the public URL using UUID only
   const publicUrl =
     typeof window !== "undefined"
-      ? `${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN}/f/${formSlug || formId}`
+      ? `${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN}/f/${formId}`
       : "";
 
   const handleCopy = async () => {

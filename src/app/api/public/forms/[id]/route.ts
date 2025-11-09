@@ -3,7 +3,7 @@
  * GET /api/public/forms/[id]
  *
  * Fetch form data for public viewing (no authentication required)
- * Supports both UUID and slug lookup
+ * Uses UUID lookup only
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -18,19 +18,14 @@ interface RouteContext {
 
 /**
  * GET /api/public/forms/[id]
- * Fetch form by ID or slug for public viewing
+ * Fetch form by UUID for public viewing
  */
 export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
     const { id } = await params;
 
-    // Try to fetch form by ID first, then by slug
-    let form = await formService.getById(id);
-
-    if (!form) {
-      // Try fetching by slug
-      form = await formService.getBySlug(id);
-    }
+    // Fetch form by UUID only
+    const form = await formService.getById(id);
 
     if (!form) {
       return NextResponse.json({ error: "Form not found" }, { status: 404 });

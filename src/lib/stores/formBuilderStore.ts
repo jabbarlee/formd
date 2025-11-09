@@ -93,7 +93,6 @@ const createDefaultForm = (): Partial<Form> => ({
   title: "Untitled Form",
   description: "",
   status: "draft",
-  slug: "", // Will be generated in createForm if empty
   requiresPassword: false,
   formPassword: undefined,
   passwordHash: undefined,
@@ -514,12 +513,6 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
         set({ isSaving: true, error: null });
 
         try {
-          // Generate slug if not provided or empty
-          let slug = state.form.slug;
-          if (!slug || slug.trim() === "") {
-            slug = generateUniqueSlug(state.form.title);
-            console.log("🔗 Generated slug:", slug);
-          }
 
           // Hash password if required
           let passwordHash: string | undefined = undefined;
@@ -531,7 +524,6 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
           // Prepare form data
           const formData = {
             ...state.form,
-            slug,
             passwordHash,
             formPassword: undefined,
           };

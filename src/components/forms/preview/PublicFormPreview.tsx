@@ -530,7 +530,7 @@ export function PublicFormPreview({ form, questions }: PublicFormPreviewProps) {
             {/* Question Cards */}
             {questions.map((question, index) => (
               <Card key={question.id} className="shadow-lg">
-                <CardContent className="pt-6">
+                <CardContent>
                   <QuestionPreview
                     question={question}
                     index={index}

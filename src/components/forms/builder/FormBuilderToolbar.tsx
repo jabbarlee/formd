@@ -275,7 +275,6 @@ export function FormBuilderToolbar({
         onClose={() => setIsShareModalOpen(false)}
         formId={form.id || ""}
         formTitle={form.title || "Untitled Form"}
-        formSlug={form.slug}
       />
     </div>
   );

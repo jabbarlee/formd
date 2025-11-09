@@ -55,18 +55,8 @@ export default function PublicFormPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Loading form...</h3>
-              <p className="text-sm text-muted-foreground">
-                Please wait while we prepare your form
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
       </div>
     );
   }
@@ -76,7 +66,7 @@ export default function PublicFormPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
         <Card className="w-full max-w-md">
-          <CardContent className="pt-6">
+          <CardContent>
             <div className="flex flex-col items-center justify-center py-12 text-center">
               {error.includes("closed") ? (
                 <Lock className="h-12 w-12 text-amber-500 mb-4" />

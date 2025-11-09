@@ -272,7 +272,7 @@ export default function FormsPage() {
                             </Badge>
                             <div className="flex gap-2">
                               <Button variant="outline" size="sm" asChild>
-                                <Link href={`/forms/${form.id}/edit`}>
+                                <Link href={`/forms/${form.id}`}>
                                   Edit
                                 </Link>
                               </Button>

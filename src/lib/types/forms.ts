@@ -224,7 +224,6 @@ export interface Form {
   createdBy?: string;
   title: string;
   description?: string;
-  slug: string;
   status: FormStatus;
   theme?: FormTheme;
   settings?: FormSettings;
