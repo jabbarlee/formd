@@ -1,0 +1,9 @@
+-- Add unified_card_layout and header-specific fields to forms table
+ALTER TABLE forms
+ADD COLUMN IF NOT EXISTS unified_card_layout BOOLEAN DEFAULT false NOT NULL,
+ADD COLUMN IF NOT EXISTS has_due_date BOOLEAN DEFAULT false NOT NULL,
+ADD COLUMN IF NOT EXISTS due_date VARCHAR(255),
+ADD COLUMN IF NOT EXISTS include_time BOOLEAN DEFAULT false NOT NULL,
+ADD COLUMN IF NOT EXISTS due_time VARCHAR(255),
+ADD COLUMN IF NOT EXISTS has_location BOOLEAN DEFAULT false NOT NULL,
+ADD COLUMN IF NOT EXISTS location VARCHAR(500);

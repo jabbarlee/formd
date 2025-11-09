@@ -84,6 +84,7 @@ export interface Database {
           theme: Json;
           cover_image: string | null;
           logo: string | null;
+          unified_card_layout: boolean;
           has_due_date: boolean;
           due_date: string | null;
           include_time: boolean;
@@ -117,6 +118,7 @@ export interface Database {
           theme?: Json;
           cover_image?: string | null;
           logo?: string | null;
+          unified_card_layout?: boolean;
           has_due_date?: boolean;
           due_date?: string | null;
           include_time?: boolean;
@@ -150,6 +152,7 @@ export interface Database {
           theme?: Json;
           cover_image?: string | null;
           logo?: string | null;
+          unified_card_layout?: boolean;
           has_due_date?: boolean;
           due_date?: string | null;
           include_time?: boolean;
