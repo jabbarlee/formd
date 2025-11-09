@@ -17,7 +17,7 @@ import {
   FormBuilderToolbar,
 } from "@/components/forms/builder";
 import { FormPreview } from "@/components/forms/preview";
-import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 // Import auth debug utility in development
 // Temporarily disabled - causes server-side import issues
@@ -148,42 +148,13 @@ export default function FormBuilderPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      {/* Top Toolbar with Save Status */}
+      {/* Top Toolbar with Auto-save Status */}
       <div className="flex-shrink-0 z-10 relative">
-        <FormBuilderToolbar />
-
-        {/* Auto-save status indicator */}
-        {form.id && (
-          <div className="absolute top-4 right-20 flex items-center gap-2 text-sm">
-            {isSaving && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Saving...</span>
-              </div>
-            )}
-
-            {!isSaving && hasUnsavedChanges && (
-              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500">
-                <div className="h-2 w-2 rounded-full bg-amber-600 dark:bg-amber-500" />
-                <span>Unsaved changes</span>
-              </div>
-            )}
-
-            {!isSaving && !hasUnsavedChanges && lastSaved && (
-              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-500">
-                <CheckCircle className="h-4 w-4" />
-                <span>Saved {new Date(lastSaved).toLocaleTimeString()}</span>
-              </div>
-            )}
-
-            {saveError && (
-              <div className="flex items-center gap-2 text-destructive">
-                <AlertCircle className="h-4 w-4" />
-                <span>Save failed</span>
-              </div>
-            )}
-          </div>
-        )}
+        <FormBuilderToolbar
+          isSaving={isSaving}
+          lastSaved={lastSaved}
+          hasUnsavedChanges={hasUnsavedChanges}
+        />
       </div>
 
       {/* Main Content - 3 Column Layout or Preview */}
