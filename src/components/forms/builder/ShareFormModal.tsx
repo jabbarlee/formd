@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CometCard } from "@/components/ui/comet-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Copy, Check, Share2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
@@ -42,7 +41,7 @@ export function ShareFormModal({
   // Generate the public URL - prefer slug over UUID
   const publicUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/f/${formSlug || formId}`
+      ? `${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN}/f/${formSlug || formId}`
       : "";
 
   const handleCopy = async () => {
@@ -65,7 +64,7 @@ export function ShareFormModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-xl ">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <Share2 className="h-6 w-6 text-primary" />
@@ -77,37 +76,33 @@ export function ShareFormModal({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Comet Card with QR Code */}
-          <CometCard className="rounded-xl">
-            <Card className="border-2 border-primary/20 bg-gradient-to-br from-violet-50/50 via-purple-50/30 to-slate-50 dark:from-violet-950/20 dark:via-purple-950/10 dark:to-slate-900 shadow-lg">
-              <CardContent className="flex flex-col items-center justify-center p-10 space-y-6">
-                {/* QR Code */}
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-purple-500/20 blur-xl rounded-xl" />
-                  <div className="relative p-4 bg-white dark:bg-white rounded-xl shadow-xl ring-1 ring-black/5">
-                    <QRCodeSVG
-                      value={publicUrl}
-                      size={200}
-                      level="H"
-                      includeMargin={true}
-                      bgColor="#ffffff"
-                      fgColor="#4f46e5"
-                    />
-                  </div>
+          <Card className="border-2 border-primary/20 bg-gradient-to-br from-violet-50/50 via-purple-50/30 to-slate-50 dark:from-violet-950/20 dark:via-purple-950/10 dark:to-slate-900 shadow-lg">
+            <CardContent className="flex flex-col items-center justify-center p-10 space-y-6">
+              {/* QR Code */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-purple-500/20 blur-xl rounded-xl" />
+                <div className="relative p-4 bg-white dark:bg-white rounded-xl shadow-xl ring-1 ring-black/5">
+                  <QRCodeSVG
+                    value={publicUrl}
+                    size={200}
+                    level="H"
+                    includeMargin={true}
+                    bgColor="#ffffff"
+                  />
                 </div>
+              </div>
 
-                {/* Form Title */}
-                <div className="text-center space-y-1">
-                  <h3 className="font-semibold text-lg text-foreground">
-                    {formTitle}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Scan QR code to open form
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </CometCard>
+              {/* Form Title */}
+              <div className="text-center space-y-1">
+                <h3 className="font-semibold text-lg text-foreground">
+                  {formTitle}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Scan QR code to open form
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* URL Section */}
           <div className="space-y-3">
