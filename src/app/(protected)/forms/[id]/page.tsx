@@ -44,7 +44,7 @@ export default function FormBuilderPage() {
     error: loadError,
   } = useFormBuilderStore();
 
-  // Auto-save with 2-second debounce (only enabled after form is created)
+  // Auto-save with 2-second debounce (enabled for both new and existing forms)
   const {
     isSaving,
     lastSaved,
@@ -52,7 +52,7 @@ export default function FormBuilderPage() {
     hasUnsavedChanges,
   } = useAutoSave(form.id, form, questions, {
     debounceMs: 2000,
-    enabled: !!form.id && !isNewForm, // Enable after form has ID and not in "new" state
+    enabled: true, // Always enabled - will create form on first save if needed
     onSaveSuccess: () => {
       console.log("✅ Auto-saved successfully");
     },
@@ -63,7 +63,7 @@ export default function FormBuilderPage() {
 
   /**
    * Initialize form based on route
-   * - If "new": Reset form and create in database when user makes first change
+   * - If "new": Reset form (will be created on first save)
    * - If UUID: Load existing form from database
    */
   useEffect(() => {
@@ -74,16 +74,9 @@ export default function FormBuilderPage() {
       try {
         if (isNewForm) {
           // Reset to default form for new creation
+          // The form will be created in database on first save via auto-save
+          console.log("🆕 Initializing new form (not saved yet)");
           resetForm();
-
-          // Create form in database immediately with default values
-          console.log("🆕 Creating new form in database...");
-          const newForm = await createForm();
-
-          console.log("✅ Form created with ID:", newForm.id);
-
-          // Redirect to the form's edit URL
-          router.replace(`/forms/${newForm.id}`);
         } else {
           // Load existing form
           console.log("📂 Loading existing form:", formId);
@@ -101,7 +94,7 @@ export default function FormBuilderPage() {
     };
 
     initializeForm();
-  }, [formId, isNewForm, resetForm, loadForm, createForm, router]);
+  }, [formId, isNewForm, resetForm, loadForm, router]);
 
   // Show loading state during initialization
   if (isInitializing) {

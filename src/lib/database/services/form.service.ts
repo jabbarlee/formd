@@ -4,7 +4,7 @@
  * Follows clean code principles with proper error handling
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { supabaseAdmin as supabase } from "@/lib/supabase/server";
 import { Form, FormStatus } from "@/lib/types/forms";
 import { Database } from "@/lib/supabase/types";
 
@@ -37,7 +37,6 @@ function transformFormFromDb(row: FormRow): Form {
     location: row.location || undefined,
     requiresPassword: row.requires_password || false,
     passwordHash: row.password_hash || undefined,
-    unifiedCardLayout: row.unified_card_layout || false,
     publishedAt: row.published_at || undefined,
     closedAt: row.closed_at || undefined,
     responseLimit: row.response_limit || undefined,
@@ -74,7 +73,6 @@ function transformFormToDb(
     location: form.location,
     requires_password: form.requiresPassword,
     password_hash: form.passwordHash,
-    unified_card_layout: form.unifiedCardLayout,
     published_at: form.publishedAt,
     closed_at: form.closedAt,
     response_limit: form.responseLimit,
@@ -217,7 +215,6 @@ export const formService = {
       location: updateData.location,
       requires_password: updateData.requiresPassword,
       password_hash: updateData.passwordHash,
-      unified_card_layout: updateData.unifiedCardLayout,
       published_at: updateData.publishedAt,
       closed_at: updateData.closedAt,
       response_limit: updateData.responseLimit,

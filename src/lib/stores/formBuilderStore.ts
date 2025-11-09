@@ -97,7 +97,6 @@ const createDefaultForm = (): Partial<Form> => ({
   requiresPassword: false,
   formPassword: undefined,
   passwordHash: undefined,
-  unifiedCardLayout: false, // Default to separate cards
   allowMultipleResponses: false,
   showProgressBar: true,
   createdAt: new Date().toISOString(),

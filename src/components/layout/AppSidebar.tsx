@@ -138,7 +138,7 @@ export function AppSidebar() {
                 size="sm"
                 className="w-full justify-start min-w-0"
               >
-                <Link href="/forms/new">
+                <Link href="/forms">
                   <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
                   <span className="truncate">New Form</span>
                 </Link>

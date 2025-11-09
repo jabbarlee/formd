@@ -2,9 +2,11 @@
  * User Database Service
  * Handles all database operations related to users
  * Implements clean separation of concerns and error handling
+ *
+ * ⚠️ SERVER-SIDE ONLY - Do not import this in client components!
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 // User types matching database schema
 export interface UserRow {
@@ -64,6 +66,8 @@ class UserService {
    */
   async createUser(data: CreateUserData): Promise<DatabaseResult<UserRow>> {
     try {
+      const supabase = supabaseAdmin;
+
       const userInsert = {
         firebase_uid: data.firebaseUid,
         email: data.email,
@@ -120,6 +124,8 @@ class UserService {
     firebaseUid: string
   ): Promise<DatabaseResult<UserRow>> {
     try {
+      const supabase = supabaseAdmin;
+
       const { data: user, error } = await supabase
         .from("users")
         .select("*")
@@ -174,6 +180,8 @@ class UserService {
    */
   async getUserByEmail(email: string): Promise<DatabaseResult<UserRow>> {
     try {
+      const supabase = supabaseAdmin;
+
       const { data: user, error } = await supabase
         .from("users")
         .select("*")
@@ -230,6 +238,8 @@ class UserService {
     data: UpdateUserData
   ): Promise<DatabaseResult<UserRow>> {
     try {
+      const supabase = supabaseAdmin;
+
       const userUpdate: any = {
         ...(data.name && { name: data.name }),
         ...(data.avatarUrl !== undefined && { avatar_url: data.avatarUrl }),
@@ -285,6 +295,8 @@ class UserService {
    */
   async updateLastLogin(firebaseUid: string): Promise<DatabaseResult<void>> {
     try {
+      const supabase = supabaseAdmin;
+
       const { error } = await supabase
         .from("users")
         .update({ last_login_at: new Date().toISOString() })
@@ -325,6 +337,8 @@ class UserService {
    */
   async deleteUser(firebaseUid: string): Promise<DatabaseResult<void>> {
     try {
+      const supabase = supabaseAdmin;
+
       const { error } = await supabase
         .from("users")
         .update({ deleted_at: new Date().toISOString() })
@@ -365,6 +379,8 @@ class UserService {
    */
   async userExists(firebaseUid: string): Promise<DatabaseResult<boolean>> {
     try {
+      const supabase = supabaseAdmin;
+
       const { data, error } = await supabase
         .from("users")
         .select("id")

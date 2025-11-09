@@ -56,7 +56,7 @@ export function useAutoSave(
    * Save function
    */
   const save = useCallback(async () => {
-    if (!enabled || !formId || isSavingRef.current) {
+    if (!enabled || isSavingRef.current) {
       return;
     }
 
@@ -65,8 +65,21 @@ export function useAutoSave(
     onSaveStart?.();
 
     try {
-      // Update form with questions
-      await formsApi.updateForm(formId, form, questions);
+      // If no formId, create a new form first
+      if (!formId) {
+        console.log("🆕 Creating new form on first save...");
+        const { form: newForm } = await formsApi.createForm(form);
+        console.log("✅ Form created with ID:", newForm.id);
+
+        // Update the form with questions
+        await formsApi.updateForm(newForm.id, form, questions);
+
+        // Redirect to the new form's URL
+        window.history.replaceState(null, "", `/forms/${newForm.id}`);
+      } else {
+        // Update existing form with questions
+        await formsApi.updateForm(formId, form, questions);
+      }
 
       setState((prev) => ({
         ...prev,

@@ -93,7 +93,6 @@ export interface Database {
           settings: Json;
           requires_password: boolean;
           password_hash: string | null;
-          unified_card_layout: boolean;
           response_limit: number | null;
           close_date: string | null;
           allow_multiple_responses: boolean;
@@ -127,7 +126,6 @@ export interface Database {
           settings?: Json;
           requires_password?: boolean;
           password_hash?: string | null;
-          unified_card_layout?: boolean;
           response_limit?: number | null;
           close_date?: string | null;
           allow_multiple_responses?: boolean;
@@ -161,7 +159,6 @@ export interface Database {
           settings?: Json;
           requires_password?: boolean;
           password_hash?: string | null;
-          unified_card_layout?: boolean;
           response_limit?: number | null;
           close_date?: string | null;
           allow_multiple_responses?: boolean;
