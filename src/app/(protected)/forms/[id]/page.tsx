@@ -20,9 +20,10 @@ import { FormPreview } from "@/components/forms/preview";
 import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
 
 // Import auth debug utility in development
-if (process.env.NODE_ENV === "development") {
-  import("@/lib/utils/auth-debug");
-}
+// Temporarily disabled - causes server-side import issues
+// if (process.env.NODE_ENV === "development") {
+//   import("@/lib/utils/auth-debug");
+// }
 
 export default function FormBuilderPage() {
   const params = useParams();
