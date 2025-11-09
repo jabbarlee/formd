@@ -239,12 +239,15 @@ export interface Form {
   hasLocation?: boolean;
   location?: string;
 
+  // Security fields
+  requiresPassword?: boolean;
+  formPassword?: string; // Plain text (only in frontend, hashed before saving)
+  passwordHash?: string; // Bcrypt hash (for database storage)
+
   publishedAt?: string;
   closedAt?: string;
   responseLimit?: number;
   closeDate?: string;
-  requiresPassword: boolean;
-  passwordHash?: string;
   allowMultipleResponses: boolean;
   showProgressBar: boolean;
   createdAt: string;

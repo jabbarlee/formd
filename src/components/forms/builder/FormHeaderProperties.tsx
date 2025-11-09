@@ -11,10 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, MapPin } from "lucide-react";
+import { Calendar, Clock, MapPin, Lock, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export function FormHeaderProperties() {
   const { form, updateFormField } = useFormBuilderStore();
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="p-6 space-y-6">
@@ -165,6 +168,78 @@ export function FormHeaderProperties() {
             <p className="text-xs text-muted-foreground">
               Specify where this form or event takes place
             </p>
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      {/* Security Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Lock className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="requires-password" className="cursor-pointer">
+              Password Protection
+            </Label>
+          </div>
+          <Switch
+            id="requires-password"
+            checked={form.requiresPassword || false}
+            onCheckedChange={(checked) => {
+              updateFormField("requiresPassword", checked);
+              if (!checked) {
+                updateFormField("formPassword", undefined);
+                updateFormField("passwordHash", undefined);
+              }
+            }}
+          />
+        </div>
+
+        {form.requiresPassword && (
+          <div className="ml-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="form-password">Form Password</Label>
+              <div className="relative">
+                <Input
+                  id="form-password"
+                  type={showPassword ? "text" : "password"}
+                  value={form.formPassword || ""}
+                  onChange={(e) =>
+                    updateFormField("formPassword", e.target.value)
+                  }
+                  placeholder="Enter password for form access..."
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Respondents will need to enter this password to access the form
+              </p>
+              {form.formPassword && form.formPassword.length < 6 && (
+                <p className="text-xs text-amber-600 dark:text-amber-500">
+                  ⚠️ Password should be at least 6 characters for better
+                  security
+                </p>
+              )}
+              {form.formPassword && form.formPassword.length >= 6 && (
+                <p className="text-xs text-emerald-600 dark:text-emerald-500">
+                  ✓ Password meets minimum security requirements
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>

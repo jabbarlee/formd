@@ -13,6 +13,7 @@ import type {
   QuestionOption,
 } from "@/lib/types/forms";
 import { questionTypeMetadata } from "@/lib/types/forms";
+import { hashPassword } from "@/lib/utils/password";
 
 interface FormBuilderActions {
   // Form actions
@@ -68,6 +69,8 @@ const createDefaultForm = (): Partial<Form> => ({
   status: "draft",
   slug: "",
   requiresPassword: false,
+  formPassword: undefined,
+  passwordHash: undefined,
   allowMultipleResponses: false,
   showProgressBar: true,
   createdAt: new Date().toISOString(),
@@ -462,14 +465,43 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
         set({ isSaving: true, error: null });
 
         try {
+          // Hash password if form requires password protection
+          let passwordHash: string | undefined = undefined;
+          if (state.form.requiresPassword && state.form.formPassword) {
+            try {
+              passwordHash = await hashPassword(state.form.formPassword);
+              console.log("✅ Password hashed successfully for form security");
+            } catch (error) {
+              console.error("❌ Failed to hash password:", error);
+              throw new Error("Failed to secure form with password");
+            }
+          }
+
+          // Prepare form data for saving
+          const formToSave = {
+            ...state.form,
+            passwordHash: passwordHash,
+            // Remove plain text password before saving
+            formPassword: undefined,
+          };
+
           // Simulate API call
           await new Promise((resolve) => setTimeout(resolve, 1000));
 
           // In a real implementation, you would save to database here
           console.log("Saving form:", {
-            form: state.form,
+            form: formToSave,
             questions: state.questions,
           });
+
+          // Log security information
+          if (formToSave.requiresPassword) {
+            console.log("🔒 Form secured with password protection");
+            console.log(
+              "📝 Password hash:",
+              passwordHash?.substring(0, 20) + "..."
+            );
+          }
 
           set({ isDirty: false, isSaving: false });
         } catch (error) {
