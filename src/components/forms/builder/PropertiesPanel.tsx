@@ -24,6 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { FormHeaderProperties } from "./FormHeaderProperties";
 
 export function PropertiesPanel() {
   const {
@@ -35,6 +36,17 @@ export function PropertiesPanel() {
     deleteQuestionOption,
   } = useFormBuilderStore();
 
+  // Check if form header is selected
+  if (selectedQuestionId === "form-header") {
+    return (
+      <div className="h-full border-l bg-background">
+        <ScrollArea className="h-full">
+          <FormHeaderProperties />
+        </ScrollArea>
+      </div>
+    );
+  }
+
   const selectedQuestion = questions.find((q) => q.id === selectedQuestionId);
 
   if (!selectedQuestion) {
@@ -44,7 +56,8 @@ export function PropertiesPanel() {
           <SettingsIcon className="h-12 w-12 mx-auto text-muted-foreground/50" />
           <h3 className="text-sm font-medium">No Question Selected</h3>
           <p className="text-xs text-muted-foreground">
-            Select a question from the canvas to edit its properties
+            Select a question or the form header from the canvas to edit its
+            properties
           </p>
         </div>
       </div>

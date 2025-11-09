@@ -230,6 +230,15 @@ export interface Form {
   settings?: FormSettings;
   coverImage?: string;
   logo?: string;
+
+  // Header-specific fields
+  hasDueDate?: boolean;
+  dueDate?: string;
+  includeTime?: boolean;
+  dueTime?: string;
+  hasLocation?: boolean;
+  location?: string;
+
   publishedAt?: string;
   closedAt?: string;
   responseLimit?: number;

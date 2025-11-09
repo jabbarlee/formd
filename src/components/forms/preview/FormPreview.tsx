@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
 import { questionTypeMetadata } from "@/lib/types/forms";
 import type { Question } from "@/lib/types/forms";
+import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,14 @@ import {
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { FileText, ArrowRight, Star, Upload } from "lucide-react";
+import {
+  FileText,
+  ArrowRight,
+  Star,
+  Upload,
+  Calendar,
+  MapPin,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QuestionPreviewProps {
@@ -90,16 +98,31 @@ function QuestionPreview({
       case "phone":
         return (
           <Input
-            placeholder={question.placeholder || "+1 (555) 000-0000"}
+            placeholder={question.placeholder || "(346) 111-1222"}
             type="tel"
             value={value || ""}
             onChange={(e) => {
-              // Allow only numbers, spaces, dashes, parentheses, and plus sign
-              const val = e.target.value;
-              if (/^[0-9\s\-\(\)\+]*$/.test(val)) {
-                onChange(val);
+              // Remove all non-digit characters for processing
+              const digits = e.target.value.replace(/\D/g, "");
+
+              // Format based on length
+              let formatted = "";
+              if (digits.length === 0) {
+                formatted = "";
+              } else if (digits.length <= 3) {
+                formatted = `(${digits}`;
+              } else if (digits.length <= 6) {
+                formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+              } else {
+                formatted = `(${digits.slice(0, 3)}) ${digits.slice(
+                  3,
+                  6
+                )}-${digits.slice(6, 10)}`;
               }
+
+              onChange(formatted);
             }}
+            maxLength={14} // (346) 111-1222 format
           />
         );
 
@@ -509,20 +532,79 @@ export function FormPreview() {
     alert("Form submitted! Check console for data.");
   };
 
+  const formatDueDate = () => {
+    if (!form.dueDate) return null;
+
+    try {
+      const date = new Date(form.dueDate);
+      let formatted = format(date, "MMM dd, yyyy");
+
+      if (form.includeTime && form.dueTime) {
+        formatted += ` at ${form.dueTime}`;
+      }
+
+      return formatted;
+    } catch (error) {
+      return null;
+    }
+  };
+
   if (questions.length === 0) {
     return (
-      <div className="h-full flex items-center justify-center bg-gradient-to-br from-muted/30 to-muted/10">
-        <div className="text-center space-y-4 max-w-md px-4">
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <FileText className="h-8 w-8 text-primary" />
+      <div className="h-full bg-gradient-to-br from-muted/30 to-muted/10">
+        <ScrollArea className="h-full">
+          <div className="max-w-2xl mx-auto p-8 pb-16">
+            {/* Form Header */}
+            <div className="bg-card rounded-lg shadow-sm border p-8 mb-6">
+              <div className="space-y-4">
+                <div>
+                  <h1 className="text-3xl font-bold mb-2">
+                    {form.title || "Untitled Form"}
+                  </h1>
+                  {form.description && (
+                    <p className="text-muted-foreground whitespace-pre-wrap">
+                      {form.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Metadata */}
+                {(form.hasDueDate || form.hasLocation) && (
+                  <div className="flex flex-wrap gap-4 pt-2">
+                    {/* Due Date */}
+                    {form.hasDueDate && formatDueDate() && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="h-4 w-4" />
+                        <span>{formatDueDate()}</span>
+                      </div>
+                    )}
+
+                    {/* Location */}
+                    {form.hasLocation && form.location && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4" />
+                        <span>{form.location}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Empty State */}
+            <div className="text-center space-y-4 py-12">
+              <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <FileText className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-2">No Questions Yet</h3>
+                <p className="text-sm text-muted-foreground">
+                  Add questions to see how your form will look to respondents
+                </p>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Preview Your Form</h3>
-            <p className="text-sm text-muted-foreground">
-              Add questions to see how your form will look to respondents
-            </p>
-          </div>
-        </div>
+        </ScrollArea>
       </div>
     );
   }
@@ -539,9 +621,32 @@ export function FormPreview() {
                   {form.title || "Untitled Form"}
                 </h1>
                 {form.description && (
-                  <p className="text-muted-foreground">{form.description}</p>
+                  <p className="text-muted-foreground whitespace-pre-wrap">
+                    {form.description}
+                  </p>
                 )}
               </div>
+
+              {/* Metadata */}
+              {(form.hasDueDate || form.hasLocation) && (
+                <div className="flex flex-wrap gap-4">
+                  {/* Due Date */}
+                  {form.hasDueDate && formatDueDate() && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDueDate()}</span>
+                    </div>
+                  )}
+
+                  {/* Location */}
+                  {form.hasLocation && form.location && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <span>{form.location}</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Progress Bar */}
               {form.showProgressBar && visibleQuestions.length > 0 && (

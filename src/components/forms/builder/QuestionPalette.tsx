@@ -1,6 +1,6 @@
 /**
  * Question Palette Component
- * Left sidebar with draggable question types organized by category
+ * Left sidebar with clickable question types organized by category
  */
 
 "use client";

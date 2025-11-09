@@ -89,22 +89,6 @@ export function FormBuilderToolbar() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-
-          <div className="h-6 w-px bg-border" />
-
-          <div className="flex items-center gap-2">
-            <Input
-              value={form.title || "Untitled Form"}
-              onChange={(e) => updateFormField("title", e.target.value)}
-              className="font-semibold h-9 w-[300px]"
-              placeholder="Form title"
-            />
-            {isDirty && (
-              <Badge variant="outline" className="text-xs">
-                Unsaved
-              </Badge>
-            )}
-          </div>
         </div>
 
         {/* Right Section */}
