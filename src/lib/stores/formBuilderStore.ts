@@ -14,12 +14,14 @@ import type {
 } from "@/lib/types/forms";
 import { questionTypeMetadata } from "@/lib/types/forms";
 import { hashPassword } from "@/lib/utils/password";
+import { formsApi } from "@/lib/api/forms";
 
 interface FormBuilderActions {
   // Form actions
   setForm: (form: Partial<Form>) => void;
   updateFormField: <K extends keyof Form>(field: K, value: Form[K]) => void;
   resetForm: () => void;
+  loadForm: (formId: string) => Promise<void>;
 
   // Question actions
   addQuestion: (type: QuestionType, position?: number) => void;
@@ -55,8 +57,9 @@ interface FormBuilderActions {
   setError: (error: string | null) => void;
   setPreviewMode: (isPreview: boolean) => void;
 
-  // Save action (mock for now)
+  // API actions
   saveForm: () => Promise<void>;
+  createForm: () => Promise<Form>;
 }
 
 type FormBuilderStore = FormBuilderState & FormBuilderActions;
@@ -461,56 +464,108 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
       setPreviewMode: (isPreviewMode) => set({ isPreviewMode }),
 
       // Save action (mock implementation)
-      saveForm: async () => {
+      // API actions
+      loadForm: async (formId: string) => {
+        set({ isSaving: true, error: null });
+
+        try {
+          const { form, questions } = await formsApi.getForm(formId);
+
+          set({
+            form,
+            questions,
+            isDirty: false,
+            isSaving: false,
+            selectedQuestionId: null,
+          });
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Failed to load form";
+          set({ isSaving: false, error: message });
+          throw error;
+        }
+      },
+
+      createForm: async () => {
         const state = get();
         set({ isSaving: true, error: null });
 
         try {
-          // Hash password if form requires password protection
+          // Hash password if required
           let passwordHash: string | undefined = undefined;
           if (state.form.requiresPassword && state.form.formPassword) {
-            try {
-              passwordHash = await hashPassword(state.form.formPassword);
-              console.log("✅ Password hashed successfully for form security");
-            } catch (error) {
-              console.error("❌ Failed to hash password:", error);
-              throw new Error("Failed to secure form with password");
-            }
+            passwordHash = await hashPassword(state.form.formPassword);
           }
 
-          // Prepare form data for saving
-          const formToSave = {
+          // Prepare form data
+          const formData = {
             ...state.form,
-            passwordHash: passwordHash,
-            // Remove plain text password before saving
+            passwordHash,
             formPassword: undefined,
           };
 
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          // Create form via API
+          const { form } = await formsApi.createForm(formData);
 
-          // In a real implementation, you would save to database here
-          console.log("Saving form:", {
-            form: formToSave,
-            questions: state.questions,
+          // Update store with created form (now has ID)
+          set({
+            form,
+            isDirty: false,
+            isSaving: false,
           });
 
-          // Log security information
-          if (formToSave.requiresPassword) {
-            console.log("🔒 Form secured with password protection");
-            console.log(
-              "📝 Password hash:",
-              passwordHash?.substring(0, 20) + "..."
-            );
+          return form as Form;
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Failed to create form";
+          set({ isSaving: false, error: message });
+          throw error;
+        }
+      },
+
+      saveForm: async () => {
+        const state = get();
+
+        // If form doesn't have an ID yet, create it first
+        if (!state.form.id) {
+          await get().createForm();
+          return;
+        }
+
+        set({ isSaving: true, error: null });
+
+        try {
+          // Hash password if required and changed
+          let passwordHash = state.form.passwordHash;
+          if (state.form.requiresPassword && state.form.formPassword) {
+            passwordHash = await hashPassword(state.form.formPassword);
           }
 
-          set({ isDirty: false, isSaving: false });
-        } catch (error) {
+          // Prepare form data
+          const formData = {
+            ...state.form,
+            passwordHash,
+            formPassword: undefined,
+          };
+
+          // Update form via API
+          const { form, questions } = await formsApi.updateForm(
+            state.form.id!,
+            formData,
+            state.questions
+          );
+
+          // Update store with latest data from server
           set({
+            form,
+            questions,
+            isDirty: false,
             isSaving: false,
-            error:
-              error instanceof Error ? error.message : "Failed to save form",
           });
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Failed to save form";
+          set({ isSaving: false, error: message });
           throw error;
         }
       },

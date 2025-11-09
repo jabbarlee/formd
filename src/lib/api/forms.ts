@@ -36,7 +36,9 @@ async function getAuthHeaders(): Promise<HeadersInit> {
  */
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: "Unknown error" }));
+    const error = await response
+      .json()
+      .catch(() => ({ error: "Unknown error" }));
     throw new Error(error.error || `HTTP ${response.status}`);
   }
 
@@ -68,7 +70,9 @@ export const formsApi = {
   /**
    * Get a single form by ID with its questions
    */
-  async getForm(formId: string): Promise<{ form: Form; questions: Question[] }> {
+  async getForm(
+    formId: string
+  ): Promise<{ form: Form; questions: Question[] }> {
     const headers = await getAuthHeaders();
     const response = await fetch(`/api/forms/${formId}`, { headers });
 
