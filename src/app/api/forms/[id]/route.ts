@@ -12,7 +12,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { formService } from "@/lib/database/services/form.service";
 import { questionService } from "@/lib/database/services/question.service";
-import { getAuthUser, unauthorizedResponse, errorResponse } from "@/lib/api/auth";
+import {
+  getAuthUser,
+  unauthorizedResponse,
+  errorResponse,
+} from "@/lib/api/auth";
 
 interface RouteContext {
   params: {
@@ -23,10 +27,7 @@ interface RouteContext {
 /**
  * GET /api/forms/[id]
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
     // Authenticate user
     const authUser = await getAuthUser(request);
@@ -60,10 +61,7 @@ export async function GET(
 /**
  * PUT /api/forms/[id]
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function PUT(request: NextRequest, { params }: RouteContext) {
   try {
     // Authenticate user
     const authUser = await getAuthUser(request);
@@ -89,7 +87,10 @@ export async function PUT(
 
     // If slug is being updated, check availability
     if (body.slug && body.slug !== existingForm.slug) {
-      const isSlugAvailable = await formService.isSlugAvailable(body.slug, formId);
+      const isSlugAvailable = await formService.isSlugAvailable(
+        body.slug,
+        formId
+      );
       if (!isSlugAvailable) {
         return errorResponse("Slug is already taken", 400);
       }
@@ -116,10 +117,7 @@ export async function PUT(
 /**
  * DELETE /api/forms/[id]
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function DELETE(request: NextRequest, { params }: RouteContext) {
   try {
     // Authenticate user
     const authUser = await getAuthUser(request);

@@ -5,7 +5,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { formService } from "@/lib/database/services/form.service";
-import { getAuthUser, unauthorizedResponse, errorResponse } from "@/lib/api/auth";
+import {
+  getAuthUser,
+  unauthorizedResponse,
+  errorResponse,
+} from "@/lib/api/auth";
 
 export async function GET(request: NextRequest) {
   try {

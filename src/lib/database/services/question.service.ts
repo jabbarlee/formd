@@ -37,7 +37,9 @@ function transformQuestionFromDb(row: QuestionRow): Question {
 /**
  * Transform application Question type to database insert format
  */
-function transformQuestionToDb(question: Partial<Question>): Partial<QuestionInsert> {
+function transformQuestionToDb(
+  question: Partial<Question>
+): Partial<QuestionInsert> {
   return {
     form_id: question.formId,
     type: question.type,
@@ -135,7 +137,10 @@ export const questionService = {
   /**
    * Update a single question
    */
-  async update(questionId: string, updates: Partial<Question>): Promise<Question> {
+  async update(
+    questionId: string,
+    updates: Partial<Question>
+  ): Promise<Question> {
     // Remove fields that shouldn't be updated
     const { id, formId, createdAt, ...updateData } = updates as any;
 
@@ -183,9 +188,7 @@ export const questionService = {
     updates: Array<{ id: string; data: Partial<Question> }>
   ): Promise<Question[]> {
     // Supabase doesn't support batch updates natively, so we use Promise.all
-    const updatePromises = updates.map(({ id, data }) =>
-      this.update(id, data)
-    );
+    const updatePromises = updates.map(({ id, data }) => this.update(id, data));
 
     try {
       const results = await Promise.all(updatePromises);
@@ -230,7 +233,10 @@ export const questionService = {
    * Reorder questions for a form
    * Updates all question orders in a single transaction
    */
-  async reorder(formId: string, questionOrders: Array<{ id: string; order: number }>): Promise<void> {
+  async reorder(
+    formId: string,
+    questionOrders: Array<{ id: string; order: number }>
+  ): Promise<void> {
     // Update each question's order
     const updatePromises = questionOrders.map(({ id, order }) =>
       supabase

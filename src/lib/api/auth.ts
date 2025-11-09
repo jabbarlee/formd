@@ -17,16 +17,18 @@ export interface AuthContext {
  * For now, using a simplified approach with session/cookie
  * In production, integrate with Firebase Admin SDK for token verification
  */
-export async function getAuthUser(request: NextRequest): Promise<AuthContext | null> {
+export async function getAuthUser(
+  request: NextRequest
+): Promise<AuthContext | null> {
   try {
     // TODO: Implement proper authentication
     // For now, we'll use a temporary approach
     // In production, verify Firebase ID token from Authorization header
-    
+
     // Get user ID from custom header (temporary - set from client)
     const userId = request.headers.get("x-user-id");
     const firebaseUid = request.headers.get("x-firebase-uid");
-    
+
     if (!userId || !firebaseUid) {
       return null;
     }

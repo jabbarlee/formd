@@ -20,9 +20,7 @@ if (!getApps().length) {
       : undefined;
 
     app = initializeApp({
-      credential: serviceAccount
-        ? cert(serviceAccount)
-        : undefined, // Uses application default credentials if not provided
+      credential: serviceAccount ? cert(serviceAccount) : undefined, // Uses application default credentials if not provided
       projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     });
 

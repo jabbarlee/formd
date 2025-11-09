@@ -5,7 +5,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { formService } from "@/lib/database/services/form.service";
-import { getAuthUser, unauthorizedResponse, errorResponse } from "@/lib/api/auth";
+import {
+  getAuthUser,
+  unauthorizedResponse,
+  errorResponse,
+} from "@/lib/api/auth";
 
 interface RouteContext {
   params: {
@@ -13,10 +17,7 @@ interface RouteContext {
   };
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   try {
     // Authenticate user
     const authUser = await getAuthUser(request);
