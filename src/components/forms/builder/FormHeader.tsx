@@ -50,11 +50,6 @@ export function FormHeader({ isSelected }: FormHeaderProps) {
       )}
       onClick={handleSelect}
     >
-      {/* Selection Indicator Bar */}
-      {isSelected && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
-      )}
-
       {/* Header Badge */}
       <div className="absolute right-4 top-4">
         <Badge variant="secondary" className="text-xs">

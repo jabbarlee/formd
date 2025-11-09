@@ -199,6 +199,12 @@ export const formService = {
     // Remove fields that shouldn't be updated
     const { id, createdBy, createdAt, ...updateData } = updates as any;
 
+    console.log("🔄 Updating form with data:", {
+      formId,
+      unifiedCardLayout: updateData.unifiedCardLayout,
+      updates: Object.keys(updateData),
+    });
+
     // Transform to database format
     const dbUpdates: Partial<FormUpdate> = {
       title: updateData.title,
@@ -209,6 +215,7 @@ export const formService = {
       settings: updateData.settings as any,
       cover_image: updateData.coverImage,
       logo: updateData.logo,
+      unified_card_layout: updateData.unifiedCardLayout,
       has_due_date: updateData.hasDueDate,
       due_date: updateData.dueDate,
       include_time: updateData.includeTime,
@@ -232,6 +239,11 @@ export const formService = {
       }
     });
 
+    console.log("💾 Sending to database:", {
+      unified_card_layout: dbUpdates.unified_card_layout,
+      dbFields: Object.keys(dbUpdates),
+    });
+
     const { data, error } = await supabase
       .from("forms")
       .update(dbUpdates)
@@ -240,9 +252,14 @@ export const formService = {
       .single();
 
     if (error) {
-      console.error("Error updating form:", error);
+      console.error("❌ Error updating form:", error);
       throw new Error(`Failed to update form: ${error.message}`);
     }
+
+    console.log(
+      "✅ Form updated, unified_card_layout in response:",
+      data.unified_card_layout
+    );
 
     return transformFormFromDb(data);
   },
