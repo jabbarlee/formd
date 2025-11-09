@@ -4,7 +4,7 @@
  * Supports batch operations for performance
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { supabaseAdmin as supabase } from "@/lib/supabase/server";
 import { Question } from "@/lib/types/forms";
 import { Database } from "@/lib/supabase/types";
 

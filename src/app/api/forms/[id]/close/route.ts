@@ -12,9 +12,9 @@ import {
 } from "@/lib/api/auth";
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function POST(request: NextRequest, { params }: RouteContext) {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       return unauthorizedResponse();
     }
 
-    const formId = params.id;
+    const { id: formId } = await params;
 
     // Get existing form
     const existingForm = await formService.getById(formId);

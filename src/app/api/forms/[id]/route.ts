@@ -19,9 +19,9 @@ import {
 } from "@/lib/api/auth";
 
 interface RouteContext {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       return unauthorizedResponse();
     }
 
-    const formId = params.id;
+    const { id: formId } = await params;
 
     // Get form
     const form = await formService.getById(formId);
@@ -69,7 +69,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
       return unauthorizedResponse();
     }
 
-    const formId = params.id;
+    const { id: formId } = await params;
 
     // Get existing form
     const existingForm = await formService.getById(formId);
@@ -125,7 +125,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
       return unauthorizedResponse();
     }
 
-    const formId = params.id;
+    const { id: formId } = await params;
 
     // Get existing form
     const existingForm = await formService.getById(formId);
