@@ -40,6 +40,7 @@ export default function FormBuilderPage() {
     resetForm,
     loadForm,
     createForm,
+    updateFormField,
     isPreviewMode,
     isSaving: isLoading,
     error: loadError,
@@ -54,8 +55,15 @@ export default function FormBuilderPage() {
   } = useAutoSave(form.id, form, questions, {
     debounceMs: 2000,
     enabled: true, // Always enabled - will create form on first save if needed
-    onSaveSuccess: () => {
-      console.log("✅ Auto-saved successfully");
+    onSaveSuccess: (newFormId) => {
+      if (newFormId) {
+        // Form was just created, update URL and form state
+        console.log("✅ Form created with ID:", newFormId);
+        window.history.replaceState(null, "", `/forms/${newFormId}`);
+        updateFormField("id", newFormId);
+      } else {
+        console.log("✅ Auto-saved successfully");
+      }
     },
     onSaveError: (error) => {
       console.error("❌ Auto-save failed:", error);

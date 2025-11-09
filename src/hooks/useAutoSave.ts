@@ -11,7 +11,7 @@ import { formsApi } from "@/lib/api/forms";
 export interface AutoSaveOptions {
   debounceMs?: number; // Default: 2000ms (2 seconds)
   onSaveStart?: () => void;
-  onSaveSuccess?: () => void;
+  onSaveSuccess?: (newFormId?: string) => void;
   onSaveError?: (error: Error) => void;
   enabled?: boolean; // Default: true
 }
@@ -68,27 +68,41 @@ export function useAutoSave(
       // If no formId, create a new form first
       if (!formId) {
         console.log("🆕 Creating new form on first save...");
-        const { form: newForm } = await formsApi.createForm(form);
+        
+        // Ensure slug is set
+        const formData = {
+          ...form,
+          slug: form.slug || `form-${Date.now()}`,
+        };
+        
+        const { form: newForm } = await formsApi.createForm(formData);
         console.log("✅ Form created with ID:", newForm.id);
 
         // Update the form with questions
-        await formsApi.updateForm(newForm.id, form, questions);
+        await formsApi.updateForm(newForm.id, formData, questions);
 
-        // Redirect to the new form's URL
-        window.history.replaceState(null, "", `/forms/${newForm.id}`);
+        setState((prev) => ({
+          ...prev,
+          isSaving: false,
+          lastSaved: new Date(),
+          hasUnsavedChanges: false,
+        }));
+
+        // Notify parent with new form ID
+        onSaveSuccess?.(newForm.id);
       } else {
         // Update existing form with questions
         await formsApi.updateForm(formId, form, questions);
+
+        setState((prev) => ({
+          ...prev,
+          isSaving: false,
+          lastSaved: new Date(),
+          hasUnsavedChanges: false,
+        }));
+
+        onSaveSuccess?.();
       }
-
-      setState((prev) => ({
-        ...prev,
-        isSaving: false,
-        lastSaved: new Date(),
-        hasUnsavedChanges: false,
-      }));
-
-      onSaveSuccess?.();
     } catch (error) {
       const err = error instanceof Error ? error : new Error("Save failed");
       setState((prev) => ({
@@ -115,7 +129,7 @@ export function useAutoSave(
    * Trigger save with debounce
    */
   const triggerSave = useCallback(() => {
-    if (!enabled || !formId) {
+    if (!enabled) {
       return;
     }
 
@@ -131,13 +145,13 @@ export function useAutoSave(
 
     // Mark as having unsaved changes
     setState((prev) => ({ ...prev, hasUnsavedChanges: true }));
-  }, [enabled, formId, debounceMs, save]);
+  }, [enabled, debounceMs, save]);
 
   /**
    * Watch for changes
    */
   useEffect(() => {
-    if (!enabled || !formId) {
+    if (!enabled) {
       return;
     }
 
@@ -154,7 +168,7 @@ export function useAutoSave(
       previousDataRef.current = currentData;
       triggerSave();
     }
-  }, [form, questions, enabled, formId, triggerSave]);
+  }, [form, questions, enabled, triggerSave]);
 
   /**
    * Clean up on unmount
