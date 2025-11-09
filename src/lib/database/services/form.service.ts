@@ -176,7 +176,10 @@ export const formService = {
     }
 
     if (options?.offset) {
-      query = query.range(options.offset, options.offset + (options.limit || 10) - 1);
+      query = query.range(
+        options.offset,
+        options.offset + (options.limit || 10) - 1
+      );
     }
 
     const { data, error } = await query;
@@ -328,7 +331,10 @@ export const formService = {
   /**
    * Check if slug is available
    */
-  async isSlugAvailable(slug: string, excludeFormId?: string): Promise<boolean> {
+  async isSlugAvailable(
+    slug: string,
+    excludeFormId?: string
+  ): Promise<boolean> {
     let query = supabase
       .from("forms")
       .select("id")
