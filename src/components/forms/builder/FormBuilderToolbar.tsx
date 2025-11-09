@@ -106,7 +106,30 @@ export function FormBuilderToolbar({
   };
 
   const handleShare = () => {
-    toast.info("Share feature coming soon");
+    if (!form.id) {
+      toast.error("Please save the form first");
+      return;
+    }
+
+    // Generate public URL
+    const publicUrl = `${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN}/f/${form.slug || form.id}`;
+
+    // Copy to clipboard
+    navigator.clipboard
+      .writeText(publicUrl)
+      .then(() => {
+        toast.success("Form link copied to clipboard!", {
+          description: publicUrl,
+          action: {
+            label: "Open",
+            onClick: () => window.open(publicUrl, "_blank"),
+          },
+        });
+      })
+      .catch((err) => {
+        console.error("Failed to copy:", err);
+        toast.error("Failed to copy link");
+      });
   };
 
   const handleBack = () => {
