@@ -99,6 +99,7 @@ const createDefaultForm = (): Partial<Form> => ({
   passwordHash: undefined,
   allowMultipleResponses: false,
   showProgressBar: true,
+  unifiedCardLayout: false,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   theme: {

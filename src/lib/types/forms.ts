@@ -244,6 +244,9 @@ export interface Form {
   formPassword?: string; // Plain text (only in frontend, hashed before saving)
   passwordHash?: string; // Bcrypt hash (for database storage)
 
+  // Layout settings
+  unifiedCardLayout?: boolean;
+
   publishedAt?: string;
   closedAt?: string;
   responseLimit?: number;

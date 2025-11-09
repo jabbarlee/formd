@@ -219,6 +219,17 @@ model Form {
   enableAiAnalysis        Boolean     @default(true) @map("enable_ai_analysis")
   collectEmail            Boolean     @default(true) @map("collect_email")
   
+  // Layout & Display
+  unifiedCardLayout       Boolean     @default(false) @map("unified_card_layout")
+  
+  // Header-specific fields
+  hasDueDate              Boolean     @default(false) @map("has_due_date")
+  dueDate                 String?     @map("due_date") @db.VarChar(255)
+  includeTime             Boolean     @default(false) @map("include_time")
+  dueTime                 String?     @map("due_time") @db.VarChar(255)
+  hasLocation             Boolean     @default(false) @map("has_location")
+  location                String?     @db.VarChar(500)
+  
   // SEO
   metaTitle               String?     @map("meta_title") @db.VarChar(255)
   metaDescription         String?     @map("meta_description")
