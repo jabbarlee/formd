@@ -662,29 +662,60 @@ export function FormPreview() {
           </div>
 
           {/* Questions */}
-          <div className="space-y-6">
-            {questions.map((question, index) => {
-              const visibleIndex = visibleQuestions.findIndex(
-                (q) => q.id === question.id
-              );
-              return (
-                <div
-                  key={question.id}
-                  className="bg-card rounded-lg shadow-sm border p-6"
-                >
-                  <QuestionPreview
-                    question={question}
-                    index={visibleIndex >= 0 ? visibleIndex : index}
-                    totalQuestions={visibleQuestions.length}
-                    value={formData[question.id]}
-                    onChange={(value) =>
-                      handleQuestionChange(question.id, value)
-                    }
-                  />
-                </div>
-              );
-            })}
-          </div>
+          {form.unifiedCardLayout ? (
+            // Unified Card Layout - All questions in one card
+            <div className="bg-card rounded-lg shadow-sm border p-6">
+              <div className="space-y-8">
+                {questions.map((question, index) => {
+                  const visibleIndex = visibleQuestions.findIndex(
+                    (q) => q.id === question.id
+                  );
+                  return (
+                    <div key={question.id}>
+                      <QuestionPreview
+                        question={question}
+                        index={visibleIndex >= 0 ? visibleIndex : index}
+                        totalQuestions={visibleQuestions.length}
+                        value={formData[question.id]}
+                        onChange={(value) =>
+                          handleQuestionChange(question.id, value)
+                        }
+                      />
+                      {/* Add separator between questions except for the last one */}
+                      {index < questions.length - 1 && (
+                        <Separator className="mt-8" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            // Separate Cards Layout - Each question in its own card
+            <div className="space-y-6">
+              {questions.map((question, index) => {
+                const visibleIndex = visibleQuestions.findIndex(
+                  (q) => q.id === question.id
+                );
+                return (
+                  <div
+                    key={question.id}
+                    className="bg-card rounded-lg shadow-sm border p-6"
+                  >
+                    <QuestionPreview
+                      question={question}
+                      index={visibleIndex >= 0 ? visibleIndex : index}
+                      totalQuestions={visibleQuestions.length}
+                      value={formData[question.id]}
+                      onChange={(value) =>
+                        handleQuestionChange(question.id, value)
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="mt-8 bg-card rounded-lg shadow-sm border p-6">

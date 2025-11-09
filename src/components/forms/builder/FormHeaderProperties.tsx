@@ -11,7 +11,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, MapPin, Lock, Eye, EyeOff } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Lock,
+  Eye,
+  EyeOff,
+  LayoutGrid,
+} from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -170,6 +178,31 @@ export function FormHeaderProperties() {
             </p>
           </div>
         )}
+      </div>
+
+      <Separator />
+
+      {/* Layout Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="unified-card-layout" className="cursor-pointer">
+              Unified Card Layout
+            </Label>
+          </div>
+          <Switch
+            id="unified-card-layout"
+            checked={form.unifiedCardLayout || false}
+            onCheckedChange={(checked) =>
+              updateFormField("unifiedCardLayout", checked)
+            }
+          />
+        </div>
+        <p className="text-xs text-muted-foreground ml-6">
+          When enabled, all questions will appear in a single card. When
+          disabled, each question will have its own separate card.
+        </p>
       </div>
 
       <Separator />
