@@ -30,7 +30,8 @@ import {
   sanitizeInput,
 } from "../utils";
 import { AUTH_SUCCESS_MESSAGES } from "../constants";
-import { userService } from "@/lib/database/services";
+// NOTE: userService is server-side only. Database operations should be done via API routes
+// import { userService } from "@/lib/database/services";
 
 /**
  * Authentication Service
@@ -81,20 +82,18 @@ class AuthService {
       }
 
       // Step 4: Create user in Supabase database
-      const dbResult = await userService.createUser({
+      // TODO: Move this to an API route to handle server-side database operations
+      /* const dbResult = await userService.createUser({
         firebaseUid: userCredential.user.uid,
         email: userCredential.user.email || email,
-        name: displayName || email.split("@")[0], // Fallback to email username if no display name
+        name: displayName || email.split("@")[0],
         avatarUrl: userCredential.user.photoURL,
         emailVerified: userCredential.user.emailVerified,
       });
 
       if (!dbResult.success) {
         console.error("Failed to create user in database:", dbResult.error);
-        // Note: Firebase user is already created, but database sync failed
-        // In production, you might want to implement a retry mechanism or background job
-        // For now, we'll continue but log the error
-      }
+      } */
 
       const user = mapFirebaseUser(userCredential.user);
 
@@ -125,7 +124,8 @@ class AuthService {
       );
 
       // Update last login timestamp in database
-      await userService.updateLastLogin(userCredential.user.uid);
+      // TODO: Move this to an API route or background job
+      // await userService.updateLastLogin(userCredential.user.uid);
 
       const user = mapFirebaseUser(userCredential.user);
 

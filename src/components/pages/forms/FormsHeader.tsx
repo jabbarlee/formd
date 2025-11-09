@@ -2,8 +2,18 @@
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FileText, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function FormsHeader() {
+  const router = useRouter();
+
+  const handleCreateForm = () => {
+    // Generate a temporary ID for the new form
+    // The form will be created in the database on first save
+    const tempId = "new";
+    router.push(`/forms/${tempId}`);
+  };
+
   return (
     <PageHeader
       title="Forms"
@@ -15,10 +25,7 @@ export function FormsHeader() {
         label: "Create Form",
         icon: Plus,
         variant: "default",
-        onClick: () => {
-          // Navigate to form builder or open create modal
-          window.location.href = "/forms/new";
-        },
+        onClick: handleCreateForm,
       }}
     />
   );

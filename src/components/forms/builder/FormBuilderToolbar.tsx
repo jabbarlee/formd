@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
 import { Button } from "@/components/ui/button";
@@ -37,22 +37,61 @@ import {
   Trash2,
   Loader2,
   Edit3,
+  Check,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-export function FormBuilderToolbar() {
+interface FormBuilderToolbarProps {
+  isSaving?: boolean;
+  lastSaved?: Date | null;
+  hasUnsavedChanges?: boolean;
+}
+
+export function FormBuilderToolbar({
+  isSaving = false,
+  lastSaved = null,
+  hasUnsavedChanges = false,
+}: FormBuilderToolbarProps) {
   const router = useRouter();
   const {
     form,
     isDirty,
-    isSaving,
     isPreviewMode,
     updateFormField,
     saveForm,
     setPreviewMode,
   } = useFormBuilderStore();
   const [isSavingLocal, setIsSavingLocal] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update time every 10 seconds to keep "X seconds ago" fresh
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 10000); // Update every 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Format last saved time
+  const getLastSavedText = () => {
+    if (!lastSaved) return null;
+
+    const diffMs = currentTime.getTime() - lastSaved.getTime();
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+
+    if (diffSecs < 10) return "just now";
+    if (diffSecs < 60) return `${diffSecs}s ago`;
+    if (diffMins < 60) return `${diffMins}m ago`;
+
+    return lastSaved.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const handleSave = async () => {
     setIsSavingLocal(true);
@@ -161,29 +200,34 @@ export function FormBuilderToolbar() {
 
           <div className="h-6 w-px bg-border" />
 
+          {/* Auto-save Status */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted/50 text-sm">
+            {isSaving ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                <span className="text-muted-foreground">Saving...</span>
+              </>
+            ) : lastSaved ? (
+              <>
+                <Check className="h-3.5 w-3.5 text-green-600" />
+                <span className="text-muted-foreground">
+                  Saved {getLastSavedText()}
+                </span>
+              </>
+            ) : (
+              <>
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground">Autosave is on</span>
+              </>
+            )}
+          </div>
+
+          <div className="h-6 w-px bg-border" />
+
           {/* Share Button */}
           <Button variant="outline" size="sm" onClick={handleShare}>
             <Share2 className="h-4 w-4 mr-2" />
             Share
-          </Button>
-
-          {/* Save Button */}
-          <Button
-            onClick={handleSave}
-            disabled={!isDirty || isSavingLocal}
-            size="sm"
-          >
-            {isSavingLocal ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Save
-              </>
-            )}
           </Button>
 
           {/* More Options */}

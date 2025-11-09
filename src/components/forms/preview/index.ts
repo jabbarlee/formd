@@ -4,3 +4,4 @@
  */
 
 export { FormPreview } from "./FormPreview";
+export { FormPasswordGate } from "./FormPasswordGate";

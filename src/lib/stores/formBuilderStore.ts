@@ -13,12 +13,15 @@ import type {
   QuestionOption,
 } from "@/lib/types/forms";
 import { questionTypeMetadata } from "@/lib/types/forms";
+import { hashPassword } from "@/lib/utils/password";
+import { formsApi } from "@/lib/api/forms";
 
 interface FormBuilderActions {
   // Form actions
   setForm: (form: Partial<Form>) => void;
   updateFormField: <K extends keyof Form>(field: K, value: Form[K]) => void;
   resetForm: () => void;
+  loadForm: (formId: string) => Promise<void>;
 
   // Question actions
   addQuestion: (type: QuestionType, position?: number) => void;
@@ -54,20 +57,46 @@ interface FormBuilderActions {
   setError: (error: string | null) => void;
   setPreviewMode: (isPreview: boolean) => void;
 
-  // Save action (mock for now)
+  // API actions
   saveForm: () => Promise<void>;
+  createForm: () => Promise<Form>;
 }
 
 type FormBuilderStore = FormBuilderState & FormBuilderActions;
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
+/**
+ * Generate a URL-friendly slug from text
+ */
+const generateSlug = (text: string): string => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "") // Remove special chars
+    .replace(/[\s_-]+/g, "-") // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+};
+
+/**
+ * Generate a unique slug with timestamp
+ */
+const generateUniqueSlug = (baseText?: string): string => {
+  const base =
+    baseText && baseText !== "Untitled Form" ? generateSlug(baseText) : "form";
+  const timestamp = Date.now().toString(36);
+  const randomStr = Math.random().toString(36).substring(2, 6);
+  return `${base}-${timestamp}${randomStr}`;
+};
+
 const createDefaultForm = (): Partial<Form> => ({
   title: "Untitled Form",
   description: "",
   status: "draft",
-  slug: "",
+  slug: "", // Will be generated in createForm if empty
   requiresPassword: false,
+  formPassword: undefined,
+  passwordHash: undefined,
   allowMultipleResponses: false,
   showProgressBar: true,
   createdAt: new Date().toISOString(),
@@ -457,27 +486,122 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
       setPreviewMode: (isPreviewMode) => set({ isPreviewMode }),
 
       // Save action (mock implementation)
-      saveForm: async () => {
+      // API actions
+      loadForm: async (formId: string) => {
+        set({ isSaving: true, error: null });
+
+        try {
+          const { form, questions } = await formsApi.getForm(formId);
+
+          set({
+            form,
+            questions,
+            isDirty: false,
+            isSaving: false,
+            selectedQuestionId: null,
+          });
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Failed to load form";
+          set({ isSaving: false, error: message });
+          throw error;
+        }
+      },
+
+      createForm: async () => {
         const state = get();
         set({ isSaving: true, error: null });
 
         try {
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          // Generate slug if not provided or empty
+          let slug = state.form.slug;
+          if (!slug || slug.trim() === "") {
+            slug = generateUniqueSlug(state.form.title);
+            console.log("🔗 Generated slug:", slug);
+          }
 
-          // In a real implementation, you would save to database here
-          console.log("Saving form:", {
-            form: state.form,
-            questions: state.questions,
-          });
+          // Hash password if required
+          let passwordHash: string | undefined = undefined;
+          if (state.form.requiresPassword && state.form.formPassword) {
+            passwordHash = await hashPassword(state.form.formPassword);
+            console.log("🔒 Password hashed for form security");
+          }
 
-          set({ isDirty: false, isSaving: false });
-        } catch (error) {
+          // Prepare form data
+          const formData = {
+            ...state.form,
+            slug,
+            passwordHash,
+            formPassword: undefined,
+          };
+
+          console.log("📤 Creating form in database...");
+
+          // Create form via API
+          const { form } = await formsApi.createForm(formData);
+
+          console.log("✅ Form created successfully with ID:", form.id);
+
+          // Update store with created form (now has ID)
           set({
+            form,
+            isDirty: false,
             isSaving: false,
-            error:
-              error instanceof Error ? error.message : "Failed to save form",
           });
+
+          return form as Form;
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Failed to create form";
+          console.error("❌ Failed to create form:", message);
+          set({ isSaving: false, error: message });
+          throw error;
+        }
+      },
+
+      saveForm: async () => {
+        const state = get();
+
+        // If form doesn't have an ID yet, create it first
+        if (!state.form.id) {
+          await get().createForm();
+          return;
+        }
+
+        set({ isSaving: true, error: null });
+
+        try {
+          // Hash password if required and changed
+          let passwordHash = state.form.passwordHash;
+          if (state.form.requiresPassword && state.form.formPassword) {
+            passwordHash = await hashPassword(state.form.formPassword);
+          }
+
+          // Prepare form data
+          const formData = {
+            ...state.form,
+            passwordHash,
+            formPassword: undefined,
+          };
+
+          // Update form via API
+          const { form, questions } = await formsApi.updateForm(
+            state.form.id!,
+            formData,
+            state.questions
+          );
+
+          // Update store with latest data from server
+          set({
+            form,
+            questions,
+            isDirty: false,
+            isSaving: false,
+          });
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Failed to save form";
+          set({ isSaving: false, error: message });
           throw error;
         }
       },
