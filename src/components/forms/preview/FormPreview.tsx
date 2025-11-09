@@ -98,16 +98,31 @@ function QuestionPreview({
       case "phone":
         return (
           <Input
-            placeholder={question.placeholder || "+1 (555) 000-0000"}
+            placeholder={question.placeholder || "(346) 111-1222"}
             type="tel"
             value={value || ""}
             onChange={(e) => {
-              // Allow only numbers, spaces, dashes, parentheses, and plus sign
-              const val = e.target.value;
-              if (/^[0-9\s\-\(\)\+]*$/.test(val)) {
-                onChange(val);
+              // Remove all non-digit characters for processing
+              const digits = e.target.value.replace(/\D/g, "");
+
+              // Format based on length
+              let formatted = "";
+              if (digits.length === 0) {
+                formatted = "";
+              } else if (digits.length <= 3) {
+                formatted = `(${digits}`;
+              } else if (digits.length <= 6) {
+                formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+              } else {
+                formatted = `(${digits.slice(0, 3)}) ${digits.slice(
+                  3,
+                  6
+                )}-${digits.slice(6, 10)}`;
               }
+
+              onChange(formatted);
             }}
+            maxLength={14} // (346) 111-1222 format
           />
         );
 

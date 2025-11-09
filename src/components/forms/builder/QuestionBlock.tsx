@@ -103,13 +103,32 @@ export function QuestionBlock({
   const renderQuestionPreview = () => {
     switch (question.type) {
       case "short_text":
-      case "email":
-      case "phone":
         return (
           <Input
             placeholder={question.placeholder || "Your answer"}
             disabled
             className="mt-2"
+            type="text"
+          />
+        );
+
+      case "email":
+        return (
+          <Input
+            placeholder={question.placeholder || "Your answer"}
+            disabled
+            className="mt-2"
+            type="text"
+          />
+        );
+
+      case "phone":
+        return (
+          <Input
+            placeholder={question.placeholder || "(111) 222-3333"}
+            disabled
+            className="mt-2"
+            type="tel"
           />
         );
 
