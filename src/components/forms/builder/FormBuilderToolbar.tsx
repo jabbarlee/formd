@@ -132,6 +132,28 @@ export function FormBuilderToolbar({
 
         {/* Right Section */}
         <div className="flex items-center gap-2">
+          {/* Auto-save Status */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted/50 text-sm">
+            {isSaving ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                <span className="text-muted-foreground">Saving...</span>
+              </>
+            ) : lastSaved ? (
+              <>
+                <Check className="h-3.5 w-3.5 text-green-600" />
+                <span className="text-muted-foreground">
+                  Saved {getLastSavedText()}
+                </span>
+              </>
+            ) : (
+              <>
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground">Autosave is on</span>
+              </>
+            )}
+          </div>
+
           {/* Status Selector */}
           <Select
             value={form.status || "draft"}
@@ -196,30 +218,6 @@ export function FormBuilderToolbar({
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </Button>
-          </div>
-
-          <div className="h-6 w-px bg-border" />
-
-          {/* Auto-save Status */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted/50 text-sm">
-            {isSaving ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-                <span className="text-muted-foreground">Saving...</span>
-              </>
-            ) : lastSaved ? (
-              <>
-                <Check className="h-3.5 w-3.5 text-green-600" />
-                <span className="text-muted-foreground">
-                  Saved {getLastSavedText()}
-                </span>
-              </>
-            ) : (
-              <>
-                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground">Autosave is on</span>
-              </>
-            )}
           </div>
 
           <div className="h-6 w-px bg-border" />
