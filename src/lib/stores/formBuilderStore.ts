@@ -66,11 +66,34 @@ type FormBuilderStore = FormBuilderState & FormBuilderActions;
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
+/**
+ * Generate a URL-friendly slug from text
+ */
+const generateSlug = (text: string): string => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "") // Remove special chars
+    .replace(/[\s_-]+/g, "-") // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+};
+
+/**
+ * Generate a unique slug with timestamp
+ */
+const generateUniqueSlug = (baseText?: string): string => {
+  const base =
+    baseText && baseText !== "Untitled Form" ? generateSlug(baseText) : "form";
+  const timestamp = Date.now().toString(36);
+  const randomStr = Math.random().toString(36).substring(2, 6);
+  return `${base}-${timestamp}${randomStr}`;
+};
+
 const createDefaultForm = (): Partial<Form> => ({
   title: "Untitled Form",
   description: "",
   status: "draft",
-  slug: "",
+  slug: "", // Will be generated in createForm if empty
   requiresPassword: false,
   formPassword: undefined,
   passwordHash: undefined,
@@ -491,21 +514,34 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
         set({ isSaving: true, error: null });
 
         try {
+          // Generate slug if not provided or empty
+          let slug = state.form.slug;
+          if (!slug || slug.trim() === "") {
+            slug = generateUniqueSlug(state.form.title);
+            console.log("🔗 Generated slug:", slug);
+          }
+
           // Hash password if required
           let passwordHash: string | undefined = undefined;
           if (state.form.requiresPassword && state.form.formPassword) {
             passwordHash = await hashPassword(state.form.formPassword);
+            console.log("🔒 Password hashed for form security");
           }
 
           // Prepare form data
           const formData = {
             ...state.form,
+            slug,
             passwordHash,
             formPassword: undefined,
           };
 
+          console.log("📤 Creating form in database...");
+
           // Create form via API
           const { form } = await formsApi.createForm(formData);
+
+          console.log("✅ Form created successfully with ID:", form.id);
 
           // Update store with created form (now has ID)
           set({
@@ -518,6 +554,7 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
         } catch (error) {
           const message =
             error instanceof Error ? error.message : "Failed to create form";
+          console.error("❌ Failed to create form:", message);
           set({ isSaving: false, error: message });
           throw error;
         }

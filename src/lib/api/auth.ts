@@ -28,16 +28,64 @@ export async function getAuthUser(
     // Get user ID from custom header (temporary - set from client)
     const userId = request.headers.get("x-user-id");
     const firebaseUid = request.headers.get("x-firebase-uid");
+    const email = request.headers.get("x-user-email"); // Get email from header
+
+    console.log("🔐 Auth attempt:", { userId, firebaseUid, email });
 
     if (!userId || !firebaseUid) {
+      console.error("❌ Missing auth headers");
       return null;
     }
 
     // Verify user exists in database
     const result = await userService.getUserByFirebaseUid(firebaseUid);
+
+    console.log("🔍 Database lookup result:", {
+      success: result.success,
+      hasData: !!result.data,
+      error: result.error,
+    });
+
     if (!result.success || !result.data) {
+      console.log("⚠️  User not found in database, attempting to create...");
+
+      // Auto-create user if they don't exist (development mode)
+      // TODO: In production, this should be handled during signup
+      if (email) {
+        const createResult = await userService.createUser({
+          firebaseUid,
+          email,
+          name: email.split("@")[0], // Use email username as default name
+          emailVerified: false,
+        });
+
+        if (createResult.success && createResult.data) {
+          console.log("✅ User auto-created:", {
+            userId: createResult.data.id,
+            email: createResult.data.email,
+          });
+
+          return {
+            userId: createResult.data.id,
+            firebaseUid: createResult.data.firebase_uid,
+            email: createResult.data.email,
+          };
+        }
+
+        console.error("❌ Failed to auto-create user:", createResult.error);
+      }
+
+      console.error("❌ User not found in database:", {
+        firebaseUid,
+        error: result.error,
+      });
       return null;
     }
+
+    console.log("✅ Auth successful:", {
+      userId: result.data.id,
+      email: result.data.email,
+    });
 
     return {
       userId: result.data.id,
@@ -45,7 +93,7 @@ export async function getAuthUser(
       email: result.data.email,
     };
   } catch (error) {
-    console.error("Error getting auth user:", error);
+    console.error("💥 Error getting auth user:", error);
     return null;
   }
 }

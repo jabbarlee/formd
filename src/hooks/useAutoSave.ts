@@ -88,7 +88,15 @@ export function useAutoSave(
     } finally {
       isSavingRef.current = false;
     }
-  }, [enabled, formId, form, questions, onSaveStart, onSaveSuccess, onSaveError]);
+  }, [
+    enabled,
+    formId,
+    form,
+    questions,
+    onSaveStart,
+    onSaveSuccess,
+    onSaveError,
+  ]);
 
   /**
    * Trigger save with debounce

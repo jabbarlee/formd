@@ -1,13 +1,13 @@
 /**
- * Form Builder Page
+ * Form Builder Page - Dynamic Route
  * Main page for creating and editing forms
- * Route: /forms/new (create) or /forms/[id]/edit (edit)
+ * Route: /forms/[id] where id can be "new" for creation or UUID for editing
  */
 
 "use client";
 
-import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import {
@@ -19,21 +19,32 @@ import {
 import { FormPreview } from "@/components/forms/preview";
 import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
 
+// Import auth debug utility in development
+if (process.env.NODE_ENV === "development") {
+  import("@/lib/utils/auth-debug");
+}
+
 export default function FormBuilderPage() {
-  const searchParams = useSearchParams();
-  const formId = searchParams.get("id");
+  const params = useParams();
+  const router = useRouter();
+  const formId = params.id as string;
+  const isNewForm = formId === "new";
+
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [initError, setInitError] = useState<string | null>(null);
 
   const {
     form,
     questions,
     resetForm,
     loadForm,
+    createForm,
     isPreviewMode,
     isSaving: isLoading,
     error: loadError,
   } = useFormBuilderStore();
 
-  // Auto-save with 2-second debounce
+  // Auto-save with 2-second debounce (only enabled after form is created)
   const {
     isSaving,
     lastSaved,
@@ -41,7 +52,7 @@ export default function FormBuilderPage() {
     hasUnsavedChanges,
   } = useAutoSave(form.id, form, questions, {
     debounceMs: 2000,
-    enabled: !!form.id, // Only enable auto-save after form is created
+    enabled: !!form.id && !isNewForm, // Enable after form has ID and not in "new" state
     onSaveSuccess: () => {
       console.log("✅ Auto-saved successfully");
     },
@@ -50,43 +61,84 @@ export default function FormBuilderPage() {
     },
   });
 
-  // Load form if editing, or reset for new form
+  /**
+   * Initialize form based on route
+   * - If "new": Reset form and create in database when user makes first change
+   * - If UUID: Load existing form from database
+   */
   useEffect(() => {
-    if (formId) {
-      loadForm(formId).catch((error) => {
-        console.error("Failed to load form:", error);
-      });
-    } else {
-      resetForm();
-    }
-  }, [formId, resetForm, loadForm]);
+    const initializeForm = async () => {
+      setIsInitializing(true);
+      setInitError(null);
 
-  // Show loading state
-  if (isLoading && !form.id) {
+      try {
+        if (isNewForm) {
+          // Reset to default form for new creation
+          resetForm();
+
+          // Create form in database immediately with default values
+          console.log("🆕 Creating new form in database...");
+          const newForm = await createForm();
+
+          console.log("✅ Form created with ID:", newForm.id);
+
+          // Redirect to the form's edit URL
+          router.replace(`/forms/${newForm.id}`);
+        } else {
+          // Load existing form
+          console.log("📂 Loading existing form:", formId);
+          await loadForm(formId);
+          console.log("✅ Form loaded successfully");
+        }
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to initialize form";
+        console.error("❌ Form initialization error:", message);
+        setInitError(message);
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    initializeForm();
+  }, [formId, isNewForm, resetForm, loadForm, createForm, router]);
+
+  // Show loading state during initialization
+  if (isInitializing) {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Loading form...</p>
+          <p className="text-muted-foreground">
+            {isNewForm ? "Creating new form..." : "Loading form..."}
+          </p>
         </div>
       </div>
     );
   }
 
   // Show error state
-  if (loadError) {
+  if (initError || loadError) {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="text-center space-y-4 max-w-md">
           <AlertCircle className="h-12 w-12 mx-auto text-destructive" />
           <h2 className="text-xl font-semibold">Failed to Load Form</h2>
-          <p className="text-muted-foreground">{loadError}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-          >
-            Retry
-          </button>
+          <p className="text-muted-foreground">{initError || loadError}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => router.push("/forms")}
+              className="px-4 py-2 border rounded-md hover:bg-muted"
+            >
+              Back to Forms
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -100,7 +152,7 @@ export default function FormBuilderPage() {
 
         {/* Auto-save status indicator */}
         {form.id && (
-          <div className="absolute top-4 right-4 flex items-center gap-2 text-sm">
+          <div className="absolute top-4 right-20 flex items-center gap-2 text-sm">
             {isSaving && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -109,7 +161,8 @@ export default function FormBuilderPage() {
             )}
 
             {!isSaving && hasUnsavedChanges && (
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500">
+                <div className="h-2 w-2 rounded-full bg-amber-600 dark:bg-amber-500" />
                 <span>Unsaved changes</span>
               </div>
             )}
@@ -117,9 +170,7 @@ export default function FormBuilderPage() {
             {!isSaving && !hasUnsavedChanges && lastSaved && (
               <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-500">
                 <CheckCircle className="h-4 w-4" />
-                <span>
-                  Saved {new Date(lastSaved).toLocaleTimeString()}
-                </span>
+                <span>Saved {new Date(lastSaved).toLocaleTimeString()}</span>
               </div>
             )}
 

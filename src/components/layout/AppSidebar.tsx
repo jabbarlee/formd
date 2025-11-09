@@ -132,16 +132,17 @@ export function AppSidebar() {
           <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="px-2 space-y-2">
-              <Link href="/forms/new">
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="w-full justify-start min-w-0 "
-                >
+              <Button
+                asChild
+                variant="default"
+                size="sm"
+                className="w-full justify-start min-w-0"
+              >
+                <Link href="/forms/new">
                   <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
                   <span className="truncate">New Form</span>
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -19,15 +19,22 @@ interface ApiResponse<T> {
 async function getAuthHeaders(): Promise<HeadersInit> {
   const currentUser = auth.currentUser;
   if (!currentUser) {
-    throw new Error("Not authenticated");
+    throw new Error("Not authenticated - Please sign in first");
   }
 
+  // Get Firebase ID token
+  const idToken = await currentUser.getIdToken();
+
   // For now, using temporary auth headers
-  // TODO: Replace with proper Firebase ID token
+  // The API will verify the Firebase UID exists in the database
+  // If user doesn't exist, it will be auto-created
+  // TODO: Replace with proper Bearer token verification in API
   return {
     "Content-Type": "application/json",
-    "x-user-id": currentUser.uid, // Temporary
     "x-firebase-uid": currentUser.uid,
+    "x-user-id": currentUser.uid, // Will be verified against database
+    "x-user-email": currentUser.email || "", // For auto-creating user
+    Authorization: `Bearer ${idToken}`, // Include for future use
   };
 }
 
@@ -39,7 +46,17 @@ async function handleResponse<T>(response: Response): Promise<T> {
     const error = await response
       .json()
       .catch(() => ({ error: "Unknown error" }));
-    throw new Error(error.error || `HTTP ${response.status}`);
+
+    // Better error messages for debugging
+    if (response.status === 401) {
+      throw new Error(
+        "Authentication failed. Please ensure you are signed in and your account exists in the database."
+      );
+    }
+
+    throw new Error(
+      error.error || `HTTP ${response.status}: ${response.statusText}`
+    );
   }
 
   return response.json();
