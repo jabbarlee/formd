@@ -85,16 +85,6 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
     // Parse request body
     const body = await request.json();
 
-    // If slug is being updated, check availability
-    if (body.slug && body.slug !== existingForm.slug) {
-      const isSlugAvailable = await formService.isSlugAvailable(
-        body.slug,
-        formId
-      );
-      if (!isSlugAvailable) {
-        return errorResponse("Slug is already taken", 400);
-      }
-    }
 
     // Update form
     const updatedForm = await formService.update(formId, body);
