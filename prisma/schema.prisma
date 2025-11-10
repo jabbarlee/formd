@@ -200,7 +200,6 @@ model Form {
   createdBy               String      @map("created_by") @db.Uuid
   title                   String      @db.VarChar(500)
   description             String?
-  slug                    String      @db.VarChar(255)
   status                  FormStatus  @default(draft)
   
   // Appearance
@@ -253,10 +252,8 @@ model Form {
   folderItems       FormFolderItem[]
   fileUploads       FileUpload[]
 
-  @@unique([workspaceId, slug])
   @@index([workspaceId])
   @@index([createdBy])
-  @@index([slug])
   @@index([status])
   @@index([publishedAt(sort: Desc)])
   @@index([createdAt(sort: Desc)])

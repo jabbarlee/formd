@@ -42,6 +42,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ShareFormModal } from "./ShareFormModal";
 
 interface FormBuilderToolbarProps {
   isSaving?: boolean;
@@ -65,6 +66,7 @@ export function FormBuilderToolbar({
   } = useFormBuilderStore();
   const [isSavingLocal, setIsSavingLocal] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Update time every 10 seconds to keep "X seconds ago" fresh
   useEffect(() => {
@@ -106,7 +108,13 @@ export function FormBuilderToolbar({
   };
 
   const handleShare = () => {
-    toast.info("Share feature coming soon");
+    if (!form.id) {
+      toast.error("Please save the form first");
+      return;
+    }
+
+    // Open the share modal
+    setIsShareModalOpen(true);
   };
 
   const handleBack = () => {
@@ -260,6 +268,14 @@ export function FormBuilderToolbar({
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Share Modal */}
+      <ShareFormModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        formId={form.id || ""}
+        formTitle={form.title || "Untitled Form"}
+      />
     </div>
   );
 }

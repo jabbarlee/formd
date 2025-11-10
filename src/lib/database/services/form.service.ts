@@ -23,7 +23,6 @@ function transformFormFromDb(row: FormRow): Form {
     createdBy: row.created_by,
     title: row.title,
     description: row.description || undefined,
-    slug: row.slug,
     status: row.status as FormStatus,
     theme: (row.theme as any) || undefined,
     settings: (row.settings as any) || undefined,
@@ -60,7 +59,6 @@ function transformFormToDb(
     created_by: userId,
     title: form.title,
     description: form.description,
-    slug: form.slug,
     status: form.status,
     theme: form.theme as any,
     settings: form.settings as any,
@@ -130,24 +128,6 @@ export const formService = {
   /**
    * Get form by slug
    */
-  async getBySlug(slug: string): Promise<Form | null> {
-    const { data, error } = await supabase
-      .from("forms")
-      .select("*")
-      .eq("slug", slug)
-      .is("deleted_at", null)
-      .single();
-
-    if (error) {
-      if (error.code === "PGRST116") {
-        return null; // Not found
-      }
-      console.error("Error fetching form by slug:", error);
-      throw new Error(`Failed to fetch form: ${error.message}`);
-    }
-
-    return transformFormFromDb(data);
-  },
 
   /**
    * Get all forms for a user
@@ -209,7 +189,6 @@ export const formService = {
     const dbUpdates: Partial<FormUpdate> = {
       title: updateData.title,
       description: updateData.description,
-      slug: updateData.slug,
       status: updateData.status,
       theme: updateData.theme as any,
       settings: updateData.settings as any,
@@ -342,33 +321,6 @@ export const formService = {
     }
 
     return transformFormFromDb(data);
-  },
-
-  /**
-   * Check if slug is available
-   */
-  async isSlugAvailable(
-    slug: string,
-    excludeFormId?: string
-  ): Promise<boolean> {
-    let query = supabase
-      .from("forms")
-      .select("id")
-      .eq("slug", slug)
-      .is("deleted_at", null);
-
-    if (excludeFormId) {
-      query = query.neq("id", excludeFormId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("Error checking slug availability:", error);
-      return false;
-    }
-
-    return data.length === 0;
   },
 
   /**

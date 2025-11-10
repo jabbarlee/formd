@@ -79,7 +79,6 @@ export interface Database {
           created_by: string;
           title: string;
           description: string | null;
-          slug: string;
           status: "draft" | "published" | "closed" | "archived";
           theme: Json;
           cover_image: string | null;
@@ -113,7 +112,6 @@ export interface Database {
           created_by: string;
           title: string;
           description?: string | null;
-          slug: string;
           status?: "draft" | "published" | "closed" | "archived";
           theme?: Json;
           cover_image?: string | null;
@@ -147,7 +145,6 @@ export interface Database {
           created_by?: string;
           title?: string;
           description?: string | null;
-          slug?: string;
           status?: "draft" | "published" | "closed" | "archived";
           theme?: Json;
           cover_image?: string | null;

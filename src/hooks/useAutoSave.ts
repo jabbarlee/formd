@@ -72,7 +72,6 @@ export function useAutoSave(
         // Ensure slug is set
         const formData = {
           ...form,
-          slug: form.slug || `form-${Date.now()}`,
         };
 
         const { form: newForm } = await formsApi.createForm(formData);
