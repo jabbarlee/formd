@@ -541,6 +541,9 @@ export default function FormResponsesPage({
                     message="AI Insights Coming Soon"
                     description="Our AI-powered analytics and insights features are currently in development. Stay tuned for intelligent analysis of your form responses!"
                     blurIntensity="blur-sm"
+                    icon={
+                      <Sparkles className="h-8 w-8 text-purple-500 drop-shadow-md" />
+                    }
                   />
                 </div>
               </TabsContent>

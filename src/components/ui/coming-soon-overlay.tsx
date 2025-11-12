@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+import { Clock } from "lucide-react";
 
 interface ComingSoonOverlayProps {
   /**
@@ -55,6 +56,16 @@ interface ComingSoonOverlayProps {
    */
   messageClassName?: string;
   /**
+   * Show icon above the message
+   * @default true
+   */
+  showIcon?: boolean;
+  /**
+   * Custom icon component to display
+   * @default Clock icon
+   */
+  icon?: React.ReactNode;
+  /**
    * Additional content to display
    */
   children?: React.ReactNode;
@@ -92,6 +103,21 @@ interface ComingSoonOverlayProps {
  *   />
  * </div>
  *
+ * // Custom icon
+ * <div className="relative">
+ *   <YourContentComponent />
+ *   <ComingSoonOverlay
+ *     icon={<Sparkles className="h-8 w-8 text-purple-500" />}
+ *     message="AI Features Coming Soon"
+ *   />
+ * </div>
+ *
+ * // Without icon
+ * <div className="relative">
+ *   <YourContentComponent />
+ *   <ComingSoonOverlay showIcon={false} />
+ * </div>
+ *
  * // Conditional display
  * <div className="relative">
  *   <YourContentComponent />
@@ -110,6 +136,8 @@ export const ComingSoonOverlay: React.FC<ComingSoonOverlayProps> = ({
   textColor = "text-gray-900 dark:text-gray-100",
   className,
   messageClassName,
+  showIcon = true,
+  icon,
   children,
 }) => {
   if (!show) return null;
@@ -149,6 +177,15 @@ export const ComingSoonOverlay: React.FC<ComingSoonOverlayProps> = ({
         )}
       >
         <div className={cn("space-y-3", textColor)}>
+          {/* Icon */}
+          {showIcon && (
+            <div className="flex justify-center mb-5">
+              {icon || (
+                <Clock className="h-8 w-8 text-blue-500 drop-shadow-md" />
+              )}
+            </div>
+          )}
+
           {/* Main message */}
           <h3 className="text-2xl font-bold tracking-wide drop-shadow-md">
             {message}
