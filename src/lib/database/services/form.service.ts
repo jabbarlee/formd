@@ -355,4 +355,28 @@ export const formService = {
       avgCompletionRate: data.avg_completion_rate || 0,
     };
   },
+
+  /**
+   * Check if a slug is available for use
+   */
+  async isSlugAvailable(slug: string): Promise<boolean> {
+    try {
+      const { data, error } = await supabase
+        .from("forms")
+        .select("id")
+        .eq("slug", slug)
+        .is("deleted_at", null)
+        .limit(1);
+
+      if (error) {
+        console.error("Error checking slug availability:", error);
+        throw new Error(`Failed to check slug availability: ${error.message}`);
+      }
+
+      return (data?.length ?? 0) === 0;
+    } catch (error) {
+      console.error("Error in isSlugAvailable:", error);
+      throw error;
+    }
+  },
 };

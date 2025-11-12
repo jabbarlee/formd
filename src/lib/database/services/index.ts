@@ -4,3 +4,7 @@
  */
 
 export * from "./user.service";
+export * from "./form.service";
+export * from "./question.service";
+export * from "./response.service";
+export * from "./answer.service";

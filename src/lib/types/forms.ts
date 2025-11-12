@@ -641,3 +641,55 @@ export interface ResponseStats {
   todayCount: number;
   weekGrowth: number; // percentage
 }
+
+// ============================================================================
+// Advanced Response Types
+// ============================================================================
+
+export interface ResponseAnalytics {
+  totalResponses: number;
+  completionRate: number;
+  averageCompletionTime: number;
+  deviceBreakdown: Record<DeviceType, number>;
+  dailySubmissions: Array<{ date: string; count: number }>;
+  sentimentSummary?: {
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
+}
+
+export interface ResponseTrends {
+  weeklyGrowth: number;
+  monthlyGrowth: number;
+  peakHours: Array<{ hour: number; count: number }>;
+  abandonmentRate: number;
+  averageTimeToComplete: number;
+}
+
+export interface ResponseExportOptions {
+  format: "csv" | "json" | "xlsx";
+  includeMetadata: boolean;
+  dateRange?: {
+    from: string;
+    to: string;
+  };
+  questionIds?: string[];
+}
+
+export interface ResponseDetail extends FormResponse {
+  answers: Array<{
+    questionId: string;
+    questionTitle: string;
+    questionType: QuestionType;
+    value: any;
+    displayValue: string;
+  }>;
+  metadata: {
+    browser?: string;
+    os?: string;
+    ipAddress?: string;
+    referrer?: string;
+    userAgent?: string;
+  };
+}
