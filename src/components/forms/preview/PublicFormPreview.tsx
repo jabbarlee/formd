@@ -18,7 +18,6 @@ import { Calendar, MapPin, ArrowRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FormPasswordGate } from "./FormPasswordGate";
 import { FormSubmittedModal } from "./FormSubmittedModal";
-import { CTASection } from "./CTASection";
 import { questionTypeMetadata } from "@/lib/types/forms";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -460,11 +459,6 @@ export function PublicFormPreview({ form, questions }: PublicFormPreviewProps) {
                   )}
                 </Button>
               </div>
-
-              {/* CTA Section */}
-              <div className="mt-8 pt-8 border-t">
-                <CTASection />
-              </div>
             </CardContent>
           </Card>
         ) : (
@@ -579,9 +573,6 @@ export function PublicFormPreview({ form, questions }: PublicFormPreviewProps) {
                 </div>
               </CardContent>
             </Card>
-
-            {/* CTA Section */}
-            <CTASection />
           </div>
         )}
       </div>

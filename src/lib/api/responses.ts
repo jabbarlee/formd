@@ -40,18 +40,30 @@ interface ApiResponse<T> {
  * Get auth headers for API requests
  */
 async function getAuthHeaders(): Promise<HeadersInit> {
-  const user = auth.currentUser;
-  if (!user) {
-    throw new Error("User not authenticated");
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    // Wait a bit for auth to initialize if not ready
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const retryUser = auth.currentUser;
+    if (!retryUser) {
+      throw new Error("Not authenticated - Please sign in first");
+    }
   }
 
-  const token = await user.getIdToken();
+  const user = currentUser || auth.currentUser!;
+  // Get Firebase ID token
+  const idToken = await user.getIdToken();
+
+  // Use the same header structure as forms API
+  // The API will verify the Firebase UID exists in the database
   return {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    "x-firebase-uid": user.uid,
+    "x-user-id": user.uid, // Will be verified against database
+    "x-user-email": user.email || "", // For auto-creating user
+    Authorization: `Bearer ${idToken}`,
   };
 }
-
 /**
  * Handle API response with proper error handling
  */
@@ -284,40 +296,54 @@ export const responsesApi = {
   },
 
   /**
-   * Export responses (placeholder for future implementation)
+   * Export responses using the dedicated export API endpoint
    */
   async exportResponses(
     formId: string,
     format: "csv" | "json" = "csv",
-    filters: ResponseFilters = {}
+    options: {
+      includeMetadata?: boolean;
+      questionIds?: string[];
+      filters?: ResponseFilters;
+    } = {}
   ): Promise<Blob> {
-    // This would require an export endpoint
-    // For now, get all responses and format client-side
-    const allResponses: FormResponse[] = [];
-    let offset = 0;
-    const limit = 100;
-    let hasMore = true;
+    const headers = await getAuthHeaders();
+    const params = new URLSearchParams();
 
-    // Fetch all responses in batches
-    while (hasMore) {
-      const data = await this.getResponses(formId, filters, { limit, offset });
-      allResponses.push(...data.responses);
-      hasMore = data.pagination.hasMore;
-      offset += limit;
+    params.set("format", format);
+
+    if (options.includeMetadata) {
+      params.set("includeMetadata", "true");
     }
 
-    // Simple CSV export (would be enhanced in real implementation)
-    if (format === "csv") {
-      const csvContent = this.convertToCSV(allResponses);
-      return new Blob([csvContent], { type: "text/csv" });
-    } else {
-      const jsonContent = JSON.stringify(allResponses, null, 2);
-      return new Blob([jsonContent], { type: "application/json" });
+    if (options.questionIds && options.questionIds.length > 0) {
+      params.set("questionIds", options.questionIds.join(","));
     }
+
+    const response = await fetch(
+      `/api/forms/${formId}/responses/export?${params}`,
+      {
+        headers: {
+          ...headers,
+          Accept: format === "csv" ? "text/csv" : "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response
+        .json()
+        .catch(() => ({ error: "Export failed" }));
+      throw new Error(
+        errorData.error || `Export failed: ${response.statusText}`
+      );
+    }
+
+    return response.blob();
   },
 
   /**
-   * Helper: Convert responses to CSV format
+   * Helper: Convert responses to CSV format (kept for compatibility)
    */
   convertToCSV(responses: FormResponse[]): string {
     if (responses.length === 0) return "No data available";
