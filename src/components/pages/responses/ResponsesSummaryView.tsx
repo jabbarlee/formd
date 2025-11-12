@@ -599,54 +599,59 @@ export function ResponsesSummaryView({
 
   return (
     <div className="space-y-6">
-      {questions.map((question, index) => {
-        const stats = calculateQuestionStats(question, responses);
+      <div className="flex flex-col items-center space-y-6">
+        {questions.map((question, index) => {
+          const stats = calculateQuestionStats(question, responses);
 
-        return (
-          <Card key={question.id} className="overflow-hidden">
-            <CardHeader className="bg-muted/30">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <Badge variant="outline" className="text-xs">
-                      Question {index + 1}
-                    </Badge>
-                    {question.required && (
-                      <Badge variant="destructive" className="text-xs">
-                        Required
+          return (
+            <Card
+              key={question.id}
+              className="overflow-hidden w-full max-w-[50%]"
+            >
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <Badge variant="outline" className="text-xs">
+                        Question {index + 1}
                       </Badge>
-                    )}
-                    <Badge
-                      variant="secondary"
-                      className="text-xs capitalize flex items-center gap-1"
-                    >
-                      {getQuestionIcon(question.type)}
-                      {question.type.replace(/_/g, " ")}
-                    </Badge>
+                      {question.required && (
+                        <Badge variant="destructive" className="text-xs">
+                          Required
+                        </Badge>
+                      )}
+                      <Badge
+                        variant="secondary"
+                        className="text-xs capitalize flex items-center gap-1"
+                      >
+                        {getQuestionIcon(question.type)}
+                        {question.type.replace(/_/g, " ")}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-lg font-semibold">
+                      {question.title}
+                    </CardTitle>
                   </div>
-                  <CardTitle className="text-lg font-semibold">
-                    {question.title}
-                  </CardTitle>
+                  <div className="text-right flex-shrink-0">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        {stats.answeredCount}/{totalResponses}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {stats.responseRate.toFixed(1)}% response rate
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Users className="h-4 w-4" />
-                    <span className="text-sm font-medium">
-                      {stats.answeredCount}/{totalResponses}
-                    </span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {stats.responseRate.toFixed(1)}% response rate
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6">
-              {renderQuestionVisualization(question, stats)}
-            </CardContent>
-          </Card>
-        );
-      })}
+              </CardHeader>
+              <CardContent className="pt-6">
+                {renderQuestionVisualization(question, stats)}
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }
