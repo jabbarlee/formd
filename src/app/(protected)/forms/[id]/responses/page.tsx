@@ -279,16 +279,16 @@ export default function FormResponsesPage({
               filteredCount={filteredResponses.length}
             />
 
-            <Tabs defaultValue="table" className="w-full">
+            <Tabs defaultValue="summary" className="w-full">
               <div className="flex items-center justify-between mb-4">
                 <TabsList>
-                  <TabsTrigger value="table" className="gap-2">
-                    <TableIcon className="h-4 w-4" />
-                    <span className="hidden sm:inline">Table View</span>
-                  </TabsTrigger>
                   <TabsTrigger value="summary" className="gap-2">
                     <BarChart3 className="h-4 w-4" />
                     <span className="hidden sm:inline">Summary</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="table" className="gap-2">
+                    <TableIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline">Table View</span>
                   </TabsTrigger>
                   <TabsTrigger value="insights" className="gap-2">
                     <Sparkles className="h-4 w-4" />
