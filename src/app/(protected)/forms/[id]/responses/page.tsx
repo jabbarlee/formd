@@ -20,6 +20,7 @@ import { ResponseDetailSheet } from "@/components/pages/responses/ResponseDetail
 import { ResponsesFilters } from "@/components/pages/responses/ResponsesFilters";
 import { ResponsesStats } from "@/components/pages/responses/ResponsesStats";
 import { FormResponsesHeader } from "@/components/pages/responses/FormResponsesHeader";
+import { ComingSoonOverlay } from "@/components/ui/coming-soon-overlay";
 import {
   Card,
   CardContent,
@@ -312,217 +313,235 @@ export default function FormResponsesPage({
               </TabsContent>
 
               <TabsContent value="insights" className="mt-0">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Sentiment Analysis</CardTitle>
-                      <CardDescription>
-                        Overall sentiment from text responses
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium">
-                              Positive
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              68%
-                            </span>
+                <div className="relative">
+                  {/* AI Insights Content */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Sentiment Analysis</CardTitle>
+                        <CardDescription>
+                          Overall sentiment from text responses
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium">
+                                Positive
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                68%
+                              </span>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-green-500"
+                                style={{ width: "68%" }}
+                              />
+                            </div>
                           </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-green-500"
-                              style={{ width: "68%" }}
-                            />
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium">
+                                Neutral
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                22%
+                              </span>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gray-500"
+                                style={{ width: "22%" }}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium">
+                                Negative
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                10%
+                              </span>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-red-500"
+                                style={{ width: "10%" }}
+                              />
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium">Neutral</span>
-                            <span className="text-sm text-muted-foreground">
-                              22%
-                            </span>
-                          </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gray-500"
-                              style={{ width: "22%" }}
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium">
-                              Negative
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              10%
-                            </span>
-                          </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-red-500"
-                              style={{ width: "10%" }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Common Themes</CardTitle>
-                      <CardDescription>
-                        AI-identified topics from responses
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {[
-                          { theme: "Customer Service", count: 45 },
-                          { theme: "Product Quality", count: 38 },
-                          { theme: "Pricing", count: 29 },
-                          { theme: "Delivery Speed", count: 22 },
-                          { theme: "User Experience", count: 18 },
-                        ].map((item, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between"
-                          >
-                            <span className="text-sm font-medium">
-                              {item.theme}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Common Themes</CardTitle>
+                        <CardDescription>
+                          AI-identified topics from responses
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {[
+                            { theme: "Customer Service", count: 45 },
+                            { theme: "Product Quality", count: 38 },
+                            { theme: "Pricing", count: 29 },
+                            { theme: "Delivery Speed", count: 22 },
+                            { theme: "User Experience", count: 18 },
+                          ].map((item, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between"
+                            >
+                              <span className="text-sm font-medium">
+                                {item.theme}
+                              </span>
+                              <Badge variant="secondary">{item.count}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Response Trends</CardTitle>
+                        <CardDescription>
+                          Daily submission patterns
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Monday
                             </span>
-                            <Badge variant="secondary">{item.count}</Badge>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "75%" }}
+                                />
+                              </div>
+                              <span className="font-medium">32</span>
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Tuesday
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "85%" }}
+                                />
+                              </div>
+                              <span className="font-medium">38</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Wednesday
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "90%" }}
+                                />
+                              </div>
+                              <span className="font-medium">42</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Thursday
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "70%" }}
+                                />
+                              </div>
+                              <span className="font-medium">28</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Friday
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "55%" }}
+                                />
+                              </div>
+                              <span className="font-medium">24</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Response Trends</CardTitle>
-                      <CardDescription>
-                        Daily submission patterns
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Monday</span>
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-blue-500"
-                                style={{ width: "75%" }}
-                              />
-                            </div>
-                            <span className="font-medium">32</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Tuesday</span>
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-blue-500"
-                                style={{ width: "85%" }}
-                              />
-                            </div>
-                            <span className="font-medium">38</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            Wednesday
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-blue-500"
-                                style={{ width: "90%" }}
-                              />
-                            </div>
-                            <span className="font-medium">42</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            Thursday
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-blue-500"
-                                style={{ width: "70%" }}
-                              />
-                            </div>
-                            <span className="font-medium">28</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Friday</span>
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-blue-500"
-                                style={{ width: "55%" }}
-                              />
-                            </div>
-                            <span className="font-medium">24</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Key Insights</CardTitle>
+                        <CardDescription>AI-generated summary</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-3 text-sm">
+                          <li className="flex gap-2">
+                            <span className="text-green-600 font-bold">+</span>
+                            <span>
+                              Customers highly appreciate the responsive
+                              customer service team
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-green-600 font-bold">+</span>
+                            <span>
+                              Product quality consistently receives positive
+                              feedback
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-yellow-600 font-bold">~</span>
+                            <span>
+                              Response times could be improved during peak hours
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-red-600 font-bold">-</span>
+                            <span>
+                              Checkout process has reported bugs that need
+                              attention
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-blue-600 font-bold">→</span>
+                            <span>
+                              Mobile experience improvements requested by
+                              multiple users
+                            </span>
+                          </li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Key Insights</CardTitle>
-                      <CardDescription>AI-generated summary</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-3 text-sm">
-                        <li className="flex gap-2">
-                          <span className="text-green-600 font-bold">+</span>
-                          <span>
-                            Customers highly appreciate the responsive customer
-                            service team
-                          </span>
-                        </li>
-                        <li className="flex gap-2">
-                          <span className="text-green-600 font-bold">+</span>
-                          <span>
-                            Product quality consistently receives positive
-                            feedback
-                          </span>
-                        </li>
-                        <li className="flex gap-2">
-                          <span className="text-yellow-600 font-bold">~</span>
-                          <span>
-                            Response times could be improved during peak hours
-                          </span>
-                        </li>
-                        <li className="flex gap-2">
-                          <span className="text-red-600 font-bold">-</span>
-                          <span>
-                            Checkout process has reported bugs that need
-                            attention
-                          </span>
-                        </li>
-                        <li className="flex gap-2">
-                          <span className="text-blue-600 font-bold">→</span>
-                          <span>
-                            Mobile experience improvements requested by multiple
-                            users
-                          </span>
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
+                  {/* Coming Soon Overlay */}
+                  <ComingSoonOverlay
+                    message="AI Insights Coming Soon"
+                    description="Our AI-powered analytics and insights features are currently in development. Stay tuned for intelligent analysis of your form responses!"
+                    blurIntensity="blur-sm"
+                  />
                 </div>
               </TabsContent>
             </Tabs>
