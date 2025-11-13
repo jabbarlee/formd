@@ -33,13 +33,15 @@ import {
   Globe,
 } from "lucide-react";
 import { AnalyticsHeader } from "@/components/layout/headers";
+import { ResponseTrendChart } from "@/components/charts/ResponseTrendChart";
+import { ComingSoonOverlay } from "@/components/ui/coming-soon-overlay";
 
 export default function FormAnalyticsPage() {
   return (
     <div>
       <AnalyticsHeader />
 
-      <div className="space-y-6 p-6">
+      <div className="relative space-y-6 p-6">
         {/* Breadcrumb */}
         <div>
           <Breadcrumb>
@@ -139,10 +141,8 @@ export default function FormAnalyticsPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64 flex items-center justify-center bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      Line chart placeholder
-                    </p>
+                  <div className="h-[250px] w-full">
+                    <ResponseTrendChart />
                   </div>
                 </CardContent>
               </Card>
@@ -472,6 +472,13 @@ export default function FormAnalyticsPage() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Coming Soon Overlay */}
+        <ComingSoonOverlay
+          message="Advanced Analytics Coming Soon"
+          description="We're working on bringing you detailed insights, real-time analytics, and advanced reporting features."
+          blurIntensity="blur-sm"
+        />
       </div>
     </div>
   );

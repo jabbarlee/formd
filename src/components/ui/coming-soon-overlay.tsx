@@ -132,7 +132,7 @@ export const ComingSoonOverlay: React.FC<ComingSoonOverlayProps> = ({
   width,
   height,
   blurIntensity = "blur-sm",
-  backgroundColor = "bg-white/60 dark:bg-gray-900/60",
+  backgroundColor = "bg-white/80 dark:bg-gray-900/60",
   textColor = "text-gray-900 dark:text-gray-100",
   className,
   messageClassName,

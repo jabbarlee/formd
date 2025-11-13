@@ -198,13 +198,13 @@ export function AppSidebar() {
                   asChild
                   variant="outline"
                   size="sm"
-                  className="w-full h-auto py-3 px-3 justify-start min-w-0"
+                  className="w-full h-9 justify-start min-w-0"
                 >
                   <Link
                     href={`/forms/${lastPublishedForm.id}/responses`}
-                    className="flex items-center min-w-0 gap-2"
+                    className="flex items-center min-w-0"
                   >
-                    <BarChart className="h-4 w-4 flex-shrink-0" />
+                    <BarChart className="h-4 w-4 mr-2 flex-shrink-0" />
                     <div className="flex flex-col items-start min-w-0 flex-1">
                       <span className="text-xs text-foreground truncate w-full">
                         {lastPublishedForm.title.length > 15
