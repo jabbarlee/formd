@@ -13,6 +13,7 @@ import {
   Inbox,
   FolderOpen,
   Layout,
+  BarChart,
 } from "lucide-react";
 
 import {
@@ -35,6 +36,8 @@ import { useAuth, getUserInitials } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { formsApi } from "@/lib/api/forms";
+import { useEffect, useState } from "react";
+import { Form } from "@/lib/types/forms";
 
 // Menu items based on actual protected routes
 const mainItems = [
@@ -76,6 +79,35 @@ const settingsItems = [
 export function AppSidebar() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const [lastPublishedForm, setLastPublishedForm] = useState<Form | null>(null);
+  const [isLoadingForm, setIsLoadingForm] = useState(false);
+
+  // Fetch the most recent published form
+  const fetchLastPublishedForm = async () => {
+    if (!user) return;
+
+    try {
+      setIsLoadingForm(true);
+      const { forms } = await formsApi.getForms({
+        status: "published",
+        limit: 1,
+      });
+
+      if (forms.length > 0) {
+        setLastPublishedForm(forms[0]);
+      } else {
+        setLastPublishedForm(null);
+      }
+    } catch (error) {
+      console.error("Error fetching last published form:", error);
+    } finally {
+      setIsLoadingForm(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLastPublishedForm();
+  }, [user]);
 
   const handleSignOut = async () => {
     const result = await signOut();
@@ -152,16 +184,43 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <div className="px-2 space-y-2">
               <Button
-                asChild
                 variant="default"
                 size="sm"
                 className="w-full justify-start min-w-0"
+                onClick={handleCreateForm}
               >
-                <Link href="#" onClick={handleCreateForm} className="flex items-center min-w-0">
-                  <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">New Form</span>
-                </Link>
+                <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">New Form</span>
               </Button>
+
+              {lastPublishedForm && (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="w-full h-auto py-3 px-3 justify-start min-w-0"
+                >
+                  <Link
+                    href={`/forms/${lastPublishedForm.id}/responses`}
+                    className="flex items-center min-w-0 gap-2"
+                  >
+                    <BarChart className="h-4 w-4 flex-shrink-0" />
+                    <div className="flex flex-col items-start min-w-0 flex-1">
+                      <span className="text-xs text-foreground truncate w-full">
+                        {lastPublishedForm.title.length > 15
+                          ? `${lastPublishedForm.title.substring(0, 15)}...`
+                          : lastPublishedForm.title}
+                      </span>
+                    </div>
+                    {lastPublishedForm.responseCount &&
+                      lastPublishedForm.responseCount > 0 && (
+                        <span className="text-xs bg-primary text-primary-foreground rounded-full px-2 py-0.5 flex-shrink-0">
+                          {lastPublishedForm.responseCount}
+                        </span>
+                      )}
+                  </Link>
+                </Button>
+              )}
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
