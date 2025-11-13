@@ -34,6 +34,7 @@ import { Separator } from "@radix-ui/react-dropdown-menu";
 import { useAuth, getUserInitials } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { formsApi } from "@/lib/api/forms";
 
 // Menu items based on actual protected routes
 const mainItems = [
@@ -90,6 +91,24 @@ export function AppSidebar() {
   const displayName = user?.displayName || "User";
   const displayEmail = user?.email || "user@email.com";
 
+  const handleCreateForm = async () => {
+    try {
+      // Create a new form in the database first
+      const { form } = await formsApi.createForm({
+        title: "Untitled Form",
+        description: "",
+        status: "draft",
+      });
+
+      // Navigate to the actual form UUID
+      router.push(`/forms/${form.id}`);
+    } catch (error) {
+      console.error("Failed to create form:", error);
+      // Fallback to the old behavior if API call fails
+      router.push(`/forms/new`);
+    }
+  };
+
   return (
     <Sidebar>
       <SidebarHeader className="h-16 px-6 justify-center border-b bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5">
@@ -138,7 +157,7 @@ export function AppSidebar() {
                 size="sm"
                 className="w-full justify-start min-w-0"
               >
-                <Link href="/forms">
+                <Link href="#" onClick={handleCreateForm} className="flex items-center min-w-0">
                   <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
                   <span className="truncate">New Form</span>
                 </Link>

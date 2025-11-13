@@ -59,16 +59,6 @@ export async function POST(request: NextRequest) {
       return errorResponse("Title is required", 400);
     }
 
-    if (!body.slug) {
-      return errorResponse("Slug is required", 400);
-    }
-
-    // Check if slug is available
-    const isSlugAvailable = await formService.isSlugAvailable(body.slug);
-    if (!isSlugAvailable) {
-      return errorResponse("Slug is already taken", 400);
-    }
-
     // Create form
     const form = await formService.create(body, authUser.userId);
 
