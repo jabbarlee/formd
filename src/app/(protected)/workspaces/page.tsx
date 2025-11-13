@@ -226,10 +226,10 @@ export default function WorkspacesPage() {
       </div>
 
       <ComingSoonOverlay
-        message="Team Collaboration Coming Soon!"
+        message="Workspaces Coming Soon!"
         description="We're building powerful workspace features for seamless team collaboration on forms."
         blurIntensity="blur-sm"
-      />
+      /> 
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">

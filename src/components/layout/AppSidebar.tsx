@@ -4,14 +4,11 @@ import {
   Home,
   FileText,
   BarChart3,
-  Settings,
+  Handshake,
   Plus,
   LogOut,
   User,
   CreditCard,
-  LineChart,
-  Inbox,
-  FolderOpen,
   Layout,
   BarChart,
 } from "lucide-react";
@@ -31,7 +28,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Separator } from "@radix-ui/react-dropdown-menu";
 import { useAuth, getUserInitials } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -44,7 +40,7 @@ const mainItems = [
   {
     title: "Workspaces",
     url: "/workspaces",
-    icon: Home,
+    icon: Handshake,
   },
   {
     title: "Forms",
