@@ -42,8 +42,8 @@ import { Form } from "@/lib/types/forms";
 // Menu items based on actual protected routes
 const mainItems = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
+    title: "Workspaces",
+    url: "/workspaces",
     icon: Home,
   },
   {
