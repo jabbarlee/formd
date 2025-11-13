@@ -20,6 +20,20 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Plus,
   Search,
   Grid3x3,
@@ -30,6 +44,7 @@ import {
   Trash2,
   Loader2,
   AlertCircle,
+  PenLine,
 } from "lucide-react";
 import Link from "next/link";
 import { FormsHeader } from "@/components/layout/headers";
@@ -42,10 +57,13 @@ export default function FormsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [formToDelete, setFormToDelete] = useState<Form | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadForms();
-  }, []);
+  }, [statusFilter]); // Reload when filter changes
 
   const loadForms = async () => {
     try {
@@ -61,6 +79,33 @@ export default function FormsPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDeleteClick = (form: Form) => {
+    setFormToDelete(form);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!formToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      await formsApi.deleteForm(formToDelete.id);
+      setForms(forms.filter((f) => f.id !== formToDelete.id));
+      setDeleteDialogOpen(false);
+      setFormToDelete(null);
+    } catch (err) {
+      console.error("Error deleting form:", err);
+      setError("Failed to delete form");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setFormToDelete(null);
   };
 
   // Filter forms based on search and status
@@ -93,7 +138,7 @@ export default function FormsPage() {
 
   return (
     <div>
-      <FormsHeader />
+      <FormsHeader onFormCreated={loadForms} />
 
       <div className="space-y-6 p-6">
         {/* Toolbar */}
@@ -131,9 +176,14 @@ export default function FormsPage() {
         {/* Error State */}
         {error && (
           <div className="flex items-center justify-center py-12">
-            <div className="flex items-center gap-2 text-destructive">
-              <AlertCircle className="h-5 w-5" />
-              <span>{error}</span>
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center gap-2 text-destructive">
+                <AlertCircle className="h-5 w-5" />
+                <span>{error}</span>
+              </div>
+              <Button variant="outline" onClick={loadForms}>
+                Try Again
+              </Button>
             </div>
           </div>
         )}
@@ -181,9 +231,22 @@ export default function FormsPage() {
                             {form.description}
                           </CardDescription>
                         </div>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => handleDeleteClick(form)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2 text-destructive" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -193,7 +256,7 @@ export default function FormsPage() {
                             Responses
                           </span>
                           <span className="font-semibold text-violet-600">
-                            0
+                            {form.responseCount ?? 0}
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
@@ -255,7 +318,7 @@ export default function FormsPage() {
                               {form.description}
                             </p>
                             <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                              <span>0 responses</span>
+                              <span>{form.responseCount ?? 0} responses</span>
                               <span>•</span>
                               <span>Modified {formatDate(form.updatedAt)}</span>
                             </div>
@@ -273,7 +336,7 @@ export default function FormsPage() {
                             <div className="flex gap-2">
                               <Button variant="outline" size="sm" asChild>
                                 <Link href={`/forms/${form.id}`}>
-                                  Edit
+                                  <PenLine />
                                 </Link>
                               </Button>
                               <Button variant="ghost" size="icon" asChild>
@@ -284,9 +347,22 @@ export default function FormsPage() {
                               <Button variant="ghost" size="icon">
                                 <Copy className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="icon">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteClick(form)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </div>
                         </div>
@@ -299,6 +375,37 @@ export default function FormsPage() {
           </Tabs>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Form</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{formToDelete?.title}"? This
+              action cannot be undone. All responses and data associated with
+              this form will be permanently removed.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleDeleteCancel}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+            >
+              {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {isDeleting ? "Deleting..." : "Delete Form"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

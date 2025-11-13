@@ -1,11 +1,15 @@
 "use client";
 
-import { use, useState, useMemo } from "react";
+import { use, useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table as TableIcon, Sparkles, BarChart3 } from "lucide-react";
-import { mockResponses, mockFormWithQuestions } from "@/lib/mock-data";
+import { responsesApi } from "@/lib/api/responses";
+import { formsApi } from "@/lib/api/forms";
+import { useAuth } from "@/lib/auth";
 import {
+  Form,
+  Question,
   FormResponse,
   ResponseFilters,
   ResponseStats,
@@ -16,6 +20,7 @@ import { ResponseDetailSheet } from "@/components/pages/responses/ResponseDetail
 import { ResponsesFilters } from "@/components/pages/responses/ResponsesFilters";
 import { ResponsesStats } from "@/components/pages/responses/ResponsesStats";
 import { FormResponsesHeader } from "@/components/pages/responses/FormResponsesHeader";
+import { ComingSoonOverlay } from "@/components/ui/coming-soon-overlay";
 import {
   Card,
   CardContent,
@@ -24,6 +29,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle, Loader2 } from "lucide-react";
+
+interface LoadingState {
+  form: boolean;
+  responses: boolean;
+}
+
+interface ErrorState {
+  form: string | null;
+  responses: string | null;
+}
 
 export default function FormResponsesPage({
   params,
@@ -31,6 +48,8 @@ export default function FormResponsesPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const { user, status } = useAuth(); // Get auth status
+
   const [filters, setFilters] = useState<ResponseFilters>({
     search: undefined,
     status: undefined,
@@ -40,46 +59,96 @@ export default function FormResponsesPage({
     null
   );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [loading, setLoading] = useState<LoadingState>({
+    form: true,
+    responses: true,
+  });
+  const [errors, setErrors] = useState<ErrorState>({
+    form: null,
+    responses: null,
+  });
 
-  // In a real app, fetch form and responses based on id
-  const form = mockFormWithQuestions;
-  // For now, show all responses for formId "1" regardless of the URL param
-  // In production, you'd filter by id
-  const allResponses = mockResponses.filter((r) => r.formId === "1");
+  // Real data state
+  const [form, setForm] = useState<Form | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [allResponses, setAllResponses] = useState<FormResponse[]>([]);
+  const [responseStats, setResponseStats] = useState<ResponseStats>({
+    total: 0,
+    completed: 0,
+    partial: 0,
+    flagged: 0,
+    completionRate: 0,
+    averageTime: 0,
+    todayCount: 0,
+    weekGrowth: 0,
+  });
+
+  // Load form data
+  useEffect(() => {
+    async function loadForm() {
+      try {
+        setLoading((prev) => ({ ...prev, form: true }));
+        setErrors((prev) => ({ ...prev, form: null }));
+
+        const { form: formData, questions: questionsData } =
+          await formsApi.getForm(id);
+        setForm(formData);
+        setQuestions(questionsData);
+      } catch (error: any) {
+        console.error("Error loading form:", error);
+        setErrors((prev) => ({
+          ...prev,
+          form: error.message || "Failed to load form",
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, form: false }));
+      }
+    }
+
+    // Only load if user is authenticated
+    if (user && status === "authenticated") {
+      loadForm();
+    }
+  }, [id, user, status]);
+
+  // Load responses data whenever filters change
+  useEffect(() => {
+    async function loadResponses() {
+      try {
+        setLoading((prev) => ({ ...prev, responses: true }));
+        setErrors((prev) => ({ ...prev, responses: null }));
+
+        const { responses: responsesData, stats: statsData } =
+          await responsesApi.getResponses(id, filters);
+        setAllResponses(responsesData);
+        setResponseStats(statsData);
+      } catch (error: any) {
+        console.error("Error loading responses:", error);
+        setErrors((prev) => ({
+          ...prev,
+          responses: error.message || "Failed to load responses",
+        }));
+      } finally {
+        setLoading((prev) => ({ ...prev, responses: false }));
+      }
+    }
+
+    // Only load if form exists and user is authenticated
+    if (form && user && status === "authenticated") {
+      loadResponses();
+    }
+  }, [id, form, filters, user, status]); // Added user and status dependencies
 
   console.log("Form ID:", id);
   console.log("All responses:", allResponses.length);
-  console.log("Mock responses:", mockResponses.length);
 
-  // Filter responses
-  const filteredResponses = useMemo(() => {
-    return allResponses.filter((response) => {
-      // Search filter
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        const matchesSearch =
-          response.id.toLowerCase().includes(searchLower) ||
-          response.respondent.name?.toLowerCase().includes(searchLower) ||
-          response.respondent.email?.toLowerCase().includes(searchLower);
-        if (!matchesSearch) return false;
-      }
-
-      // Status filter
-      if (filters.status && filters.status !== "all") {
-        if (response.status !== filters.status) return false;
-      }
-
-      // Device filter
-      if (filters.device && filters.device !== "all") {
-        if (response.device !== filters.device) return false;
-      }
-
-      return true;
-    });
-  }, [allResponses, filters]);
+  // Since filtering is now server-side, we don't need client-side filtering
+  const filteredResponses = allResponses;
 
   // Transform responses for view components
   const transformedResponses = useMemo(() => {
+    if (!form) return [];
+
     return filteredResponses.map((r) => ({
       id: r.id,
       formName: form.title,
@@ -91,52 +160,9 @@ export default function FormResponsesPage({
         ? `${Math.floor(r.completionTime / 60)}m ${r.completionTime % 60}s`
         : "N/A",
       answers: Object.keys(r.data).length,
-      totalQuestions: form.questions.length,
+      totalQuestions: questions.length,
     }));
-  }, [filteredResponses, form]);
-
-  // Calculate stats
-  const stats: ResponseStats = useMemo(() => {
-    const total = allResponses.length;
-    const completed = allResponses.filter(
-      (r) => r.status === "completed"
-    ).length;
-    const partial = allResponses.filter((r) => r.status === "partial").length;
-    const flagged = allResponses.filter((r) => r.status === "flagged").length;
-    const completionRate = total > 0 ? (completed / total) * 100 : 0;
-
-    // Calculate average completion time
-    const completedWithTime = allResponses.filter(
-      (r) => r.status === "completed" && r.completionTime
-    );
-    const averageTime =
-      completedWithTime.length > 0
-        ? completedWithTime.reduce(
-            (sum, r) => sum + (r.completionTime || 0),
-            0
-          ) / completedWithTime.length
-        : 0;
-
-    // Count today's responses (mock data)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayCount = allResponses.filter((r) => {
-      const responseDate = new Date(r.submittedAt);
-      responseDate.setHours(0, 0, 0, 0);
-      return responseDate.getTime() === today.getTime();
-    }).length;
-
-    return {
-      total,
-      completed,
-      partial,
-      flagged,
-      completionRate,
-      averageTime: Math.round(averageTime),
-      todayCount,
-      weekGrowth: 12,
-    };
-  }, [allResponses]);
+  }, [filteredResponses, form, questions]);
 
   const handleViewResponse = (id: string) => {
     const response = filteredResponses.find((r) => r.id === id);
@@ -146,282 +172,393 @@ export default function FormResponsesPage({
     }
   };
 
-  const handleDeleteResponse = (id: string) => {
-    console.log("Delete response:", id);
+  const handleDeleteResponse = async (id: string) => {
+    try {
+      await responsesApi.deleteResponse(id, id);
+      // Reload responses after deletion
+      const { responses: responsesData, stats: statsData } =
+        await responsesApi.getResponses(id, filters);
+      setAllResponses(responsesData);
+      setResponseStats(statsData);
+    } catch (error: any) {
+      console.error("Error deleting response:", error);
+    }
   };
 
-  const handleFlagResponse = (id: string) => {
-    console.log("Flag response:", id);
+  const handleFlagResponse = async (id: string) => {
+    try {
+      await responsesApi.flagResponse(id, id);
+      // Reload responses after flagging
+      const { responses: responsesData, stats: statsData } =
+        await responsesApi.getResponses(id, filters);
+      setAllResponses(responsesData);
+      setResponseStats(statsData);
+    } catch (error: any) {
+      console.error("Error flagging response:", error);
+    }
   };
 
-  const handleExport = () => {
-    console.log("Export responses");
+  const handleExport = async () => {
+    try {
+      const blob = await responsesApi.exportResponses(id, "csv");
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${form?.title || "form"}-responses.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error: any) {
+      console.error("Error exporting responses:", error);
+    }
   };
+
+  // Show loading state
+  if (loading.form) {
+    return (
+      <div className="p-6">
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  // Show form error
+  if (errors.form) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center gap-2 text-red-600">
+          <AlertCircle className="h-5 w-5" />
+          <span>{errors.form}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!form) {
+    return (
+      <div className="p-6">
+        <div className="text-center text-muted-foreground">Form not found</div>
+      </div>
+    );
+  }
 
   return (
     <div>
       <FormResponsesHeader
         formTitle={form.title}
         formId={id}
-        totalResponses={stats.total}
+        totalResponses={responseStats.total}
         onExport={handleExport}
       />
 
       <div className="space-y-6 p-6">
-        <ResponsesStats stats={stats} />
-
-        <ResponsesFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          totalCount={allResponses.length}
-          filteredCount={filteredResponses.length}
-        />
-
-        <Tabs defaultValue="table" className="w-full">
-          <div className="flex items-center justify-between mb-4">
-            <TabsList>
-              <TabsTrigger value="table" className="gap-2">
-                <TableIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">Table View</span>
-              </TabsTrigger>
-              <TabsTrigger value="summary" className="gap-2">
-                <BarChart3 className="h-4 w-4" />
-                <span className="hidden sm:inline">Summary</span>
-              </TabsTrigger>
-              <TabsTrigger value="insights" className="gap-2">
-                <Sparkles className="h-4 w-4" />
-                <span className="hidden sm:inline">AI Insights</span>
-              </TabsTrigger>
-            </TabsList>
+        {loading.responses ? (
+          <div className="space-y-4">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-64 w-full" />
           </div>
+        ) : errors.responses ? (
+          <div className="flex items-center gap-2 text-red-600">
+            <AlertCircle className="h-5 w-5" />
+            <span>{errors.responses}</span>
+          </div>
+        ) : (
+          <>
+            <ResponsesStats stats={responseStats} />
 
-          <TabsContent value="table" className="mt-0">
-            <ResponsesTableView
-              responses={transformedResponses}
-              onView={handleViewResponse}
+            <ResponsesFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              totalCount={allResponses.length}
+              filteredCount={filteredResponses.length}
+            />
+
+            <Tabs defaultValue="summary" className="w-full">
+              <div className="flex items-center justify-between mb-4">
+                <TabsList>
+                  <TabsTrigger value="summary" className="gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Summary</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="table" className="gap-2">
+                    <TableIcon className="h-4 w-4" />
+                    <span className="hidden sm:inline">Table View</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="insights" className="gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    <span className="hidden sm:inline">AI Insights</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              <TabsContent value="table" className="mt-0">
+                <ResponsesTableView
+                  responses={transformedResponses}
+                  onView={handleViewResponse}
+                  onDelete={handleDeleteResponse}
+                />
+              </TabsContent>
+
+              <TabsContent value="summary" className="mt-0">
+                <ResponsesSummaryView
+                  questions={questions}
+                  responses={filteredResponses}
+                />
+              </TabsContent>
+
+              <TabsContent value="insights" className="mt-0">
+                <div className="relative">
+                  {/* AI Insights Content */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Sentiment Analysis</CardTitle>
+                        <CardDescription>
+                          Overall sentiment from text responses
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium">
+                                Positive
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                68%
+                              </span>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-green-500"
+                                style={{ width: "68%" }}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium">
+                                Neutral
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                22%
+                              </span>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gray-500"
+                                style={{ width: "22%" }}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium">
+                                Negative
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                10%
+                              </span>
+                            </div>
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-red-500"
+                                style={{ width: "10%" }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Common Themes</CardTitle>
+                        <CardDescription>
+                          AI-identified topics from responses
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {[
+                            { theme: "Customer Service", count: 45 },
+                            { theme: "Product Quality", count: 38 },
+                            { theme: "Pricing", count: 29 },
+                            { theme: "Delivery Speed", count: 22 },
+                            { theme: "User Experience", count: 18 },
+                          ].map((item, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between"
+                            >
+                              <span className="text-sm font-medium">
+                                {item.theme}
+                              </span>
+                              <Badge variant="secondary">{item.count}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Response Trends</CardTitle>
+                        <CardDescription>
+                          Daily submission patterns
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Monday
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "75%" }}
+                                />
+                              </div>
+                              <span className="font-medium">32</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Tuesday
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "85%" }}
+                                />
+                              </div>
+                              <span className="font-medium">38</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Wednesday
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "90%" }}
+                                />
+                              </div>
+                              <span className="font-medium">42</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Thursday
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "70%" }}
+                                />
+                              </div>
+                              <span className="font-medium">28</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Friday
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-500"
+                                  style={{ width: "55%" }}
+                                />
+                              </div>
+                              <span className="font-medium">24</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Key Insights</CardTitle>
+                        <CardDescription>AI-generated summary</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-3 text-sm">
+                          <li className="flex gap-2">
+                            <span className="text-green-600 font-bold">+</span>
+                            <span>
+                              Customers highly appreciate the responsive
+                              customer service team
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-green-600 font-bold">+</span>
+                            <span>
+                              Product quality consistently receives positive
+                              feedback
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-yellow-600 font-bold">~</span>
+                            <span>
+                              Response times could be improved during peak hours
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-red-600 font-bold">-</span>
+                            <span>
+                              Checkout process has reported bugs that need
+                              attention
+                            </span>
+                          </li>
+                          <li className="flex gap-2">
+                            <span className="text-blue-600 font-bold">→</span>
+                            <span>
+                              Mobile experience improvements requested by
+                              multiple users
+                            </span>
+                          </li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Coming Soon Overlay */}
+                  <ComingSoonOverlay
+                    message="AI Insights Coming Soon"
+                    description="Our AI-powered analytics and insights features are currently in development. Stay tuned for intelligent analysis of your form responses!"
+                    blurIntensity="blur-sm"
+                    icon={
+                      <Sparkles className="h-8 w-8 text-purple-500 drop-shadow-md" />
+                    }
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <ResponseDetailSheet
+              response={selectedResponse}
+              isOpen={isDetailOpen}
+              onClose={() => setIsDetailOpen(false)}
               onDelete={handleDeleteResponse}
+              onFlag={handleFlagResponse}
+              formQuestions={questions}
             />
-          </TabsContent>
-
-          <TabsContent value="summary" className="mt-0">
-            <ResponsesSummaryView
-              questions={form.questions}
-              responses={filteredResponses}
-            />
-          </TabsContent>
-
-          <TabsContent value="insights" className="mt-0">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Sentiment Analysis</CardTitle>
-                  <CardDescription>
-                    Overall sentiment from text responses
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Positive</span>
-                        <span className="text-sm text-muted-foreground">
-                          68%
-                        </span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-green-500"
-                          style={{ width: "68%" }}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Neutral</span>
-                        <span className="text-sm text-muted-foreground">
-                          22%
-                        </span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gray-500"
-                          style={{ width: "22%" }}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Negative</span>
-                        <span className="text-sm text-muted-foreground">
-                          10%
-                        </span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-red-500"
-                          style={{ width: "10%" }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Common Themes</CardTitle>
-                  <CardDescription>
-                    AI-identified topics from responses
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { theme: "Customer Service", count: 45 },
-                      { theme: "Product Quality", count: 38 },
-                      { theme: "Pricing", count: 29 },
-                      { theme: "Delivery Speed", count: 22 },
-                      { theme: "User Experience", count: 18 },
-                    ].map((item, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between"
-                      >
-                        <span className="text-sm font-medium">
-                          {item.theme}
-                        </span>
-                        <Badge variant="secondary">{item.count}</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Response Trends</CardTitle>
-                  <CardDescription>Daily submission patterns</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Monday</span>
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500"
-                            style={{ width: "75%" }}
-                          />
-                        </div>
-                        <span className="font-medium">32</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Tuesday</span>
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500"
-                            style={{ width: "85%" }}
-                          />
-                        </div>
-                        <span className="font-medium">38</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Wednesday</span>
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500"
-                            style={{ width: "90%" }}
-                          />
-                        </div>
-                        <span className="font-medium">42</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Thursday</span>
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500"
-                            style={{ width: "70%" }}
-                          />
-                        </div>
-                        <span className="font-medium">28</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Friday</span>
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500"
-                            style={{ width: "55%" }}
-                          />
-                        </div>
-                        <span className="font-medium">24</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Key Insights</CardTitle>
-                  <CardDescription>AI-generated summary</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3 text-sm">
-                    <li className="flex gap-2">
-                      <span className="text-green-600 font-bold">+</span>
-                      <span>
-                        Customers highly appreciate the responsive customer
-                        service team
-                      </span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="text-green-600 font-bold">+</span>
-                      <span>
-                        Product quality consistently receives positive feedback
-                      </span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="text-yellow-600 font-bold">~</span>
-                      <span>
-                        Response times could be improved during peak hours
-                      </span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="text-red-600 font-bold">-</span>
-                      <span>
-                        Checkout process has reported bugs that need attention
-                      </span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="text-blue-600 font-bold">→</span>
-                      <span>
-                        Mobile experience improvements requested by multiple
-                        users
-                      </span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        <ResponseDetailSheet
-          response={selectedResponse}
-          isOpen={isDetailOpen}
-          onClose={() => setIsDetailOpen(false)}
-          onDelete={handleDeleteResponse}
-          onFlag={handleFlagResponse}
-          formQuestions={form.questions}
-        />
+          </>
+        )}
       </div>
     </div>
   );

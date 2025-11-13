@@ -38,6 +38,7 @@ interface Response {
   status: "completed" | "partial" | "flagged";
   score?: number;
   duration: string;
+  data?: Record<string, any>; // Form response data
 }
 
 interface ResponsesTableViewProps {
@@ -60,6 +61,108 @@ export function ResponsesTableView({
     field: string;
     direction: "asc" | "desc";
   }>({ field: "submittedAt", direction: "desc" });
+
+  // Helper function to format response ID as R001, R002, etc.
+  const formatResponseId = (id: string, index: number) => {
+    const responseNumber = (index + 1).toString().padStart(3, "0");
+    return `R${responseNumber}`;
+  };
+
+  // Helper function to extract email from response data
+  const getRespondentEmail = (response: Response) => {
+    if (!response.data) return response.respondent;
+
+    // Debug: Log the response data structure to understand the format
+    if (process.env.NODE_ENV === "development") {
+      console.log("Response data keys:", Object.keys(response.data));
+      console.log("Response data:", response.data);
+    }
+
+    // First, try to find email fields by common patterns
+    const emailPatterns = [
+      "email",
+      "e-mail",
+      "e_mail",
+      "user_email",
+      "respondent_email",
+      "contact_email",
+      "email_address",
+    ];
+
+    // Check for exact matches first (case insensitive)
+    for (const pattern of emailPatterns) {
+      const emailKey = Object.keys(response.data).find(
+        (key) => key.toLowerCase() === pattern.toLowerCase()
+      );
+      if (emailKey && response.data[emailKey]) {
+        return response.data[emailKey];
+      }
+    }
+
+    // Check for partial matches
+    const emailKeys = Object.keys(response.data).filter(
+      (key) =>
+        key.toLowerCase().includes("email") ||
+        key.toLowerCase().includes("e-mail") ||
+        key.toLowerCase().includes("e_mail")
+    );
+
+    if (emailKeys.length > 0) {
+      const email = response.data[emailKeys[0]];
+      if (email) return email;
+    }
+
+    // Look for any field that contains a valid email format
+    for (const [key, value] of Object.entries(response.data)) {
+      if (
+        typeof value === "string" &&
+        value.includes("@") &&
+        value.includes(".")
+      ) {
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailRegex.test(value)) {
+          return value;
+        }
+      }
+    }
+
+    // If no email field found, return original respondent
+    return response.respondent;
+  };
+
+  // Helper function to format timestamp
+  const formatTimestamp = (timestamp: string) => {
+    try {
+      const date = new Date(timestamp);
+
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return timestamp; // Return original if invalid
+      }
+
+      // Format as: "Dec 12, 2024 at 2:30 PM"
+      const dateOptions: Intl.DateTimeFormatOptions = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      };
+
+      const timeOptions: Intl.DateTimeFormatOptions = {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      };
+
+      const formattedDate = date.toLocaleDateString("en-US", dateOptions);
+      const formattedTime = date.toLocaleTimeString("en-US", timeOptions);
+
+      return `${formattedDate} at ${formattedTime}`;
+    } catch (error) {
+      // Return original timestamp if formatting fails
+      return timestamp;
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -196,23 +299,12 @@ export function ResponsesTableView({
                 </Button>
               </TableHead>
               <TableHead>Duration</TableHead>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-2 hover:bg-transparent"
-                  onClick={() => handleSort("score")}
-                >
-                  Score
-                  <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
-              </TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {responses.map((response) => (
+            {responses.map((response, index) => (
               <TableRow
                 key={response.id}
                 className={cn(
@@ -227,40 +319,23 @@ export function ResponsesTableView({
                   />
                 </TableCell>
                 <TableCell className="font-mono text-xs">
-                  {response.id}
+                  {formatResponseId(response.id, index)}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2 text-sm">
                     <Mail className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="truncate max-w-[200px]">
-                      {response.respondent}
+                      {getRespondentEmail(response)}
                     </span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                    {response.submittedAt}
+                    {formatTimestamp(response.submittedAt)}
                   </div>
                 </TableCell>
                 <TableCell className="text-sm">{response.duration}</TableCell>
-                <TableCell>
-                  {response.score !== undefined && (
-                    <div className="flex items-center gap-1">
-                      <Star
-                        className={cn(
-                          "h-4 w-4",
-                          response.score >= 4
-                            ? "fill-amber-400 text-amber-400"
-                            : "text-muted-foreground"
-                        )}
-                      />
-                      <span className={getScoreColor(response.score)}>
-                        {response.score.toFixed(1)}
-                      </span>
-                    </div>
-                  )}
-                </TableCell>
                 <TableCell>{getStatusBadge(response.status)}</TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-1">

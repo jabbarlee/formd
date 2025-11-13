@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { formService } from "@/lib/database/services/form.service";
+import { responseService } from "@/lib/database/services/response.service";
 import {
   getAuthUser,
   unauthorizedResponse,
@@ -32,7 +33,29 @@ export async function GET(request: NextRequest) {
       offset: offset ? parseInt(offset) : undefined,
     });
 
-    return NextResponse.json({ forms }, { status: 200 });
+    // Fetch response counts for each form
+    const formsWithCounts = await Promise.all(
+      forms.map(async (form) => {
+        try {
+          const responseCount = await responseService.getCount(form.id);
+          return {
+            ...form,
+            responseCount,
+          };
+        } catch (error) {
+          console.error(
+            `Error getting response count for form ${form.id}:`,
+            error
+          );
+          return {
+            ...form,
+            responseCount: 0,
+          };
+        }
+      })
+    );
+
+    return NextResponse.json({ forms: formsWithCounts }, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching forms:", error);
     return errorResponse(error.message || "Internal server error");
@@ -57,16 +80,6 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!body.title) {
       return errorResponse("Title is required", 400);
-    }
-
-    if (!body.slug) {
-      return errorResponse("Slug is required", 400);
-    }
-
-    // Check if slug is available
-    const isSlugAvailable = await formService.isSlugAvailable(body.slug);
-    if (!isSlugAvailable) {
-      return errorResponse("Slug is already taken", 400);
     }
 
     // Create form
