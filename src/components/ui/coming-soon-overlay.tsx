@@ -187,9 +187,9 @@ export const ComingSoonOverlay: React.FC<ComingSoonOverlayProps> = ({
           )}
 
           {/* Main message */}
-          <h3 className="text-2xl font-bold tracking-wide drop-shadow-md">
+          <h2 className="text-4xl font-bold tracking-wide drop-shadow-md">
             {message}
-          </h3>
+          </h2>
 
           {/* Optional description */}
           {description && (

@@ -28,6 +28,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { TemplatesHeader } from "@/components/layout/headers";
+import { ComingSoonOverlay } from "@/components/ui/coming-soon-overlay";
 
 export default function TemplatesPage() {
   const categories = [
@@ -199,11 +200,19 @@ export default function TemplatesPage() {
     return colors[color] || colors.blue;
   };
 
+  // TODO: Remove ComingSoonOverlay when templates are ready 
+  // TODO: Remove the overflow-hidden from the parent div when templates are ready
   return (
-    <div>
+    <div className="h-screen bg-background overflow-hidden flex flex-col">
       <TemplatesHeader />
 
-      <div className="space-y-6 p-6">
+      <ComingSoonOverlay
+        message="Templates Coming Soon!"
+        description="We're working on bringing you a variety of templates to get you started quickly. Stay tuned!"
+        blurIntensity="blur-sm"
+      />
+
+      <div className="flex-1 space-y-6 p-6 overflow-hidden">
         {/* Search and Filters */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">

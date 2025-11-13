@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,8 +24,16 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/layout/headers";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/forms");
+  }, []);
+
   return (
     <div>
       <DashboardHeader />
