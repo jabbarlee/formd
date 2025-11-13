@@ -48,7 +48,7 @@ export function HeroSection() {
         </div>
 
         {/* Social Proof */}
-        <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-gray-500">
+        {/* <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-gray-500">
           <div className="flex items-center gap-2">
             <div className="flex -space-x-2">
               {[1, 2, 3, 4].map((i) => (
@@ -64,7 +64,7 @@ export function HeroSection() {
           <span>⭐⭐⭐⭐⭐ 4.9/5 rating</span>
           <div className="hidden sm:block w-1 h-1 rounded-full bg-gray-300" />
           <span>🚀 100% free to start</span>
-        </div>
+        </div> */}
       </div>
     </section>
   );
