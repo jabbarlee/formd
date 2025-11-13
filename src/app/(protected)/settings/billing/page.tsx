@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { Check, CreditCard, Download } from "lucide-react";
 import { BillingHeader } from "@/components/layout/headers";
+import { ComingSoonOverlay } from "@/components/ui/coming-soon-overlay";
 
 export default function BillingSettingsPage() {
   const billingHistory = [
@@ -28,10 +29,16 @@ export default function BillingSettingsPage() {
   ];
 
   return (
-    <div>
+    <div className="h-screen bg-background overflow-hidden flex flex-col">
       <BillingHeader />
 
-      <div className="space-y-6 p-6">
+      <ComingSoonOverlay
+        message="Billing & Subscriptions Coming Soon!"
+        description="We're working on bringing you comprehensive billing management, subscription options, and payment features."
+        blurIntensity="blur-sm"
+      />
+
+      <div className="flex-1 space-y-6 p-6 overflow-hidden">
         {/* Current Plan */}
         <Card className="border-l-4 border-l-rose-500 bg-gradient-to-br from-rose-50/30 to-background dark:from-rose-950/20">
           <CardHeader>

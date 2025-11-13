@@ -13,46 +13,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Upload, Mail, User, Building2 } from "lucide-react";
 import { ProfileHeader } from "@/components/layout/headers";
+import { ComingSoonOverlay } from "@/components/ui/coming-soon-overlay";
 
 export default function ProfileSettingsPage() {
   return (
-    <div>
+    <div className="h-screen bg-background overflow-hidden flex flex-col">
       <ProfileHeader />
 
-      <div className="space-y-6 max-w-4xl p-6">
-        {/* Profile Picture */}
-        <Card className="border-l-4 border-l-indigo-500">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-indigo-600" />
-              Profile Picture
-            </CardTitle>
-            <CardDescription>Update your profile photo</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-6">
-              <Avatar className="h-24 w-24 ring-4 ring-indigo-100 dark:ring-indigo-950">
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback className="bg-indigo-600 text-white text-2xl">
-                  JD
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300 dark:hover:bg-indigo-950"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload New Photo
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  JPG, PNG or GIF. Max size 2MB.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <ComingSoonOverlay
+        message="Profile Settings Coming Soon!"
+        description="We're working on bringing you comprehensive profile management and security features."
+        blurIntensity="blur-sm"
+      />
 
+      <div className="flex-1 space-y-6 max-w-4xl p-6 overflow-hidden">
         {/* Personal Information */}
         <Card className="border-l-4 border-l-blue-500">
           <CardHeader>
