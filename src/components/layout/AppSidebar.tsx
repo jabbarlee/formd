@@ -27,6 +27,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useAuth, getUserInitials } from "@/lib/auth";
 import { useRouter } from "next/navigation";
@@ -41,6 +42,7 @@ const mainItems = [
     title: "Workspaces",
     url: "/workspaces",
     icon: Handshake,
+    hasBadge: true,
   },
   {
     title: "Forms",
@@ -51,11 +53,13 @@ const mainItems = [
     title: "Analytics",
     url: "/analytics",
     icon: BarChart3,
+    hasBadge: true,
   },
   {
     title: "Templates",
     url: "/templates",
     icon: Layout,
+    hasBadge: true,
   },
 ];
 
@@ -64,11 +68,13 @@ const settingsItems = [
     title: "Profile",
     url: "/settings/profile",
     icon: User,
+    hasBadge: true,
   },
   {
     title: "Billing",
     url: "/settings/billing",
     icon: CreditCard,
+    hasBadge: true,
   },
 ];
 
@@ -163,9 +169,22 @@ export function AppSidebar() {
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.url} className="flex items-center min-w-0">
-                      <item.icon className="flex-shrink-0" />
-                      <span className="truncate">{item.title}</span>
+                    <Link
+                      href={item.url}
+                      className="flex items-center min-w-0 justify-between"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <item.icon className="flex-shrink-0 h-4 w-4" />
+                        <span className="truncate">{item.title}</span>
+                      </div>
+                      {item.hasBadge && (
+                        <Badge
+                          variant="secondary"
+                          className="ml-2 text-xs bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
+                        >
+                          dev
+                        </Badge>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -230,9 +249,22 @@ export function AppSidebar() {
               {settingsItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.url} className="flex items-center min-w-0">
-                      <item.icon className="flex-shrink-0" />
-                      <span className="truncate">{item.title}</span>
+                    <Link
+                      href={item.url}
+                      className="flex items-center min-w-0 justify-between"
+                    >
+                      <div className="flex items-center min-w-0 gap-2 min-w-0">
+                        <item.icon className="flex-shrink-0 h-4 w-4 " />
+                        <span className="truncate">{item.title}</span>
+                      </div>
+                      {item.hasBadge && (
+                        <Badge
+                          variant="secondary"
+                          className="ml-2 text-xs bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400"
+                        >
+                          dev
+                        </Badge>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -242,7 +274,7 @@ export function AppSidebar() {
                   className="flex items-center min-w-0 cursor-pointer"
                   onClick={handleSignOut}
                 >
-                  <LogOut className="flex-shrink-0" />
+                  <LogOut className="flex-shrink-0 h-4 w-4" />
                   <span className="truncate">Sign Out</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
