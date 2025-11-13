@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { formsApi } from "@/lib/api/forms";
 import { useState } from "react";
 
-export function FormsHeader() {
+export function FormsHeader({ onFormCreated }: { onFormCreated?: () => void }) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -22,6 +22,11 @@ export function FormsHeader() {
         description: "",
         status: "draft",
       });
+
+      // Refresh the forms list if callback provided
+      if (onFormCreated) {
+        onFormCreated();
+      }
 
       // Navigate to the actual form UUID
       router.push(`/forms/${form.id}`);

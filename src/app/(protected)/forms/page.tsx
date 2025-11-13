@@ -44,6 +44,7 @@ import {
   Trash2,
   Loader2,
   AlertCircle,
+  PenLine,
 } from "lucide-react";
 import Link from "next/link";
 import { FormsHeader } from "@/components/layout/headers";
@@ -62,7 +63,7 @@ export default function FormsPage() {
 
   useEffect(() => {
     loadForms();
-  }, []);
+  }, [statusFilter]); // Reload when filter changes
 
   const loadForms = async () => {
     try {
@@ -137,7 +138,7 @@ export default function FormsPage() {
 
   return (
     <div>
-      <FormsHeader />
+      <FormsHeader onFormCreated={loadForms} />
 
       <div className="space-y-6 p-6">
         {/* Toolbar */}
@@ -175,9 +176,14 @@ export default function FormsPage() {
         {/* Error State */}
         {error && (
           <div className="flex items-center justify-center py-12">
-            <div className="flex items-center gap-2 text-destructive">
-              <AlertCircle className="h-5 w-5" />
-              <span>{error}</span>
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center gap-2 text-destructive">
+                <AlertCircle className="h-5 w-5" />
+                <span>{error}</span>
+              </div>
+              <Button variant="outline" onClick={loadForms}>
+                Try Again
+              </Button>
             </div>
           </div>
         )}
@@ -250,7 +256,7 @@ export default function FormsPage() {
                             Responses
                           </span>
                           <span className="font-semibold text-violet-600">
-                            0
+                            {form.responseCount ?? 0}
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
@@ -312,7 +318,7 @@ export default function FormsPage() {
                               {form.description}
                             </p>
                             <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                              <span>0 responses</span>
+                              <span>{form.responseCount ?? 0} responses</span>
                               <span>•</span>
                               <span>Modified {formatDate(form.updatedAt)}</span>
                             </div>
@@ -329,7 +335,9 @@ export default function FormsPage() {
                             </Badge>
                             <div className="flex gap-2">
                               <Button variant="outline" size="sm" asChild>
-                                <Link href={`/forms/${form.id}`}>Edit</Link>
+                                <Link href={`/forms/${form.id}`}>
+                                  <PenLine />
+                                </Link>
                               </Button>
                               <Button variant="ghost" size="icon" asChild>
                                 <Link href={`/forms/${form.id}/responses`}>

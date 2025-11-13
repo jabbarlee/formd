@@ -254,6 +254,9 @@ export interface Form {
   showProgressBar: boolean;
   createdAt: string;
   updatedAt: string;
+
+  // Additional fields from API
+  responseCount?: number; // Number of responses for this form
 }
 
 // ============================================================================
