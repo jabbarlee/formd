@@ -14,12 +14,6 @@ export function FinalCTASection() {
             Ready to create beautiful forms?
           </h2>
 
-          <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl mx-auto">
-            Join thousands of teams already using Form
-            <span className="italic text-indigo-600">D</span> to collect better
-            data and gain deeper insights
-          </p>
-
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button className="bg-white text-indigo-600 hover:bg-white/90 shadow-2xl group">
               Get Started Free
