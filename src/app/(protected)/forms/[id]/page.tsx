@@ -7,7 +7,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import {
@@ -31,11 +31,9 @@ import { SAMPLE_FORM_DATA } from "@/data/sample-form";
 export default function FormBuilderPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const formId = params.id as string;
   const isNewForm = formId === "new";
   const isSampleForm = formId === "sample";
-  const isAiSource = searchParams?.get("source") === "ai";
 
   const [isInitializing, setIsInitializing] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
@@ -89,25 +87,10 @@ export default function FormBuilderPage() {
 
       try {
         if (isNewForm) {
-          // Check if this is AI-generated form
-          if (isAiSource) {
-            const aiFormData = sessionStorage.getItem("ai_generated_form");
-            if (aiFormData) {
-              console.log("🤖 Loading AI-generated form");
-              const { form, questions } = JSON.parse(aiFormData);
-              setFormWithQuestions(form, questions);
-              sessionStorage.removeItem("ai_generated_form");
-              // Auto-save will trigger from state change
-            } else {
-              console.warn("AI source specified but no data found in sessionStorage");
-              resetForm();
-            }
-          } else {
-            // Reset to default form for new creation
-            // The form will be created in database on first save via auto-save
-            console.log("🆕 Initializing new form (not saved yet)");
-            resetForm();
-          }
+          // Reset to default form for new creation
+          // The form will be created in database on first save via auto-save
+          console.log("🆕 Initializing new form (not saved yet)");
+          resetForm();
         } else if (isSampleForm) {
           // Load sample form data
           console.log("📝 Loading sample form");
@@ -129,7 +112,7 @@ export default function FormBuilderPage() {
     };
 
     initializeForm();
-  }, [formId, isNewForm, isSampleForm, isAiSource, resetForm, loadForm, setFormWithQuestions, router]);
+  }, [formId, isNewForm, isSampleForm, resetForm, loadForm, setFormWithQuestions, router]);
 
   // Show loading state during initialization
   if (isInitializing) {

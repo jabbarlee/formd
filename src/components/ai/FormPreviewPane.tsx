@@ -5,28 +5,62 @@
 
 "use client";
 
+import { useState } from "react";
 import { useChatStore } from "@/lib/stores/useChatStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, FileText } from "lucide-react";
+import { ArrowRight, FileText, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { questionTypeMetadata } from "@/lib/types/forms";
 import { motion, AnimatePresence } from "framer-motion";
+import { formsApi } from "@/lib/api/forms";
+import { toast } from "sonner";
 
 export function FormPreviewPane() {
   const { currentForm } = useChatStore();
   const router = useRouter();
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleUseForm = () => {
-    if (!currentForm) return;
+  const handleUseForm = async () => {
+    if (!currentForm || isSaving) return;
 
-    // Store in sessionStorage
-    sessionStorage.setItem("ai_generated_form", JSON.stringify(currentForm));
+    try {
+      setIsSaving(true);
 
-    // Navigate to form builder
-    router.push("/forms/new?source=ai");
+      // Create form in database
+      console.log("💾 Creating form in database...");
+      const { form: createdForm } = await formsApi.createForm(currentForm.form);
+      
+      console.log("✅ Form created with ID:", createdForm.id);
+
+      // Update all questions to have the correct formId
+      const questionsWithCorrectFormId = currentForm.questions.map(q => ({
+        ...q,
+        formId: createdForm.id, // Set the actual database form ID
+      }));
+
+      // Update form with questions
+      await formsApi.updateForm(createdForm.id, currentForm.form, questionsWithCorrectFormId);
+      
+      console.log("✅ Questions saved");
+
+      // Show success toast
+      toast.success("Form created successfully!", {
+        description: `${currentForm.questions.length} questions saved`,
+      });
+
+      // Navigate to the actual form
+      router.push(`/forms/${createdForm.id}`);
+    } catch (error) {
+      console.error("Failed to save form:", error);
+      toast.error("Failed to create form", {
+        description: error instanceof Error ? error.message : "Please try again",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!currentForm) {
@@ -60,9 +94,22 @@ export function FormPreviewPane() {
             {questions.length} question{questions.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Button onClick={handleUseForm} className="w-full gap-2">
-          Use This Form
-          <ArrowRight className="h-4 w-4" />
+        <Button 
+          onClick={handleUseForm} 
+          className="w-full gap-2"
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Creating Form...
+            </>
+          ) : (
+            <>
+              Use This Form
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
         </Button>
       </div>
 
