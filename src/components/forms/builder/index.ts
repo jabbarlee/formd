@@ -1,12 +1,7 @@
-/**
- * Form Builder Components
- * Centralized exports for all form builder components
- */
-
-export { QuestionPalette } from "./QuestionPalette";
-export { FormCanvas } from "./FormCanvas";
-export { PropertiesPanel } from "./PropertiesPanel";
-export { FormBuilderToolbar } from "./FormBuilderToolbar";
-export { QuestionBlock } from "./QuestionBlock";
-export { FormHeader } from "./FormHeader";
-export { FormHeaderProperties } from "./FormHeaderProperties";
+export * from "./QuestionPalette";
+export * from "./FormCanvas";
+export * from "./PropertiesPanel";
+export * from "./FormBuilderToolbar";
+export * from "./QuestionBlock";
+export * from "./FormHeader";
+export * from "./AiFormGenerator";

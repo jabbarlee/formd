@@ -5,7 +5,7 @@
 
 "use client";
 
-import { AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useFormBuilderStore } from "@/lib/stores/formBuilderStore";
 import { FormHeader } from "./FormHeader";
 import { QuestionBlock } from "./QuestionBlock";
@@ -54,16 +54,31 @@ export function FormCanvas() {
         ) : (
           <>
             {/* Questions List with Animation */}
-            <AnimatePresence mode="popLayout">
-              {questions.map((question, index) => (
-                <QuestionBlock
-                  key={question.id}
-                  question={question}
-                  isSelected={selectedQuestionId === question.id}
-                  index={index}
-                />
-              ))}
-            </AnimatePresence>
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.1,
+                  },
+                },
+              }}
+              className="space-y-4"
+            >
+              <AnimatePresence mode="popLayout">
+                {questions.map((question, index) => (
+                  <QuestionBlock
+                    key={question.id}
+                    question={question}
+                    isSelected={selectedQuestionId === question.id}
+                    index={index}
+                  />
+                ))}
+              </AnimatePresence>
+            </motion.div>
 
             {/* Add Question Button */}
             <Button

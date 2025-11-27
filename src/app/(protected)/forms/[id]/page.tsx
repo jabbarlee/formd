@@ -15,6 +15,7 @@ import {
   FormCanvas,
   PropertiesPanel,
   FormBuilderToolbar,
+  AiFormGenerator,
 } from "@/components/forms/builder";
 import { FormPreview } from "@/components/forms/preview";
 import { Loader2, AlertCircle } from "lucide-react";
@@ -188,6 +189,9 @@ export default function FormBuilderPage() {
           </div>
         </div>
       )}
+      
+      {/* AI Form Generator - Disabled for now, using dedicated /ai/create-form page */}
+      {/* <AiFormGenerator /> */}
     </div>
   );
 }

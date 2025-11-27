@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Home,
+  Dna,
   FileText,
   BarChart3,
   Handshake,
@@ -48,6 +48,11 @@ const mainItems = [
     title: "Forms",
     url: "/forms",
     icon: FileText,
+  },
+  {
+    title: "AI Form Creator",
+    url: "/ai/create-form",
+    icon: Dna,
   },
   {
     title: "Analytics",
