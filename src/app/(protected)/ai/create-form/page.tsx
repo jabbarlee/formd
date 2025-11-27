@@ -5,19 +5,43 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import { AiChatInterface } from "@/components/ai/AiChatInterface";
 import { FormPreviewPane } from "@/components/ai/FormPreviewPane";
-import { ChatHistorySidebar } from "@/components/ai/ChatHistorySidebar";
+import { ChatHistorySidebar} from "@/components/ai/ChatHistorySidebar";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Sparkles } from "lucide-react";
 import { useChatStore } from "@/lib/stores/useChatStore";
+import { toast } from "sonner";
 
 export default function AiCreateFormPage() {
-  const { clearChat } = useChatStore();
+  const { currentChatId, createNewChat, clearChat } = useChatStore();
 
-  const handleNewChat = () => {
-    clearChat();
+  // Initialize with a new chat if none exists
+  useEffect(() => {
+    if (!currentChatId) {
+      initializeNewChat();
+    }
+  }, []);
+
+  const initializeNewChat = async () => {
+    try {
+      await createNewChat("New Form");
+    } catch (error) {
+      console.error("Failed to create chat:", error);
+      toast.error("Failed to initialize chat");
+    }
+  };
+
+  const handleNewChat = async () => {
+    try {
+      clearChat();
+      await createNewChat("New Form");
+      toast.success("New chat started");
+    } catch (error) {
+      console.error("Failed to create new chat:", error);
+      toast.error("Failed to start new chat");
+    }
   };
 
   return (

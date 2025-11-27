@@ -19,7 +19,7 @@ export function AiChatInterface() {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, isGenerating, addMessage, updateCurrentForm, setGenerating, setError } =
+  const { messages, isGenerating, addMessage, updateCurrentForm, setGenerating, setError, saveMessage, saveFormDraft } =
     useChatStore();
 
   // Auto-scroll to bottom when new messages arrive
@@ -34,11 +34,20 @@ export function AiChatInterface() {
     const userMessage = input.trim();
     setInput("");
 
-    // Add user message
+    // Add user message to store
     addMessage({ role: "user", content: userMessage });
     setGenerating(true);
 
     try {
+      // Save user message to database
+      const userMsgId = `msg_${Date.now()}_user`;
+      await saveMessage({
+        id: userMsgId,
+        role: "user",
+        content: userMessage,
+        timestamp: new Date().toISOString(),
+      });
+
       const response = await fetch("/api/ai/generate-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,10 +63,20 @@ export function AiChatInterface() {
         throw new Error(data.error || "Failed to generate form");
       }
 
-      // Add AI response
+      // Add AI response to store
+      const aiContent = `I've ${messages.length > 0 ? "updated" : "created"} your form based on your request. You can see the preview on the right.`;
       addMessage({
         role: "assistant",
-        content: `I've ${messages.length > 0 ? "updated" : "created"} your form based on your request. You can see the preview on the right.`,
+        content: aiContent,
+      });
+
+      // Save AI message to database
+      const aiMsgId = `msg_${Date.now()}_assistant`;
+      await saveMessage({
+        id: aiMsgId,
+        role: "assistant",
+        content: aiContent,
+        timestamp: new Date().toISOString(),
       });
 
       // Update form preview
@@ -65,6 +84,9 @@ export function AiChatInterface() {
         form: data.form,
         questions: data.questions,
       });
+
+      // Save form draft to database
+      await saveFormDraft();
     } catch (error) {
       console.error("Generation error:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to generate form";

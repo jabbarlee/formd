@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 export function FormPreviewPane() {
   const { currentForm } = useChatStore();
+  const { linkFormToChat } = useChatStore();
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -45,6 +46,10 @@ export function FormPreviewPane() {
       await formsApi.updateForm(createdForm.id, currentForm.form, questionsWithCorrectFormId);
       
       console.log("✅ Questions saved");
+
+      // Link chat to created form
+      await linkFormToChat(createdForm.id);
+      console.log("✅ Chat linked to form");
 
       // Show success toast
       toast.success("Form created successfully!", {
