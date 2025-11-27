@@ -1,0 +1,161 @@
+{
+  "id": "sample-form-id",
+  "title": "Customer Feedback Survey",
+  "description": "We value your feedback. Please take a moment to tell us about your experience.",
+  "status": "draft",
+  "theme": {
+    "primaryColor": "#3b82f6",
+    "backgroundColor": "#ffffff",
+    "textColor": "#000000",
+    "fontFamily": "Inter",
+    "fontSize": "medium",
+    "borderRadius": "medium",
+    "spacing": "normal",
+    "buttonStyle": "filled"
+  },
+  "settings": {
+    "allowMultipleResponses": false,
+    "showProgressBar": true,
+    "showQuestionNumbers": true,
+    "oneQuestionPerPage": false,
+    "shuffleQuestions": false,
+    "notifyOnSubmission": true,
+    "showSubmissionMessage": true,
+    "customSubmissionMessage": "Thank you for your feedback!"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "formId": "sample-form-id",
+      "type": "section_heading",
+      "title": "Personal Information",
+      "description": "Let's get to know you.",
+      "required": false,
+      "order": 0,
+      "createdAt": "2023-10-27T10:00:00Z"
+    },
+    {
+      "id": "q2",
+      "formId": "sample-form-id",
+      "type": "short_text",
+      "title": "What is your name?",
+      "placeholder": "John Doe",
+      "required": true,
+      "order": 1,
+      "settings": {
+        "minLength": 2
+      },
+      "createdAt": "2023-10-27T10:01:00Z"
+    },
+    {
+      "id": "q3",
+      "formId": "sample-form-id",
+      "type": "email",
+      "title": "What is your email address?",
+      "placeholder": "john@example.com",
+      "required": true,
+      "order": 2,
+      "createdAt": "2023-10-27T10:02:00Z"
+    },
+    {
+      "id": "q4",
+      "formId": "sample-form-id",
+      "type": "divider",
+      "title": "",
+      "required": false,
+      "order": 3,
+      "createdAt": "2023-10-27T10:03:00Z"
+    },
+    {
+      "id": "q5",
+      "formId": "sample-form-id",
+      "type": "section_heading",
+      "title": "Feedback",
+      "description": "Tell us what you think.",
+      "required": false,
+      "order": 4,
+      "createdAt": "2023-10-27T10:04:00Z"
+    },
+    {
+      "id": "q6",
+      "formId": "sample-form-id",
+      "type": "multiple_choice",
+      "title": "Which department did you interact with?",
+      "required": true,
+      "order": 5,
+      "options": [
+        {
+          "id": "opt1",
+          "label": "Sales",
+          "value": "sales",
+          "order": 0
+        },
+        {
+          "id": "opt2",
+          "label": "Support",
+          "value": "support",
+          "order": 1
+        },
+        {
+          "id": "opt3",
+          "label": "Billing",
+          "value": "billing",
+          "order": 2
+        }
+      ],
+      "createdAt": "2023-10-27T10:05:00Z"
+    },
+    {
+      "id": "q7",
+      "formId": "sample-form-id",
+      "type": "star_rating",
+      "title": "How would you rate your experience?",
+      "required": true,
+      "order": 6,
+      "settings": {
+        "maxRating": 5,
+        "icon": "star"
+      },
+      "createdAt": "2023-10-27T10:06:00Z"
+    },
+    {
+      "id": "q8",
+      "formId": "sample-form-id",
+      "type": "checkboxes",
+      "title": "What features do you use most?",
+      "required": false,
+      "order": 7,
+      "options": [
+        {
+          "id": "opt_feat_1",
+          "label": "Form Builder",
+          "value": "builder",
+          "order": 0
+        },
+        {
+          "id": "opt_feat_2",
+          "label": "Analytics",
+          "value": "analytics",
+          "order": 1
+        },
+        {
+          "id": "opt_feat_3",
+          "label": "Integrations",
+          "value": "integrations",
+          "order": 2
+        }
+      ],
+      "createdAt": "2023-10-27T10:07:00Z"
+    },
+    {
+      "id": "q9",
+      "formId": "sample-form-id",
+      "type": "long_text",
+      "title": "Do you have any other comments or suggestions?",
+      "placeholder": "Type your answer here...",
+      "required": false,
+      "order": 8,
+      "createdAt": "2023-10-27T10:08:00Z"
+    }
+  ]
+}

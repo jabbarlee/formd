@@ -25,11 +25,14 @@ import { Loader2, AlertCircle } from "lucide-react";
 //   import("@/lib/utils/auth-debug");
 // }
 
+import { SAMPLE_FORM_DATA } from "@/data/sample-form";
+
 export default function FormBuilderPage() {
   const params = useParams();
   const router = useRouter();
   const formId = params.id as string;
   const isNewForm = formId === "new";
+  const isSampleForm = formId === "sample";
 
   const [isInitializing, setIsInitializing] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
@@ -41,6 +44,7 @@ export default function FormBuilderPage() {
     loadForm,
     createForm,
     updateFormField,
+    setFormWithQuestions,
     isPreviewMode,
     isSaving: isLoading,
     error: loadError,
@@ -86,6 +90,10 @@ export default function FormBuilderPage() {
           // The form will be created in database on first save via auto-save
           console.log("🆕 Initializing new form (not saved yet)");
           resetForm();
+        } else if (isSampleForm) {
+          // Load sample form data
+          console.log("📝 Loading sample form");
+          setFormWithQuestions(SAMPLE_FORM_DATA.form, SAMPLE_FORM_DATA.questions);
         } else {
           // Load existing form
           console.log("📂 Loading existing form:", formId);
@@ -103,7 +111,7 @@ export default function FormBuilderPage() {
     };
 
     initializeForm();
-  }, [formId, isNewForm, resetForm, loadForm, router]);
+  }, [formId, isNewForm, isSampleForm, resetForm, loadForm, setFormWithQuestions, router]);
 
   // Show loading state during initialization
   if (isInitializing) {

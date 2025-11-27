@@ -60,6 +60,7 @@ interface FormBuilderActions {
   // API actions
   saveForm: () => Promise<void>;
   createForm: () => Promise<Form>;
+  setFormWithQuestions: (form: Partial<Form>, questions: Question[]) => void;
 }
 
 type FormBuilderStore = FormBuilderState & FormBuilderActions;
@@ -597,6 +598,16 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
           set({ isSaving: false, error: message });
           throw error;
         }
+      },
+
+      setFormWithQuestions: (form, questions) => {
+        set({
+          form,
+          questions,
+          isDirty: false,
+          isSaving: false,
+          selectedQuestionId: null,
+        });
       },
     }),
     { name: "FormBuilder" }
