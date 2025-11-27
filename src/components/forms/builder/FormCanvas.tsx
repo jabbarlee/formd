@@ -66,6 +66,7 @@ export function FormCanvas() {
                   },
                 },
               }}
+              className="space-y-4"
             >
               <AnimatePresence mode="popLayout">
                 {questions.map((question, index) => (
