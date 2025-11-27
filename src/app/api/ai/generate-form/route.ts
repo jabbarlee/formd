@@ -26,7 +26,8 @@ if (!process.env.OPENAI_API_KEY) {
  */
 export async function POST(req: Request) {
   try {
-    const { prompt } = await req.json();
+    const body = await req.json();
+    const { prompt, conversationHistory } = body;
 
     // Validate input
     if (!prompt || typeof prompt !== "string") {
@@ -38,38 +39,58 @@ export async function POST(req: Request) {
 
     if (prompt.length < 10) {
       return NextResponse.json(
-        { error: "Prompt must be at least 10 characters" },
+        { error: "Prompt must be at least 10 characters long" },
         { status: 400 }
       );
     }
 
     if (prompt.length > 2000) {
       return NextResponse.json(
-        { error: "Prompt must be less than 2000 characters" },
+        { error: "Prompt must not exceed 2000 characters" },
         { status: 400 }
       );
     }
 
+    // Check for API key
     if (!process.env.OPENAI_API_KEY) {
+      console.warn("⚠️ OPENAI_API_KEY is not configured");
       return NextResponse.json(
-        { error: "OpenAI API key is not configured" },
+        {
+          error: "AI service not configured",
+          details: "Please configure OPENAI_API_KEY in environment variables",
+        },
         { status: 500 }
       );
     }
 
+    // Build messages array with conversation history
+    const messages: any[] = [
+      {
+        role: "system",
+        content: buildSystemPrompt(),
+      },
+    ];
+
+    // Add conversation history if provided (for iterative refinement)
+    if (conversationHistory && Array.isArray(conversationHistory)) {
+      messages.push(
+        ...conversationHistory.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content,
+        }))
+      );
+    }
+
+    // Add current user prompt
+    messages.push({
+      role: "user",
+      content: prompt,
+    });
+
     // Use Chat Completions API with Structured Outputs
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-2024-08-06",
-      messages: [
-        {
-          role: "system",
-          content: buildSystemPrompt(),
-        },
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+      messages,
       response_format: zodResponseFormat(aiFormSchema, "form_structure"),
       temperature: 0.7,
       max_tokens: 4000,
