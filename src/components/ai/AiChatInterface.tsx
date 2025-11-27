@@ -8,11 +8,12 @@
 import { useState, useRef, useEffect } from "react";
 import { useChatStore } from "@/lib/stores/useChatStore";
 import { ChatMessage } from "./ChatMessage";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "../ui/input";
 
 export function AiChatInterface() {
   const [input, setInput] = useState("");
@@ -129,25 +130,82 @@ export function AiChatInterface() {
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="flex-shrink-0 border-t bg-card">
+      <div className="flex-shrink-0 bg-card">
+        {/* Sample Prompts */}
+        {messages.length === 0 && (
+          <div className="px-4 pt-4 pb-2">
+            <div className="max-w-3xl mx-auto">
+              <p className="text-xs text-muted-foreground mb-2">Try these:</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { text: "Customer feedback survey", color: "bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200" },
+                  { text: "Event registration form", color: "bg-purple-50 text-purple-700 hover:bg-purple-100 border-purple-200" },
+                  { text: "Contact form with validation", color: "bg-green-50 text-green-700 hover:bg-green-100 border-green-200" },
+                  { text: "Employee satisfaction survey", color: "bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200" },
+                  { text: "Product order form", color: "bg-pink-50 text-pink-700 hover:bg-pink-100 border-pink-200" },
+                ].map((prompt) => (
+                  <button
+                    key={prompt.text}
+                    onClick={() => setInput(prompt.text)}
+                    disabled={isGenerating}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${prompt.color}`}
+                  >
+                    {prompt.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="p-4">
-          <div className="flex gap-2 max-w-3xl mx-auto">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Describe your form or ask for changes..."
-              disabled={isGenerating}
-              className="flex-1"
-            />
+          <div className="flex gap-2 max-w-3xl mx-auto items-end">
+            {/* Use Textarea if input has newlines or is long, otherwise use Input */}
+            {input.includes('\n') || input.length > 100 ? (
+              <Textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Describe your form or ask for changes..."
+                disabled={isGenerating}
+                className="flex-1 min-h-[64px] max-h-[200px] resize-none"
+                rows={Math.min(Math.max(2, input.split('\n').length), 8)}
+                onKeyDown={(e) => {
+                  // Submit on Enter (without Shift)
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e as any);
+                  }
+                }}
+              />
+            ) : (
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Describe your form or ask for changes..."
+                disabled={isGenerating}
+                className="flex-1 py-6"
+                onKeyDown={(e) => {
+                  // Submit on Enter
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSubmit(e as any);
+                  }
+                }}
+              />
+            )}
             <Button
               type="submit"
               disabled={!input.trim() || isGenerating}
-              size="icon"
+              size="lg"
+              className="px-8 py-6"
             >
               {isGenerating ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <Send className="h-4 w-4" />
+                <>
+                  Send
+                  <Send className="h-5 w-5 ml-2" />
+                </>
               )}
             </Button>
           </div>
