@@ -5,43 +5,40 @@
 
 "use client";
 
+import { useState } from "react";
 import { AiChatInterface } from "@/components/ai/AiChatInterface";
 import { FormPreviewPane } from "@/components/ai/FormPreviewPane";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { ChatHistorySidebar } from "@/components/ai/ChatHistorySidebar";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Sparkles } from "lucide-react";
+import { useChatStore } from "@/lib/stores/useChatStore";
 
 export default function AiCreateFormPage() {
-  const router = useRouter();
+  const { clearChat } = useChatStore();
+
+  const handleNewChat = () => {
+    clearChat();
+  };
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Header */}
-      <div className="flex-shrink-0 border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push("/forms")}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">AI Form Creator</h1>
-              <p className="text-sm text-muted-foreground">
-                Describe your form and let AI build it for you
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Header using PageHeader component */}
+      <PageHeader
+        title="AI Form Creator"
+        description="Describe your form and let AI build it for you"
+        icon={Sparkles}
+        iconColor="text-purple-600"
+        iconBgColor="bg-purple-50 dark:bg-purple-950"
+      />
 
-      {/* Main Content - Split Layout */}
+      {/* Main Content - 3 Column Layout */}
       <div className="flex-1 flex min-h-0">
-        {/* Left: Chat Interface */}
+        {/* Left: Chat History Sidebar */}
+        <div className="w-[280px] flex-shrink-0">
+          <ChatHistorySidebar onNewChat={handleNewChat} />
+        </div>
+
+        {/* Center: Chat Interface */}
         <div className="flex-1 min-w-0 border-r">
           <AiChatInterface />
         </div>
