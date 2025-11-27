@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // @ts-expect-error - Beta API types are sometimes not picked up correctly
     const completion = await openai.beta.chat.completions.parse({
       model: "gpt-4o-mini",
       messages: [
@@ -57,9 +58,26 @@ export async function POST(req: Request) {
       );
     }
 
+    // Helper to recursively remove null values (convert to undefined)
+    const cleanNulls = (obj: any): any => {
+      if (Array.isArray(obj)) {
+        return obj.map(cleanNulls);
+      }
+      if (obj !== null && typeof obj === "object") {
+        return Object.fromEntries(
+          Object.entries(obj)
+            .map(([key, value]) => [key, cleanNulls(value)])
+            .filter(([_, value]) => value !== null)
+        );
+      }
+      return obj;
+    };
+
+    const cleanedStructure = cleanNulls(formStructure);
+
     // Add required fields that might be missing from AI generation but needed for the app
     const enrichedForm = {
-      ...formStructure.form,
+      ...cleanedStructure.form,
       id: "ai-generated-" + Date.now(),
       status: "draft",
       settings: {
@@ -74,7 +92,7 @@ export async function POST(req: Request) {
       },
     };
 
-    const enrichedQuestions = formStructure.questions.map((q: any) => ({
+    const enrichedQuestions = cleanedStructure.questions.map((q: any) => ({
       ...q,
       formId: enrichedForm.id,
       createdAt: new Date().toISOString(),
