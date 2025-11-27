@@ -36,7 +36,10 @@ export function AiFormGenerator() {
       }
 
       setFormWithQuestions(data.form, data.questions);
-      toast.success("Form generated successfully!");
+      toast.success("✨ Form generated successfully!", {
+        description: `Created ${data.questions.length} questions`,
+        duration: 4000,
+      });
       setIsOpen(false);
       setPrompt("");
     } catch (error) {

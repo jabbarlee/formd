@@ -251,14 +251,15 @@ QUESTION TYPE GUIDELINES:
 
 SETTINGS REQUIREMENTS (all fields must be provided):
 - For text questions: Set minLength/maxLength (use 0 for no limit), others to defaults
-- For number questions: Set min/max/step, others to defaults
+- For number questions: Set min/max/step (use step=1 for whole numbers, step=0.1 for decimals, step=0 for N/A), others to defaults
 - For rating questions: Set maxRating (1-10) and icon type, others to defaults
 - For scale questions: Set scaleMin/scaleMax/minLabel/maxLabel, others to defaults
 - For file upload: Set allowedFileTypes/maxFileSize/maxFiles, others to defaults
 - For signature: Set signatureWidth/signatureHeight/signatureLineWidth/colors, others to defaults
 - For choice questions: Set allowOther/randomizeOptions/imageSize, others to defaults
 - DEFAULTS: Numbers=0, Strings="", Arrays=[], Booleans=false, Enums="none"
-- Example: For a short_text question, set minLength=0, maxLength=200, all other settings to defaults
+- IMPORTANT: Use simple numeric values (0, 1, 0.1, 0.5, etc.) - NO extremely small or large numbers
+- Example: For a short_text question, set minLength=0, maxLength=200, min=0, max=0, step=0, all other numeric settings to 0
 
 THEME GUIDELINES:
 - Use professional, accessible color combinations

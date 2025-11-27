@@ -432,12 +432,27 @@ export function QuestionBlock({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{
-        layout: { type: "spring", stiffness: 300, damping: 30 },
-        opacity: { duration: 0.2 },
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={{
+        hidden: { opacity: 0, y: 20, scale: 0.95 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: {
+            type: "spring",
+            stiffness: 300,
+            damping: 30,
+            opacity: { duration: 0.3 },
+          },
+        },
+        exit: {
+          opacity: 0,
+          scale: 0.95,
+          transition: { duration: 0.2 },
+        },
       }}
     >
       <Card

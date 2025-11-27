@@ -23,26 +23,26 @@ const questionOptionSchema = z.object({
  */
 const questionSettingsSchema = z.object({
   // Text settings
-  minLength: z.number().int().min(0).describe("Minimum character length (0 = no minimum)"),
-  maxLength: z.number().int().min(0).describe("Maximum character length (0 = no maximum)"),
+  minLength: z.number().int().min(0).max(10000).describe("Minimum character length (0 = no minimum)"),
+  maxLength: z.number().int().min(0).max(10000).describe("Maximum character length (0 = no maximum)"),
   
   // Number settings
-  min: z.number().describe("Minimum numeric value (0 = no minimum)"),
-  max: z.number().describe("Maximum numeric value (0 = no maximum)"),
-  step: z.number().positive().describe("Numeric step increment (default 1)"),
+  min: z.number().min(-999999).max(999999).describe("Minimum numeric value (0 = no minimum)"),
+  max: z.number().min(-999999).max(999999).describe("Maximum numeric value (0 = no maximum)"),
+  step: z.number().min(0.01).max(1000).describe("Numeric step increment (use 1 for integers, 0.01 for decimals, 0 = not applicable)"),
   
   // Rating settings
   maxRating: z.number().int().min(0).max(10).describe("Max rating value, e.g., 5 for 1-5 stars (0 = not applicable)"),
   icon: z.enum(["star", "heart", "thumbs", "none"]).describe("Rating icon type"),
   
   // Scale settings
-  scaleMin: z.number().int().describe("Minimum scale value (e.g., 1)"),
-  scaleMax: z.number().int().describe("Maximum scale value (e.g., 10)"),
-  minLabel: z.string().describe("Label for minimum scale value (empty if N/A)"),
-  maxLabel: z.string().describe("Label for maximum scale value (empty if N/A)"),
+  scaleMin: z.number().int().min(-100).max(100).describe("Minimum scale value (e.g., 1)"),
+  scaleMax: z.number().int().min(-100).max(100).describe("Maximum scale value (e.g., 10)"),
+  minLabel: z.string().max(100).describe("Label for minimum scale value (empty if N/A)"),
+  maxLabel: z.string().max(100).describe("Label for maximum scale value (empty if N/A)"),
   
   // File upload settings
-  allowedFileTypes: z.array(z.string()).describe("Allowed file MIME types or extensions (empty array if N/A)"),
+  allowedFileTypes: z.array(z.string()).max(20).describe("Allowed file MIME types or extensions (empty array if N/A)"),
   maxFileSize: z.number().int().min(0).max(100).describe("Max file size in MB (0 = not applicable)"),
   maxFiles: z.number().int().min(0).max(10).describe("Max number of files (0 = not applicable)"),
   
@@ -50,8 +50,8 @@ const questionSettingsSchema = z.object({
   signatureWidth: z.number().int().min(0).max(1000).describe("Signature canvas width in pixels (0 = use default)"),
   signatureHeight: z.number().int().min(0).max(500).describe("Signature canvas height in pixels (0 = use default)"),
   signatureLineWidth: z.number().int().min(0).max(10).describe("Signature line width in pixels (0 = use default)"),
-  signatureLineColor: z.string().describe("Signature line color hex code (empty = use default)"),
-  signatureBackgroundColor: z.string().describe("Signature background color hex code (empty = use default)"),
+  signatureLineColor: z.string().max(50).describe("Signature line color hex code (empty = use default)"),
+  signatureBackgroundColor: z.string().max(50).describe("Signature background color hex code (empty = use default)"),
   
   // Choice settings
   allowOther: z.boolean().describe("Allow 'Other' option for choice questions"),
