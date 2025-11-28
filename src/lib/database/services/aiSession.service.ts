@@ -13,6 +13,7 @@
  */
 
 import { supabaseAdmin as supabase } from "@/lib/supabase/server";
+import type { Form, Question } from "@/lib/types/forms";
 
 // Types
 export interface SessionMessage {
@@ -23,8 +24,8 @@ export interface SessionMessage {
 }
 
 export interface FormDraft {
-  form: any;
-  questions: any[];
+  form: Partial<Form>;
+  questions: Partial<Question>[];
 }
 
 export interface AiSession {

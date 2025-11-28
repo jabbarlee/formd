@@ -45,14 +45,14 @@ export default function AiSessionPage() {
     } catch (error) {
       console.error("Failed to load session:", error);
       toast.error("Failed to load session");
-      router.push("/ai/create-form");
+      router.push("/ai/new");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleNewChat = () => {
-    router.push("/ai/create-form");
+    router.push("/ai/new");
   };
 
   if (isLoading) {

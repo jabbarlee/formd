@@ -56,6 +56,7 @@ function transformFormToDb(
   userId: string
 ): Partial<FormInsert> {
   return {
+    id: form.id, // Allow custom UUID
     created_by: userId,
     title: form.title,
     description: form.description,
@@ -222,6 +223,16 @@ export const formService = {
       unified_card_layout: dbUpdates.unified_card_layout,
       dbFields: Object.keys(dbUpdates),
     });
+
+    // If no fields to update, just return the existing form
+    if (Object.keys(dbUpdates).length === 0) {
+      console.log("⏭️ No form fields to update, fetching existing form");
+      const existingForm = await this.getById(formId);
+      if (!existingForm) {
+        throw new Error("Form not found");
+      }
+      return existingForm;
+    }
 
     const { data, error } = await supabase
       .from("forms")

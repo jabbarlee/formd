@@ -1,6 +1,6 @@
 /**
  * AI Form Creation Page - Entry Point
- * Route: /ai/create-form
+ * Route: /ai/new
  * Landing page for AI form creation (no session created yet)
  * 
  * Flow:

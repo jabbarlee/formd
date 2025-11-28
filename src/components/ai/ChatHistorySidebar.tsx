@@ -60,7 +60,7 @@ export function ChatHistorySidebar({ onNewChat, currentSessionId }: ChatHistoryS
 
       // If deleting current session, redirect to create page
       if (sessionId === currentSessionId) {
-        router.push("/ai/create-form");
+        router.push("/ai/new");
       }
     } catch (error) {
       console.error("Failed to delete session:", error);

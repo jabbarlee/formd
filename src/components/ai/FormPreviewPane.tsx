@@ -40,22 +40,57 @@ export function FormPreviewPane({ sessionId, session }: FormPreviewPaneProps) {
     try {
       setIsSaving(true);
 
-      // Create form in database
-      const { form: createdForm } = await formsApi.createForm({
-        title: formDraft.form.title,
-        description: formDraft.form.description,
-        theme: formDraft.form.theme,
-        questions: formDraft.questions,
-      });
+      // Step 1: Check if form already exists with this UUID
+      let formExists = false;
+      try {
+        await formsApi.getForm(sessionId);
+        formExists = true;
+        console.log("Form exists, will update with latest changes");
+      } catch (error) {
+        console.log("Form doesn't exist yet, will create it");
+      }
 
-      // Link session to created form
-      await aiSessionsApi.linkForm(sessionId, createdForm.id);
+      // Step 2: Create or update form metadata
+      if (!formExists) {
+        await formsApi.createForm({
+          id: sessionId, // Use session ID as form ID
+          title: formDraft.form.title,
+          description: formDraft.form.description,
+          theme: formDraft.form.theme,
+        });
+      } else {
+        // Update existing form metadata
+        await formsApi.updateForm(sessionId, {
+          title: formDraft.form.title,
+          description: formDraft.form.description,
+          theme: formDraft.form.theme,
+        });
+      }
 
-      toast.success("Form created successfully!");
-      router.push(`/forms/${createdForm.id}/edit`);
+      // Step 3: Transform partial questions to full Question objects
+      const questionsWithFormId = formDraft.questions.map((q, index) => ({
+        ...q,
+        id: q.id || crypto.randomUUID(), // Generate ID if missing
+        formId: sessionId, // Use session ID as form ID
+        type: q.type!,
+        title: q.title || '',
+        required: q.required ?? false,
+        order: q.order ?? index,
+      }));
+
+      // Step 4: Sync questions (creates/updates/deletes as needed)
+      await formsApi.updateForm(sessionId, {}, questionsWithFormId as any);
+
+      // Step 5: Link session to created form (if not already linked)
+      if (!formExists) {
+        await aiSessionsApi.linkForm(sessionId, sessionId);
+      }
+
+      toast.success(formExists ? "Form updated successfully!" : "Form created successfully!");
+      router.push(`/forms/${sessionId}`);
     } catch (error) {
-      console.error("Error creating form:", error);
-      toast.error("Failed to create form");
+      console.error("Error saving form:", error);
+      toast.error("Failed to save form");
     } finally {
       setIsSaving(false);
     }
@@ -128,7 +163,7 @@ export function FormPreviewPane({ sessionId, session }: FormPreviewPaneProps) {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <Badge variant="secondary" className="text-xs">
-                          {questionTypeMetadata[question.type]?.label}
+                          {question.type && questionTypeMetadata[question.type]?.label}
                         </Badge>
                         {question.required && (
                           <Badge variant="destructive" className="text-xs">

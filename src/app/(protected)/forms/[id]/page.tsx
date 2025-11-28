@@ -190,7 +190,7 @@ export default function FormBuilderPage() {
         </div>
       )}
       
-      {/* AI Form Generator - Disabled for now, using dedicated /ai/create-form page */}
+      {/* AI Form Generator - Disabled for now, using dedicated /ai/new page */}
       {/* <AiFormGenerator /> */}
     </div>
   );
