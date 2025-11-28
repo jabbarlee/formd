@@ -51,7 +51,7 @@ const mainItems = [
   },
   {
     title: "AI Form Creator",
-    url: "/ai/create-form",
+    url: "/ai/new",
     icon: Dna,
   },
   {

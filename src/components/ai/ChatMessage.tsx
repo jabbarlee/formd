@@ -20,12 +20,23 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      initial={{ 
+        opacity: 0, 
+        x: isUser ? 20 : -20,
+        scale: 0.95
+      }}
+      animate={{ 
+        opacity: 1, 
+        x: 0,
+        scale: 1
+      }}
+      transition={{ 
+        duration: 0.4,
+        ease: [0.4, 0, 0.2, 1]
+      }}
       className={cn(
-        "flex gap-3 py-4 px-4 hover:bg-muted/30 transition-colors",
-        isUser ? "bg-muted/10" : ""
+        "flex gap-3 mb-4",
+        isUser ? "flex-row-reverse" : "flex-row"
       )}
     >
       {/* Avatar */}
@@ -40,17 +51,35 @@ export function ChatMessage({ message }: ChatMessageProps) {
         {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
       </div>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0 space-y-1">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-sm">
+      {/* Message Bubble */}
+      <div 
+        className={cn(
+          "flex flex-col max-w-[70%] gap-1",
+          isUser ? "items-end" : "items-start"
+        )}
+      >
+        {/* Sender & Time */}
+        <div className={cn(
+          "flex items-center gap-2 px-1",
+          isUser ? "flex-row-reverse" : "flex-row"
+        )}>
+          <span className="font-semibold text-xs">
             {isUser ? "You" : "AI Assistant"}
           </span>
           <span className="text-xs text-muted-foreground">
             {format(new Date(message.timestamp), "h:mm a")}
           </span>
         </div>
-        <div className="text-sm whitespace-pre-wrap break-words text-foreground/90">
+
+        {/* Content Bubble */}
+        <div
+          className={cn(
+            "px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap break-words shadow-sm",
+            isUser
+              ? "bg-primary text-primary-foreground rounded-tr-sm"
+              : "bg-muted text-foreground rounded-tl-sm"
+          )}
+        >
           {message.content}
         </div>
       </div>
