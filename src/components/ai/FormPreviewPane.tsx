@@ -113,7 +113,7 @@ export function FormPreviewPane({ sessionId, session }: FormPreviewPaneProps) {
   const { form, questions } = formDraft;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-auto">
       {/* Header */}
       <div className="p-4 border-b space-y-3">
         <div>

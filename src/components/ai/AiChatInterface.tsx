@@ -19,6 +19,7 @@ import { Send, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { aiSessionsApi } from "@/lib/api/aiSessions";
 import type { AiSession } from "@/lib/database/services/aiSession.service";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface AiChatInterfaceProps {
   sessionId?: string;
@@ -106,15 +107,21 @@ export function AiChatInterface({ sessionId, session: initialSession }: AiChatIn
             </p>
           </div>
         ) : (
-          <div className="space-y-4 pb-4">
-            {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
-            ))}
+          <div className="max-w-4xl mx-auto w-full px-4 pb-4">
+            <AnimatePresence initial={false}>
+              {messages.map((message) => (
+                <ChatMessage key={message.id} message={message} />
+              ))}
+            </AnimatePresence>
             {isGenerating && (
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 text-muted-foreground pl-11 mb-4"
+              >
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="text-sm">AI is thinking...</span>
-              </div>
+              </motion.div>
             )}
             <div ref={messagesEndRef} />
           </div>
