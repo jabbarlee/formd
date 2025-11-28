@@ -5,50 +5,63 @@
 
 import type { ChatMessage, FormDraft, AiChat } from "@/lib/database/services/aiChat.service";
 import { auth } from "@/lib/firebase/client";
-import { tokenStorage } from "@/lib/auth/utils/token-storage";
 
 /**
- * Get Firebase auth token for API requests
+ * Get auth headers for API requests
  */
-const getAuthToken = async (): Promise<string> => {
-  // Try to get cached token first
-  const cachedToken = tokenStorage.getAuthToken();
-  if (cachedToken) {
-    return cachedToken;
-  }
-
-  // Get fresh token from Firebase
+async function getAuthHeaders(): Promise<HeadersInit> {
   const currentUser = auth.currentUser;
   if (!currentUser) {
-    throw new Error("Not authenticated");
+    throw new Error("Not authenticated - Please sign in first");
   }
 
-  const token = await currentUser.getIdToken();
-  tokenStorage.setAuthToken(token);
-  return token;
-};
+  // Get Firebase ID token
+  const idToken = await currentUser.getIdToken();
+
+  return {
+    "Content-Type": "application/json",
+    "x-firebase-uid": currentUser.uid,
+    "x-user-id": currentUser.uid,
+    "x-user-email": currentUser.email || "",
+    Authorization: `Bearer ${idToken}`,
+  };
+}
+
+/**
+ * Handle API response
+ */
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: "Unknown error" }));
+
+    if (response.status === 401) {
+      throw new Error(
+        "Authentication failed. Please ensure you are signed in and your account exists in the database."
+      );
+    }
+
+    throw new Error(
+      error.error || `HTTP ${response.status}: ${response.statusText}`
+    );
+  }
+
+  return response.json();
+}
 
 /**
  * Create a new chat
  */
 export async function createChat(title: string): Promise<AiChat> {
-  const token = await getAuthToken();
-
+  const headers = await getAuthHeaders();
   const response = await fetch("/api/ai/chats", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify({ title }),
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to create chat");
-  }
-
+  const data = await handleResponse<{ chat: AiChat }>(response);
   return data.chat;
 }
 
@@ -56,20 +69,12 @@ export async function createChat(title: string): Promise<AiChat> {
  * Get user's chat list
  */
 export async function getUserChats(limit: number = 20, offset: number = 0): Promise<AiChat[]> {
-  const token = await getAuthToken();
-
+  const headers = await getAuthHeaders();
   const response = await fetch(`/api/ai/chats?limit=${limit}&offset=${offset}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to fetch chats");
-  }
-
+  const data = await handleResponse<{ chats: AiChat[] }>(response);
   return data.chats;
 }
 
@@ -77,20 +82,12 @@ export async function getUserChats(limit: number = 20, offset: number = 0): Prom
  * Get single chat by ID
  */
 export async function getChat(chatId: string): Promise<AiChat> {
-  const token = await getAuthToken();
-
+  const headers = await getAuthHeaders();
   const response = await fetch(`/api/ai/chats/${chatId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to fetch chat");
-  }
-
+  const data = await handleResponse<{ chat: AiChat }>(response);
   return data.chat;
 }
 
@@ -98,82 +95,55 @@ export async function getChat(chatId: string): Promise<AiChat> {
  * Append message to chat
  */
 export async function appendMessage(chatId: string, message: ChatMessage): Promise<void> {
-  const token = await getAuthToken();
-
+  const headers = await getAuthHeaders();
   const response = await fetch(`/api/ai/chats/${chatId}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify({ message }),
   });
 
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || "Failed to append message");
-  }
+  await handleResponse<{ success: boolean }>(response);
 }
 
 /**
  * Update form draft
  */
 export async function updateFormDraft(chatId: string, formDraft: FormDraft): Promise<void> {
-  const token = await getAuthToken();
-
+  const headers = await getAuthHeaders();
   const response = await fetch(`/api/ai/chats/${chatId}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify({ formDraft }),
   });
 
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || "Failed to update form draft");
-  }
+  await handleResponse<{ success: boolean }>(response);
 }
 
 /**
  * Link chat to created form
  */
 export async function linkForm(chatId: string, formId: string): Promise<void> {
-  const token = await getAuthToken();
-
+  const headers = await getAuthHeaders();
   const response = await fetch(`/api/ai/chats/${chatId}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify({ formId }),
   });
 
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || "Failed to link form");
-  }
+  await handleResponse<{ success: boolean }>(response);
 }
 
 /**
  * Delete chat
  */
 export async function deleteChat(chatId: string): Promise<void> {
-  const token = await getAuthToken();
-
+  const headers = await getAuthHeaders();
   const response = await fetch(`/api/ai/chats/${chatId}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || "Failed to delete chat");
-  }
+  await handleResponse<{ success: boolean }>(response);
 }
 
 /**

@@ -1,52 +1,31 @@
 /**
- * AI Form Creation Page
- * Chat interface for creating forms with AI assistance
+ * AI Form Creation Page - Entry Point
+ * Route: /ai/create-form
+ * Landing page for AI form creation (no session created yet)
+ * 
+ * Flow:
+ * - User lands here with empty chat
+ * - NO database session created yet
+ * - When user sends first message → creates session → redirects to /ai/[id]
  */
 
 "use client";
 
-import { useEffect } from "react";
 import { AiChatInterface } from "@/components/ai/AiChatInterface";
 import { FormPreviewPane } from "@/components/ai/FormPreviewPane";
-import { ChatHistorySidebar} from "@/components/ai/ChatHistorySidebar";
+import { ChatHistorySidebar } from "@/components/ai/ChatHistorySidebar";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Sparkles } from "lucide-react";
-import { useChatStore } from "@/lib/stores/useChatStore";
-import { toast } from "sonner";
 
 export default function AiCreateFormPage() {
-  const { currentChatId, createNewChat, clearChat } = useChatStore();
-
-  // Initialize with a new chat if none exists
-  useEffect(() => {
-    if (!currentChatId) {
-      initializeNewChat();
-    }
-  }, []);
-
-  const initializeNewChat = async () => {
-    try {
-      await createNewChat("New Form");
-    } catch (error) {
-      console.error("Failed to create chat:", error);
-      toast.error("Failed to initialize chat");
-    }
-  };
-
-  const handleNewChat = async () => {
-    try {
-      clearChat();
-      await createNewChat("New Form");
-      toast.success("New chat started");
-    } catch (error) {
-      console.error("Failed to create new chat:", error);
-      toast.error("Failed to start new chat");
-    }
+  const handleNewChat = () => {
+    // Already on create page, just refresh
+    window.location.reload();
   };
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Header using PageHeader component */}
+      {/* Header */}
       <PageHeader
         title="AI Form Creator"
         description="Describe your form and let AI build it for you"
@@ -62,12 +41,12 @@ export default function AiCreateFormPage() {
           <ChatHistorySidebar onNewChat={handleNewChat} />
         </div>
 
-        {/* Center: Chat Interface */}
+        {/* Center: Chat Interface (no session yet) */}
         <div className="flex-1 min-w-0 border-r">
           <AiChatInterface />
         </div>
 
-        {/* Right: Form Preview */}
+        {/* Right: Form Preview (empty until first message) */}
         <div className="w-[500px] flex-shrink-0 bg-muted/20">
           <FormPreviewPane />
         </div>

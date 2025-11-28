@@ -6,84 +6,80 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Plus, Clock, Loader2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-import { aiChatsApi } from "@/lib/api/aiChats";
-import type { AiChat } from "@/lib/database/services/aiChat.service";
-import { useChatStore } from "@/lib/stores/useChatStore";
+import { aiSessionsApi } from "@/lib/api/aiSessions";
+import type { AiSession } from "@/lib/database/services/aiSession.service";
 import { toast } from "sonner";
 
 interface ChatHistorySidebarProps {
   onNewChat: () => void;
+  currentSessionId?: string;
 }
 
-export function ChatHistorySidebar({ onNewChat }: ChatHistorySidebarProps) {
-  const [chats, setChats] = useState<AiChat[]>([]);
+export function ChatHistorySidebar({ onNewChat, currentSessionId }: ChatHistorySidebarProps) {
+  const [sessions, setSessions] = useState<AiSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const { loadChat, currentChatId } = useChatStore();
+  const router = useRouter();
 
-  // Load chats on mount
   useEffect(() => {
-    loadChats();
+    loadSessions();
   }, []);
 
-  const loadChats = async () => {
+  const loadSessions = async () => {
     try {
       setIsLoading(true);
-      const fetchedChats = await aiChatsApi.getUserChats();
-      setChats(fetchedChats);
+      const { sessions: loadedSessions } = await aiSessionsApi.getUserSessions();
+      setSessions(loadedSessions);
     } catch (error) {
-      console.error("Failed to load chats:", error);
+      console.error("Failed to load sessions:", error);
       toast.error("Failed to load chat history");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChatClick = async (chatId: string) => {
-    try {
-      await loadChat(chatId);
-      toast.success("Chat loaded");
-    } catch (error) {
-      console.error("Failed to load chat:", error);
-      toast.error("Failed to load chat");
-    }
+  const handleSessionClick = (sessionId: string) => {
+    router.push(`/ai/${sessionId}`);
   };
 
-  const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent chat selection
+  const handleDelete = async (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation
     
     try {
-      setDeletingId(chatId);
-      await aiChatsApi.deleteChat(chatId);
-      setChats((prev) => prev.filter((chat) => chat.id !== chatId));
-      toast.success("Chat deleted");
-      
-      // If deleted chat was active, clear it
-      if (currentChatId === chatId) {
-        onNewChat();
+      setDeletingId(sessionId);
+      await aiSessionsApi.deleteSession(sessionId);
+      setSessions(sessions.filter(s => s.id !== sessionId));
+      toast.success("Session deleted");
+
+      // If deleting current session, redirect to create page
+      if (sessionId === currentSessionId) {
+        router.push("/ai/create-form");
       }
     } catch (error) {
-      console.error("Failed to delete chat:", error);
-      toast.error("Failed to delete chat");
+      console.error("Failed to delete session:", error);
+      toast.error("Failed to delete session");
     } finally {
       setDeletingId(null);
     }
   };
 
   return (
-    <div className="h-full flex flex-col border-r bg-card">
+    <div className="h-full flex flex-col border-r bg-muted/20">
       {/* Header */}
-      <div className="flex-shrink-0 p-4 border-b space-y-3">
-        <h2 className="font-semibold text-lg">Chat History</h2>
-        <Button onClick={onNewChat} className="w-full gap-2">
-          <Plus className="h-4 w-4" />
+      <div className="p-4 border-b">
+        <Button
+          onClick={onNewChat}
+          className="w-full"
+          variant="default"
+        >
+          <Plus className="mr-2 h-4 w-4" />
           New Chat
         </Button>
       </div>
@@ -95,68 +91,59 @@ export function ChatHistorySidebar({ onNewChat }: ChatHistorySidebarProps) {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          ) : chats.length === 0 ? (
+          ) : sessions.length === 0 ? (
             <div className="text-center py-8 px-4">
+              <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">
-                No chat history yet.
-                <br />
-                Start a new chat!
+                No chat history yet
               </p>
             </div>
           ) : (
-            chats.map((chat, index) => (
+            sessions.map((session, index) => (
               <motion.div
-                key={chat.id}
+                key={session.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
               >
                 <Card
-                  className={`p-3 hover:bg-muted/50 transition-colors cursor-pointer group relative ${
-                    currentChatId === chat.id ? "bg-muted border-primary" : ""
+                  className={`p-3 cursor-pointer transition-all hover:bg-accent group ${
+                    session.id === currentSessionId
+                      ? "bg-accent border-primary"
+                      : ""
                   }`}
-                  onClick={() => handleChatClick(chat.id)}
+                  onClick={() => handleSessionClick(session.id)}
                 >
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-start gap-2 flex-1 min-w-0">
-                        <MessageSquare className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-sm truncate group-hover:text-primary transition-colors">
-                            {chat.title}
-                          </h3>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => handleDeleteChat(chat.id, e)}
-                        disabled={deletingId === chat.id}
-                      >
-                        {deletingId === chat.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3 w-3" />
-                        )}
-                      </Button>
-                    </div>
-                    {chat.messages.length > 0 && (
-                      <p className="text-xs text-muted-foreground line-clamp-2 pl-6">
-                        {chat.messages[0]?.content || ""}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {session.title}
                       </p>
-                    )}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground pl-6">
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
-                        {format(new Date(chat.created_at), "MMM d, h:mm a")}
+                        <span>
+                          {format(new Date(session.createdAt), "MMM d, h:mm a")}
+                        </span>
                       </div>
-                      {chat.form_draft && (
-                        <Badge variant="secondary" className="text-xs">
-                          {chat.form_draft.questions?.length || 0} questions
-                        </Badge>
+                      {session.messages.length > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                          {session.messages[session.messages.length - 1].content}
+                        </p>
                       )}
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => handleDelete(session.id, e)}
+                      disabled={deletingId === session.id}
+                    >
+                      {deletingId === session.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3 w-3" />
+                      )}
+                    </Button>
                   </div>
                 </Card>
               </motion.div>
@@ -164,11 +151,6 @@ export function ChatHistorySidebar({ onNewChat }: ChatHistorySidebarProps) {
           )}
         </div>
       </ScrollArea>
-
-      {/* Footer Info */}
-      <div className="flex-shrink-0 p-4 border-t text-xs text-muted-foreground text-center">
-        Previous chats are saved for 30 days
-      </div>
     </div>
   );
 }

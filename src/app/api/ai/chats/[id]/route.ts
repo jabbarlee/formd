@@ -7,39 +7,32 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { aiChatService } from "@/lib/database/services/aiChat.service";
-import { auth } from "@/lib/firebase/admin";
+import { getAuthUser, unauthorizedResponse, errorResponse } from "@/lib/api/auth";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const chatId = params.id;
-
-    // Get Firebase token from header
-    const token = request.headers.get("authorization")?.replace("Bearer ", "");
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Authenticate user
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return unauthorizedResponse();
     }
 
-    // Verify token
-    const decodedToken = await auth.verifyIdToken(token);
-    const userId = decodedToken.uid;
+    const chatId = params.id;
 
-    // Fetch chat
-    const chat = await aiChatService.getById(chatId, userId);
+    // Fetch chat (service will verify ownership)
+    const chat = await aiChatService.getById(chatId, authUser.userId);
 
     if (!chat) {
-      return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+      return errorResponse("Chat not found", 404);
     }
 
     return NextResponse.json({ chat });
   } catch (error) {
     console.error("Error fetching chat:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch chat" },
-      { status: 500 }
-    );
+    return errorResponse(error instanceof Error ? error.message : "Failed to fetch chat");
   }
 }
 
@@ -48,17 +41,13 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const chatId = params.id;
-
-    // Get Firebase token from header
-    const token = request.headers.get("authorization")?.replace("Bearer ", "");
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Authenticate user
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return unauthorizedResponse();
     }
 
-    // Verify token
-    const decodedToken = await auth.verifyIdToken(token);
-    const userId = decodedToken.uid;
+    const chatId = params.id;
 
     // Parse request body
     const body = await request.json();
@@ -66,28 +55,25 @@ export async function PUT(
 
     // Handle different update operations
     if (message) {
-      await aiChatService.appendMessage(chatId, userId, message);
+      await aiChatService.appendMessage(chatId, authUser.userId, message);
     }
 
     if (formDraft) {
-      await aiChatService.updateFormDraft(chatId, userId, formDraft);
+      await aiChatService.updateFormDraft(chatId, authUser.userId, formDraft);
     }
 
     if (formId) {
-      await aiChatService.linkForm(chatId, userId, formId);
+      await aiChatService.linkForm(chatId, authUser.userId, formId);
     }
 
     if (title) {
-      await aiChatService.updateTitle(chatId, userId, title);
+      await aiChatService.updateTitle(chatId, authUser.userId, title);
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error updating chat:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to update chat" },
-      { status: 500 }
-    );
+    return errorResponse(error instanceof Error ? error.message : "Failed to update chat");
   }
 }
 
@@ -96,27 +82,20 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const chatId = params.id;
-
-    // Get Firebase token from header
-    const token = request.headers.get("authorization")?.replace("Bearer ", "");
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Authenticate user
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return unauthorizedResponse();
     }
 
-    // Verify token
-    const decodedToken = await auth.verifyIdToken(token);
-    const userId = decodedToken.uid;
+    const chatId = params.id;
 
     // Delete chat (soft delete)
-    await aiChatService.delete(chatId, userId);
+    await aiChatService.delete(chatId, authUser.userId);
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting chat:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to delete chat" },
-      { status: 500 }
-    );
+    return errorResponse(error instanceof Error ? error.message : "Failed to delete chat");
   }
 }

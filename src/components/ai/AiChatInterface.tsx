@@ -1,31 +1,48 @@
 /**
  * AI Chat Interface Component
  * Handles message display and user input
+ * 
+ * Two modes:
+ * 1. Entry mode (no session): Creates session on first message, redirects to /ai/[id]
+ * 2. Active mode (has session): Shows history, continues conversation
  */
 
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useChatStore } from "@/lib/stores/useChatStore";
+import { useRouter } from "next/navigation";
 import { ChatMessage } from "./ChatMessage";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { Input } from "../ui/input";
+import { aiSessionsApi } from "@/lib/api/aiSessions";
+import type { AiSession } from "@/lib/database/services/aiSession.service";
 
-export function AiChatInterface() {
+interface AiChatInterfaceProps {
+  sessionId?: string;
+  session?: AiSession;
+}
+
+export function AiChatInterface({ sessionId, session: initialSession }: AiChatInterfaceProps) {
   const [input, setInput] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [session, setSession] = useState<AiSession | undefined>(initialSession);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
-  const { messages, isGenerating, addMessage, updateCurrentForm, setGenerating, setError, saveMessage, saveFormDraft } =
-    useChatStore();
+  // Update session when prop changes
+  useEffect(() => {
+    setSession(initialSession);
+  }, [initialSession]);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [session?.messages]);
+
+  const messages = session?.messages || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,204 +50,120 @@ export function AiChatInterface() {
 
     const userMessage = input.trim();
     setInput("");
-
-    // Add user message to store
-    addMessage({ role: "user", content: userMessage });
-    setGenerating(true);
+    setIsGenerating(true);
 
     try {
-      // Save user message to database
-      const userMsgId = `msg_${Date.now()}_user`;
-      await saveMessage({
-        id: userMsgId,
-        role: "user",
-        content: userMessage,
-        timestamp: new Date().toISOString(),
-      });
-
-      const response = await fetch("/api/ai/generate-form", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: userMessage,
-          conversationHistory: messages,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to generate form");
+      if (!sessionId) {
+        // Entry mode: Create new session and redirect
+        const { session: newSession } = await aiSessionsApi.createSession(userMessage);
+        toast.success("Form generated!");
+        router.push(`/ai/${newSession.id}`);
+      } else {
+        // Active mode: Continue conversation
+        const { session: updatedSession } = await aiSessionsApi.sendMessage(sessionId, userMessage);
+        setSession(updatedSession);
+        toast.success("Form updated!");
       }
-
-      // Add AI response to store
-      const aiContent = `I've ${messages.length > 0 ? "updated" : "created"} your form based on your request. You can see the preview on the right.`;
-      addMessage({
-        role: "assistant",
-        content: aiContent,
-      });
-
-      // Save AI message to database
-      const aiMsgId = `msg_${Date.now()}_assistant`;
-      await saveMessage({
-        id: aiMsgId,
-        role: "assistant",
-        content: aiContent,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Update form preview
-      updateCurrentForm({
-        form: data.form,
-        questions: data.questions,
-      });
-
-      // Save form draft to database
-      await saveFormDraft();
     } catch (error) {
       console.error("Generation error:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to generate form";
-      setError(errorMessage);
       toast.error(errorMessage);
     } finally {
-      setGenerating(false);
+      setIsGenerating(false);
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
+  // Sample prompts (only show on entry page)
+  const samplePrompts = [
+    "Create a customer feedback survey",
+    "Build an event registration form",
+    "Make an employee onboarding checklist",
+    "Design a product order form",
+    "Generate a job application form",
+  ];
+
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-background">
       {/* Messages Area */}
-      <ScrollArea className="flex-1">
-        <div className="max-w-3xl mx-auto">
-          {messages.length === 0 ? (
-            <div className="h-full flex items-center justify-center p-8">
-              <div className="text-center space-y-4 max-w-md">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto">
-                  <Sparkles className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Start Creating with AI
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Describe the form you want to create, and I'll build it for
-                    you. You can refine it by asking for changes.
-                  </p>
-                </div>
-                <div className="text-left space-y-2 text-sm text-muted-foreground">
-                  <p className="font-medium">Try asking:</p>
-                  <ul className="space-y-1 list-disc list-inside">
-                    <li>"Create a customer satisfaction survey"</li>
-                    <li>"Build a registration form for a conference"</li>
-                    <li>"Make a feedback form with star ratings"</li>
-                  </ul>
-                </div>
+      <ScrollArea className="flex-1 p-6">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center px-8">
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 p-6 rounded-full mb-6">
+              <Sparkles className="h-12 w-12 text-purple-600" />
+            </div>
+            <h2 className="text-2xl font-semibold mb-3">
+              Describe Your Form
+            </h2>
+            <p className="text-muted-foreground max-w-md">
+              Tell me what kind of form you need, and I'll create it for you with all the questions and fields.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4 pb-4">
+            {messages.map((message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
+            {isGenerating && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">AI is thinking...</span>
               </div>
-            </div>
-          ) : (
-            <div className="divide-y">
-              {messages.map((message) => (
-                <ChatMessage key={message.id} message={message} />
-              ))}
-              {isGenerating && (
-                <div className="flex gap-3 py-4 px-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                    <Loader2 className="h-4 w-4 text-white animate-spin" />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <span className="font-semibold text-sm">AI Assistant</span>
-                    <div className="text-sm text-muted-foreground">
-                      Generating your form...
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
       </ScrollArea>
 
       {/* Input Area */}
-      <div className="flex-shrink-0 bg-card">
-        {/* Sample Prompts */}
-        {messages.length === 0 && (
-          <div className="px-4 pt-4 pb-2">
-            <div className="max-w-3xl mx-auto">
-              <p className="text-xs text-muted-foreground mb-2">Try these:</p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { text: "Customer feedback survey", color: "bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200" },
-                  { text: "Event registration form", color: "bg-purple-50 text-purple-700 hover:bg-purple-100 border-purple-200" },
-                  { text: "Contact form with validation", color: "bg-green-50 text-green-700 hover:bg-green-100 border-green-200" },
-                  { text: "Employee satisfaction survey", color: "bg-orange-50 text-orange-700 hover:bg-orange-100 border-orange-200" },
-                  { text: "Product order form", color: "bg-pink-50 text-pink-700 hover:bg-pink-100 border-pink-200" },
-                ].map((prompt) => (
-                  <button
-                    key={prompt.text}
-                    onClick={() => setInput(prompt.text)}
-                    disabled={isGenerating}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${prompt.color}`}
-                  >
-                    {prompt.text}
-                  </button>
-                ))}
-              </div>
-            </div>
+      <div className="border-t p-4 space-y-3">
+        {/* Sample Prompts (only on entry page) */}
+        {!sessionId && messages.length === 0 && (
+          <div className="flex flex-wrap gap-2">
+            {samplePrompts.map((prompt, index) => (
+              <button
+                key={index}
+                onClick={() => setInput(prompt)}
+                className="text-xs px-3 py-1.5 rounded-full border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900 transition-colors"
+              >
+                {prompt}
+              </button>
+            ))}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="p-4">
-          <div className="flex gap-2 max-w-3xl mx-auto items-end">
-            {/* Use Textarea if input has newlines or is long, otherwise use Input */}
-            {input.includes('\n') || input.length > 100 ? (
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Describe your form or ask for changes..."
-                disabled={isGenerating}
-                className="flex-1 min-h-[64px] max-h-[200px] resize-none"
-                rows={Math.min(Math.max(2, input.split('\n').length), 8)}
-                onKeyDown={(e) => {
-                  // Submit on Enter (without Shift)
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e as any);
-                  }
-                }}
-              />
+        {/* Input Field */}
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={sessionId ? "Continue the conversation..." : "Describe the form you want to create..."}
+            className="min-h-[48px] max-h-[200px] resize-none py-3"
+            rows={2}
+            disabled={isGenerating}
+          />
+          <Button
+            type="submit"
+            size="lg"
+            disabled={!input.trim() || isGenerating}
+            className="h-auto px-6"
+          >
+            {isGenerating ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Describe your form or ask for changes..."
-                disabled={isGenerating}
-                className="flex-1 py-6"
-                onKeyDown={(e) => {
-                  // Submit on Enter
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSubmit(e as any);
-                  }
-                }}
-              />
+              <>
+                <Send className="h-5 w-5 mr-2" />
+                Send
+              </>
             )}
-            <Button
-              type="submit"
-              disabled={!input.trim() || isGenerating}
-              size="lg"
-              className="px-8 py-6"
-            >
-              {isGenerating ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  Send
-                  <Send className="h-5 w-5 ml-2" />
-                </>
-              )}
-            </Button>
-          </div>
+          </Button>
         </form>
       </div>
     </div>

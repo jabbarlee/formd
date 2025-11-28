@@ -1,9 +1,13 @@
 /**
  * AI Chat Database Service
  * Handles all database operations for AI chat conversations
+ * 
+ * NOTE: This service runs on the SERVER (in API routes).
+ * Authentication is handled by the API routes using getAuthUser().
+ * This service just uses the userId passed from the authenticated API routes.
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { supabaseAdmin as supabase } from "@/lib/supabase/server";
 
 // Types
 export interface ChatMessage {
@@ -161,7 +165,7 @@ export async function linkForm(
   const { error } = await supabase
     .from("ai_chats")
     .update({ form_id: formId })
-    .eq("id", chatId)
+    .eq("id",chatId)
     .eq("created_by", userId);
 
   if (error) {
