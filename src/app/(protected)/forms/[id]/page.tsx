@@ -180,7 +180,7 @@ export default function FormBuilderPage() {
 
           {/* Center - Form Canvas */}
           <div className="flex-1 min-w-0 h-full overflow-hidden bg-muted/20">
-            <FormCanvas />
+            <FormCanvas formId={isNewForm ? undefined : formId} />
           </div>
 
           {/* Right Sidebar - Properties Panel */}

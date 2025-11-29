@@ -61,6 +61,12 @@ interface FormBuilderActions {
   saveForm: () => Promise<void>;
   createForm: () => Promise<Form>;
   setFormWithQuestions: (form: Partial<Form>, questions: Question[]) => void;
+  
+  // AI actions
+  applyAiModifications: (
+    formUpdates: Partial<Form>,
+    updatedQuestions: Question[]
+  ) => void;
 }
 
 type FormBuilderStore = FormBuilderState & FormBuilderActions;
@@ -608,6 +614,18 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
           isSaving: false,
           selectedQuestionId: null,
         });
+      },
+
+      applyAiModifications: (formUpdates, updatedQuestions) => {
+        set((state) => ({
+          form: {
+            ...state.form,
+            ...formUpdates,
+            updatedAt: new Date().toISOString(),
+          },
+          questions: updatedQuestions,
+          isDirty: true, // Trigger auto-save
+        }));
       },
     }),
     { name: "FormBuilder" }

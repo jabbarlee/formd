@@ -179,4 +179,32 @@ export const formsApi = {
 
     return handleResponse(response);
   },
+
+  /**
+   * Modify form using AI
+   */
+  async modifyFormWithAi(
+    formId: string,
+    prompt: string,
+    currentForm: Partial<Form>,
+    currentQuestions: Question[]
+  ): Promise<{
+    form: Partial<Form>;
+    questions: Question[];
+    summary: string;
+    metadata: any;
+  }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`/api/forms/${formId}/ai-modify`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        prompt,
+        currentForm,
+        currentQuestions,
+      }),
+    });
+
+    return handleResponse(response);
+  },
 };
