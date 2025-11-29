@@ -152,8 +152,8 @@ export function AiChatInterface({ sessionId, session: initialSession }: AiChatIn
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={sessionId ? "Continue the conversation..." : "Describe the form you want to create..."}
-            className="min-h-[48px] max-h-[200px] resize-none py-3"
-            rows={2}
+            className="min-h-[10px] max-h-[200px] resize-none py-3"
+            rows={1}
             disabled={isGenerating}
           />
           <Button
