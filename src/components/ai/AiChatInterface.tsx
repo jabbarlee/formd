@@ -132,7 +132,7 @@ export function AiChatInterface({ sessionId, session: initialSession }: AiChatIn
       <div className="border-t p-4 space-y-3">
         {/* Sample Prompts (only on entry page) */}
         {!sessionId && messages.length === 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 pb-4">
             {samplePrompts.map((prompt, index) => (
               <button
                 key={index}
@@ -145,7 +145,7 @@ export function AiChatInterface({ sessionId, session: initialSession }: AiChatIn
           </div>
         )}
 
-        <div className="max-w-3xl mx-auto pt-4">
+        <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
