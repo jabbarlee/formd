@@ -67,6 +67,7 @@ interface FormBuilderActions {
     formUpdates: Partial<Form>,
     updatedQuestions: Question[]
   ) => void;
+  clearAiModifiedIndicators: () => void;
 }
 
 type FormBuilderStore = FormBuilderState & FormBuilderActions;
@@ -233,6 +234,7 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
       isDirty: false,
       isSaving: false,
       error: null,
+      aiModifiedQuestionIds: new Set(),
       isPreviewMode: false,
 
       // Form actions
@@ -617,7 +619,19 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
       },
 
       applyAiModifications: (formUpdates, updatedQuestions) => {
-        set((state) => ({
+        const state = get();
+        const previousQuestionIds = new Set(state.questions.map(q => q.id));
+        
+        // Find only NEWLY ADDED questions (not modified ones)
+        const newlyAddedIds = new Set<string>();
+        updatedQuestions.forEach(q => {
+          if (!previousQuestionIds.has(q.id)) {
+            // This is a new question that didn't exist before
+            newlyAddedIds.add(q.id);
+          }
+        });
+
+        set({
           form: {
             ...state.form,
             ...formUpdates,
@@ -625,7 +639,17 @@ export const useFormBuilderStore = create<FormBuilderStore>()(
           },
           questions: updatedQuestions,
           isDirty: true, // Trigger auto-save
-        }));
+          aiModifiedQuestionIds: newlyAddedIds, // Only newly added questions
+        });
+
+        // Clear indicators after 3 seconds
+        setTimeout(() => {
+          get().clearAiModifiedIndicators();
+        }, 3000);
+      },
+
+      clearAiModifiedIndicators: () => {
+        set({ aiModifiedQuestionIds: new Set() });
       },
     }),
     { name: "FormBuilder" }

@@ -271,6 +271,7 @@ export interface FormBuilderState {
   isSaving: boolean;
   error: string | null;
   isPreviewMode: boolean;
+  aiModifiedQuestionIds: Set<string>; // Track questions modified by AI
 }
 
 // ============================================================================
