@@ -12,7 +12,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChatMessage } from "./ChatMessage";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2, Sparkles } from "lucide-react";
@@ -132,7 +132,7 @@ export function AiChatInterface({ sessionId, session: initialSession }: AiChatIn
       <div className="border-t p-4 space-y-3">
         {/* Sample Prompts (only on entry page) */}
         {!sessionId && messages.length === 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 pb-4">
             {samplePrompts.map((prompt, index) => (
               <button
                 key={index}
@@ -145,33 +145,44 @@ export function AiChatInterface({ sessionId, session: initialSession }: AiChatIn
           </div>
         )}
 
-        {/* Input Field */}
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={sessionId ? "Continue the conversation..." : "Describe the form you want to create..."}
-            className="min-h-[10px] max-h-[200px] resize-none py-3"
-            rows={1}
-            disabled={isGenerating}
-          />
-          <Button
-            type="submit"
-            size="lg"
-            disabled={!input.trim() || isGenerating}
-            className="h-auto px-6"
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="relative pointer-events-auto"
           >
-            {isGenerating ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <>
-                <Send className="h-5 w-5 mr-2" />
-                Send
-              </>
-            )}
-          </Button>
-        </form>
+            {/* Gradient Glow Background */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-indigo-600/20 rounded-xl blur-sm" />
+            
+            {/* Main Input Container */}
+            <div className="relative flex items-center gap-2 rounded-xl border border-purple-200/50 dark:border-purple-800/50 bg-gradient-to-br from-purple-50/90 via-white/90 to-blue-50/90 dark:from-purple-950/90 dark:via-background/90 dark:to-blue-950/90 backdrop-blur-xl shadow-xl p-2">
+              {/* AI Sparkle Icon */}
+              <div className="pl-2 flex items-center">
+                <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              </div>
+              
+              {/* Input Field */}
+              <Input
+                type="text"
+                value={input}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+                placeholder="Ask AI to create your form..."
+                className="flex-1 border-0 shadow-none focus-visible:ring-0 h-10 bg-transparent placeholder:text-purple-400/60 dark:placeholder:text-purple-400/50"
+              />
+              
+              {/* Send Button */}
+              <Button
+                onClick={handleSubmit}
+                size="icon"
+                disabled={!input.trim()}
+                className="h-10 w-10 shrink-0 bg-gradient-to-br from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
