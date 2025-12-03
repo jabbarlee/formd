@@ -6,12 +6,13 @@
  * Architecture:
  * - Loads session from database by ID
  * - 3-column layout: History | Chat | Preview
- * - Allows continuing conversation
+ * - Allows continuing conversation with smooth updates
+ * - No full page reloads
  */
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AiChatInterface } from "@/components/ai/AiChatInterface";
 import { FormPreviewPane } from "@/components/ai/FormPreviewPane";
@@ -30,7 +31,7 @@ export default function AiSessionPage() {
   const [session, setSession] = useState<AiSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load session on mount
+  // Load session on mount or when sessionId changes
   useEffect(() => {
     if (sessionId) {
       loadSession();
@@ -51,14 +52,17 @@ export default function AiSessionPage() {
     }
   };
 
-  const handleNewChat = () => {
+  const handleNewChat = useCallback(() => {
     router.push("/ai/new");
-  };
+  }, [router]);
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+          <p className="text-sm text-muted-foreground">Loading session...</p>
+        </div>
       </div>
     );
   }
