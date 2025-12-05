@@ -38,23 +38,19 @@ export default function WorkspaceAnalyticsPage() {
   };
 
   return (
-    <div>
-      <AnalyticsHeader />
+    <div className="flex flex-col min-h-screen">
+      {/* Header with integrated time range selector */}
+      <div className="flex-shrink-0">
+        <AnalyticsHeader
+          timeRange={timeRange}
+          onTimeRangeChange={setTimeRange}
+          title="Workspace Analytics"
+          description="Aggregated performance across all your forms"
+        />
+      </div>
 
-      <div className="space-y-6 p-6">
-        {/* Time Range Selector */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">
-              Workspace Analytics
-            </h2>
-            <p className="text-muted-foreground">
-              Aggregated performance across all your forms
-            </p>
-          </div>
-          <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
-        </div>
-
+      {/* Content */}
+      <div className="flex-1 space-y-6 p-6">
         {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-12">
@@ -242,6 +238,7 @@ export default function WorkspaceAnalyticsPage() {
           </Card>
         )}
       </div>
+      {/* End Content */}
     </div>
   );
 }

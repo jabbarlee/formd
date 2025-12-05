@@ -39,6 +39,7 @@ import {
   Edit3,
   Check,
   Clock,
+  BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -125,6 +126,14 @@ export function FormBuilderToolbar({
       if (!confirm) return;
     }
     router.push("/forms");
+  };
+
+  const handleAnalytics = () => {
+    if (!form.id) {
+      toast.error("Please save the form first");
+      return;
+    }
+    router.push(`/forms/${form.id}/analytics`);
   };
 
   return (
@@ -229,6 +238,12 @@ export function FormBuilderToolbar({
           </div>
 
           <div className="h-6 w-px bg-border" />
+
+          {/* Analytics Button */}
+          <Button variant="outline" size="sm" onClick={handleAnalytics}>
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Analytics
+          </Button>
 
           {/* Share Button */}
           <Button variant="outline" size="sm" onClick={handleShare}>

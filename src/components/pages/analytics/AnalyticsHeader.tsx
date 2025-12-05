@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { BarChart3, Download, FileJson } from "lucide-react";
 import {
@@ -12,14 +12,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { analyticsApi } from "@/lib/api/analytics";
 import { TimeRangeFilter } from "@/lib/types/analytics";
+import { TimeRangeSelector } from "@/components/analytics/TimeRangeSelector";
 import { toast } from "sonner";
 
 interface AnalyticsHeaderProps {
   formId?: string;
   timeRange?: TimeRangeFilter;
+  onTimeRangeChange?: (timeRange: TimeRangeFilter) => void;
+  title?: string;
+  description?: string;
 }
 
-export function AnalyticsHeader({ formId, timeRange }: AnalyticsHeaderProps = {}) {
+export function AnalyticsHeader({ 
+  formId, 
+  timeRange, 
+  onTimeRangeChange,
+  title = "Analytics",
+  description = "Track performance and gain insights from your forms."
+}: AnalyticsHeaderProps = {}) {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async (format: 'csv' | 'json') => {
@@ -40,35 +50,46 @@ export function AnalyticsHeader({ formId, timeRange }: AnalyticsHeaderProps = {}
     }
   };
 
+  // Build custom action based on props
+  let customAction: ReactNode = undefined;
+  
+  if (formId && timeRange) {
+    // Form-specific analytics - show export button
+    customAction = (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" disabled={isExporting}>
+            <Download className="mr-2 h-4 w-4" />
+            {isExporting ? "Exporting..." : "Export Report"}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => handleExport('csv')}>
+            <Download className="mr-2 h-4 w-4" />
+            Export as CSV
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleExport('json')}>
+            <FileJson className="mr-2 h-4 w-4" />
+            Export as JSON
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  } else if (timeRange && onTimeRangeChange) {
+    // Workspace analytics - show time range selector in header
+    customAction = (
+      <TimeRangeSelector value={timeRange} onChange={onTimeRangeChange} />
+    );
+  }
+
   return (
     <PageHeader
-      title="Analytics"
-      description="Track performance and gain insights from your forms."
+      title={title}
+      description={description}
       icon={BarChart3}
       iconColor="text-emerald-600"
       iconBgColor="bg-emerald-50 dark:bg-emerald-950"
-      customAction={
-        formId && timeRange ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" disabled={isExporting}>
-                <Download className="mr-2 h-4 w-4" />
-                {isExporting ? "Exporting..." : "Export Report"}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleExport('csv')}>
-                <Download className="mr-2 h-4 w-4" />
-                Export as CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('json')}>
-                <FileJson className="mr-2 h-4 w-4" />
-                Export as JSON
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : undefined
-      }
+      customAction={customAction}
     />
   );
 }

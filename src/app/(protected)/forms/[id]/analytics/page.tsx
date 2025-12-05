@@ -26,6 +26,8 @@ import {
   Tablet,
   Globe,
   Loader2,
+  BarChart3,
+  HelpCircle,
 } from "lucide-react";
 import { AnalyticsHeader } from "@/components/layout/headers";
 import { ResponseTrendChart } from "@/components/charts/ResponseTrendChart";
@@ -37,34 +39,39 @@ import { TimeRangeFilter } from "@/lib/types/analytics";
 export default function FormAnalyticsPage() {
   const params = useParams();
   const formId = params.id as string;
-  const [timeRange, setTimeRange] = useState<TimeRangeFilter>({ range: '30d' });
-  const { data: analytics, loading, error } = useFormAnalytics(formId, timeRange);
+  const [timeRange, setTimeRange] = useState<TimeRangeFilter>({ range: "30d" });
+  const {
+    data: analytics,
+    loading,
+    error,
+  } = useFormAnalytics(formId, timeRange);
 
   // Helper function to format time in minutes
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${minutes}:${secs.toString().padStart(2, '0')} min`;
+    return `${minutes}:${secs.toString().padStart(2, "0")} min`;
   };
 
   return (
-    <div>
-      <AnalyticsHeader formId={formId} timeRange={timeRange} />
+    <div className="flex flex-col min-h-screen">
+      {/* Header with integrated time range selector and export */}
+      <div className="flex-shrink-0">
+        <AnalyticsHeader
+          formId={formId}
+          timeRange={timeRange}
+          onTimeRangeChange={setTimeRange}
+          title={
+            analytics?.formTitle
+              ? `${analytics.formTitle} - Analytics`
+              : "Form Analytics"
+          }
+          description="Track performance and gain insights from your form"
+        />
+      </div>
 
-      <div className="space-y-6 p-6">
-        {/* Time Range Selector */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">
-              {analytics?.formTitle || "Form Analytics"}
-            </h2>
-            <p className="text-muted-foreground">
-              Track performance and gain insights from your form
-            </p>
-          </div>
-          <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
-        </div>
-
+      {/* Content */}
+      <div className="flex-1 space-y-6 p-6">
         {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-12">
@@ -76,7 +83,9 @@ export default function FormAnalyticsPage() {
         {error && (
           <Card className="border-destructive">
             <CardContent className="pt-6">
-              <p className="text-destructive">Error loading analytics: {error.message}</p>
+              <p className="text-destructive">
+                Error loading analytics: {error.message}
+              </p>
             </CardContent>
           </Card>
         )}
@@ -138,10 +147,22 @@ export default function FormAnalyticsPage() {
             {/* Chart Sections */}
             <Tabs defaultValue="overview" className="w-full">
               <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="devices">Devices</TabsTrigger>
-                <TabsTrigger value="geography">Geography</TabsTrigger>
-                <TabsTrigger value="questions">Questions</TabsTrigger>
+                <TabsTrigger value="overview">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="devices">
+                  <Monitor className="h-4 w-4 mr-2" />
+                  Devices
+                </TabsTrigger>
+                <TabsTrigger value="geography">
+                  <Globe className="h-4 w-4 mr-2" />
+                  Geography
+                </TabsTrigger>
+                <TabsTrigger value="questions">
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  Questions
+                </TabsTrigger>
               </TabsList>
 
               {/* Overview Tab */}
@@ -151,9 +172,7 @@ export default function FormAnalyticsPage() {
                   <Card>
                     <CardHeader>
                       <CardTitle>Response Trend</CardTitle>
-                      <CardDescription>
-                        Activity over time
-                      </CardDescription>
+                      <CardDescription>Activity over time</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="h-[250px] w-full">
@@ -173,9 +192,12 @@ export default function FormAnalyticsPage() {
                         {analytics.funnel.map((stage, index) => (
                           <div key={stage.stage}>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium">{stage.label}</span>
+                              <span className="text-sm font-medium">
+                                {stage.label}
+                              </span>
                               <span className="text-sm text-muted-foreground">
-                                {stage.count.toLocaleString()} ({stage.percentage.toFixed(0)}%)
+                                {stage.count.toLocaleString()} (
+                                {stage.percentage.toFixed(0)}%)
                               </span>
                             </div>
                             <div className="h-3 bg-muted rounded-full overflow-hidden">
@@ -214,13 +236,16 @@ export default function FormAnalyticsPage() {
                             <span className="text-sm font-medium">Desktop</span>
                           </div>
                           <span className="text-sm text-blue-600 font-medium">
-                            {analytics.devices.desktop.count} responses ({analytics.devices.desktop.percentage.toFixed(0)}%)
+                            {analytics.devices.desktop.count} responses (
+                            {analytics.devices.desktop.percentage.toFixed(0)}%)
                           </span>
                         </div>
                         <div className="h-3 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm"
-                            style={{ width: `${analytics.devices.desktop.percentage}%` }}
+                            style={{
+                              width: `${analytics.devices.desktop.percentage}%`,
+                            }}
                           />
                         </div>
                       </div>
@@ -232,13 +257,16 @@ export default function FormAnalyticsPage() {
                             <span className="text-sm font-medium">Mobile</span>
                           </div>
                           <span className="text-sm text-violet-600 font-medium">
-                            {analytics.devices.mobile.count} responses ({analytics.devices.mobile.percentage.toFixed(0)}%)
+                            {analytics.devices.mobile.count} responses (
+                            {analytics.devices.mobile.percentage.toFixed(0)}%)
                           </span>
                         </div>
                         <div className="h-3 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-violet-500 to-violet-600 shadow-sm"
-                            style={{ width: `${analytics.devices.mobile.percentage}%` }}
+                            style={{
+                              width: `${analytics.devices.mobile.percentage}%`,
+                            }}
                           />
                         </div>
                       </div>
@@ -250,13 +278,16 @@ export default function FormAnalyticsPage() {
                             <span className="text-sm font-medium">Tablet</span>
                           </div>
                           <span className="text-sm text-amber-600 font-medium">
-                            {analytics.devices.tablet.count} responses ({analytics.devices.tablet.percentage.toFixed(0)}%)
+                            {analytics.devices.tablet.count} responses (
+                            {analytics.devices.tablet.percentage.toFixed(0)}%)
                           </span>
                         </div>
                         <div className="h-3 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-amber-500 to-amber-600 shadow-sm"
-                            style={{ width: `${analytics.devices.tablet.percentage}%` }}
+                            style={{
+                              width: `${analytics.devices.tablet.percentage}%`,
+                            }}
                           />
                         </div>
                       </div>
@@ -291,7 +322,12 @@ export default function FormAnalyticsPage() {
                               <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-indigo-600"
-                                  style={{ width: `${Math.min(item.percentage * 2.5, 100)}%` }}
+                                  style={{
+                                    width: `${Math.min(
+                                      item.percentage * 2.5,
+                                      100
+                                    )}%`,
+                                  }}
                                 />
                               </div>
                             </div>
@@ -321,7 +357,10 @@ export default function FormAnalyticsPage() {
                     {analytics.questions.length > 0 ? (
                       <Accordion type="single" collapsible className="w-full">
                         {analytics.questions.map((question, index) => (
-                          <AccordionItem key={question.questionId} value={question.questionId}>
+                          <AccordionItem
+                            key={question.questionId}
+                            value={question.questionId}
+                          >
                             <AccordionTrigger>
                               <div className="flex items-center justify-between w-full pr-4">
                                 <span className="font-medium">
@@ -334,39 +373,52 @@ export default function FormAnalyticsPage() {
                             </AccordionTrigger>
                             <AccordionContent>
                               <div className="space-y-3 pt-2">
-                                {question.optionBreakdown && question.optionBreakdown.length > 0 && (
-                                  <>
-                                    {question.optionBreakdown.map((option, i) => (
-                                      <div key={i}>
-                                        <div className="flex items-center justify-between mb-2">
-                                          <span className="text-sm">{option.option}</span>
-                                          <span className="text-sm text-muted-foreground">
-                                            {option.count} ({option.percentage.toFixed(0)}%)
-                                          </span>
-                                        </div>
-                                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                          <div
-                                            className="h-full bg-indigo-600"
-                                            style={{ width: `${option.percentage}%` }}
-                                          />
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </>
-                                )}
-                                
+                                {question.optionBreakdown &&
+                                  question.optionBreakdown.length > 0 && (
+                                    <>
+                                      {question.optionBreakdown.map(
+                                        (option, i) => (
+                                          <div key={i}>
+                                            <div className="flex items-center justify-between mb-2">
+                                              <span className="text-sm">
+                                                {option.option}
+                                              </span>
+                                              <span className="text-sm text-muted-foreground">
+                                                {option.count} (
+                                                {option.percentage.toFixed(0)}%)
+                                              </span>
+                                            </div>
+                                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                              <div
+                                                className="h-full bg-indigo-600"
+                                                style={{
+                                                  width: `${option.percentage}%`,
+                                                }}
+                                              />
+                                            </div>
+                                          </div>
+                                        )
+                                      )}
+                                    </>
+                                  )}
+
                                 {question.sentimentBreakdown && (
                                   <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                                    <p className="text-sm font-medium mb-2">Sentiment Analysis</p>
+                                    <p className="text-sm font-medium mb-2">
+                                      Sentiment Analysis
+                                    </p>
                                     <div className="flex gap-4 text-sm">
                                       <span className="text-emerald-600">
-                                        Positive: {question.sentimentBreakdown.positive}
+                                        Positive:{" "}
+                                        {question.sentimentBreakdown.positive}
                                       </span>
                                       <span className="text-muted-foreground">
-                                        Neutral: {question.sentimentBreakdown.neutral}
+                                        Neutral:{" "}
+                                        {question.sentimentBreakdown.neutral}
                                       </span>
                                       <span className="text-red-600">
-                                        Negative: {question.sentimentBreakdown.negative}
+                                        Negative:{" "}
+                                        {question.sentimentBreakdown.negative}
                                       </span>
                                     </div>
                                   </div>
@@ -399,16 +451,18 @@ export default function FormAnalyticsPage() {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <TrendingUp className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Analytics Data Yet</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                No Analytics Data Yet
+              </h3>
               <p className="text-muted-foreground text-center max-w-md">
-                Analytics will appear here once your form starts receiving views and responses.
-                Share your form to start collecting data!
+                Analytics will appear here once your form starts receiving views
+                and responses. Share your form to start collecting data!
               </p>
             </CardContent>
           </Card>
         )}
       </div>
+      {/* End Content */}
     </div>
   );
 }
-
