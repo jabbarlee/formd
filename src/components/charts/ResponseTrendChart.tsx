@@ -9,47 +9,80 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Legend,
+  Tooltip,
 } from "recharts";
+import { TrendDataPoint } from "@/lib/types/analytics";
 
-const data = [
-  { name: "Jan", uv: 4000, pv: 2400, amt: 2400 },
-  { name: "Feb", uv: 3000, pv: 1398, amt: 2210 },
-  { name: "Mar", uv: 2000, pv: 9800, amt: 2290 },
-  { name: "Apr", uv: 2780, pv: 3908, amt: 2000 },
-  { name: "May", uv: 1890, pv: 4800, amt: 2181 },
-  { name: "Jun", uv: 2390, pv: 3800, amt: 2500 },
-  { name: "Jul", uv: 3490, pv: 4300, amt: 2100 },
-];
+interface ResponseTrendChartProps {
+  data?: TrendDataPoint[];
+}
 
-export function ResponseTrendChart() {
+export function ResponseTrendChart({ data }: ResponseTrendChartProps) {
+  // Transform data for recharts
+  const chartData = data?.map((point) => ({
+    date: new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    Views: point.views,
+    Starts: point.starts,
+    Completions: point.completions,
+  })) || [];
+
+  // Empty state
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+        <div className="text-center">
+          <p>No trend data available</p>
+          <p className="text-sm mt-1">Data will appear as your form receives activity</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <XAxis 
+            dataKey="date" 
+            className="text-xs"
+            tick={{ fill: 'currentColor' }}
+          />
+          <YAxis 
+            className="text-xs"
+            tick={{ fill: 'currentColor' }}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: 'hsl(var(--background))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '6px',
+            }}
+          />
           <Legend />
           <Line
             type="monotone"
-            dataKey="pv"
-            stroke="#8884d8"
+            dataKey="Views"
+            stroke="#3b82f6"
             strokeWidth={2}
-            name="Page Views"
+            dot={{ fill: '#3b82f6' }}
+            activeDot={{ r: 6 }}
           />
           <Line
             type="monotone"
-            dataKey="uv"
-            stroke="#82ca9d"
+            dataKey="Starts"
+            stroke="#8b5cf6"
             strokeWidth={2}
-            name="Unique Visitors"
+            dot={{ fill: '#8b5cf6' }}
+            activeDot={{ r: 6 }}
           />
           <Line
             type="monotone"
-            dataKey="amt"
-            stroke="#ffc658"
+            dataKey="Completions"
+            stroke="#10b981"
             strokeWidth={2}
-            name="Amount"
+            dot={{ fill: '#10b981' }}
+            activeDot={{ r: 6 }}
           />
         </LineChart>
       </ResponsiveContainer>
