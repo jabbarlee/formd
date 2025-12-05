@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Form, Question } from "@/lib/types/forms";
 import { format } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFormTracking } from "@/hooks/useFormTracking";
 
 interface PublicFormPreviewProps {
   form: Form;
@@ -241,6 +242,11 @@ export function PublicFormPreview({ form, questions }: PublicFormPreviewProps) {
   const [submissionMessage, setSubmissionMessage] = useState("");
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [startTime] = useState(Date.now());
+  
+  // Analytics tracking
+  const { trackEvent, sessionId } = useFormTracking({ formId: form.id });
+  const hasTrackedStart = useRef(false);
+  const isSubmittedRef = useRef(false);
 
   const visibleQuestions = questions.filter(
     (q) => !["divider", "text_content", "section_heading"].includes(q.type)
@@ -251,6 +257,14 @@ export function PublicFormPreview({ form, questions }: PublicFormPreviewProps) {
     visibleQuestions.length > 0
       ? Math.round((answeredCount / visibleQuestions.length) * 100)
       : 0;
+
+  // Track form start when first question is answered
+  useEffect(() => {
+    if (!hasTrackedStart.current && answeredCount > 0) {
+      hasTrackedStart.current = true;
+      trackEvent("form_started");
+    }
+  }, [answeredCount, trackEvent]);
 
   const handleQuestionChange = (questionId: string, value: any) => {
     setFormData((prev) => ({
@@ -302,6 +316,13 @@ export function PublicFormPreview({ form, questions }: PublicFormPreviewProps) {
       if (!response.ok) {
         throw new Error(data.error || "Failed to submit form");
       }
+
+      // Track successful submission
+      isSubmittedRef.current = true;
+      await trackEvent("form_submitted", {
+        responseId: data.responseId,
+        eventData: { timeSpent },
+      });
 
       // Show success modal
       setSubmissionMessage(data.message);

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { LucideIcon } from "lucide-react";
+import { ReactNode } from "react";
 
 interface PageHeaderProps {
   title: string;
@@ -21,6 +22,7 @@ interface PageHeaderProps {
       | "ghost"
       | "link";
   };
+  customAction?: ReactNode;
 }
 
 export function PageHeader({
@@ -30,6 +32,7 @@ export function PageHeader({
   iconColor = "text-primary",
   iconBgColor = "bg-primary/10",
   actionButton,
+  customAction,
 }: PageHeaderProps) {
   return (
     <div className="border-b bg-gradient-to-r from-background via-primary/5 to-background backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -54,7 +57,7 @@ export function PageHeader({
           </div>
         </div>
 
-        {actionButton && (
+        {customAction || (actionButton && (
           <Button
             onClick={actionButton.onClick}
             className="flex-shrink-0 shadow-sm"
@@ -66,7 +69,7 @@ export function PageHeader({
             )}
             {actionButton.label}
           </Button>
-        )}
+        ))}
       </div>
     </div>
   );
