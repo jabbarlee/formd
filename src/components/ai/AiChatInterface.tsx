@@ -1,7 +1,7 @@
 /**
  * AI Chat Interface Component
  * Handles message display and user input with optimistic UI
- * 
+ *
  * Features:
  * - Instant message display (optimistic UI)
  * - Loading state for AI responses
@@ -19,7 +19,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { aiSessionsApi } from "@/lib/api/aiSessions";
-import type { AiSession, SessionMessage } from "@/lib/database/services/aiSession.service";
+import type {
+  AiSession,
+  SessionMessage,
+} from "@/lib/database/services/aiSession.service";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface AiChatInterfaceProps {
@@ -28,15 +31,16 @@ interface AiChatInterfaceProps {
   onSessionCreated?: (sessionId: string, session: AiSession) => void;
 }
 
-export function AiChatInterface({ 
-  sessionId, 
+export function AiChatInterface({
+  sessionId,
   session: initialSession,
-  onSessionCreated 
+  onSessionCreated,
 }: AiChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [session, setSession] = useState<AiSession | undefined>(initialSession);
-  const [optimisticUserMessage, setOptimisticUserMessage] = useState<SessionMessage | null>(null);
+  const [optimisticUserMessage, setOptimisticUserMessage] =
+    useState<SessionMessage | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -58,7 +62,7 @@ export function AiChatInterface({
 
     const userMessage = input.trim();
     setInput("");
-    
+
     // Create optimistic user message
     const optimisticMsg: SessionMessage = {
       id: `temp-${Date.now()}`,
@@ -66,19 +70,21 @@ export function AiChatInterface({
       content: userMessage,
       timestamp: new Date().toISOString(),
     };
-    
+
     setOptimisticUserMessage(optimisticMsg);
     setIsGenerating(true);
 
     try {
       if (!sessionId) {
         // Entry mode: Create new session
-        const { session: newSession } = await aiSessionsApi.createSession(userMessage);
-        
+        const { session: newSession } = await aiSessionsApi.createSession(
+          userMessage
+        );
+
         // Update local state immediately
         setSession(newSession);
         setOptimisticUserMessage(null);
-        
+
         // Notify parent component (will handle URL update without reload)
         if (onSessionCreated) {
           onSessionCreated(newSession.id, newSession);
@@ -86,24 +92,29 @@ export function AiChatInterface({
           // Fallback: Use shallow routing
           router.replace(`/ai/${newSession.id}`, { shallow: true } as any);
         }
-        
+
         toast.success("Form generated!");
       } else {
         // Active mode: Continue conversation
-        const { session: updatedSession } = await aiSessionsApi.sendMessage(sessionId, userMessage);
+        const { session: updatedSession } = await aiSessionsApi.sendMessage(
+          sessionId,
+          userMessage
+        );
         setSession(updatedSession);
         setOptimisticUserMessage(null);
         toast.success("Form updated!");
       }
     } catch (error) {
       console.error("Generation error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to generate form";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to generate form";
       toast.error(errorMessage);
       setOptimisticUserMessage(null);
     } finally {
       setIsGenerating(false);
     }
   };
+
 
   // Sample prompts (only show on entry page)
   const samplePrompts = [
@@ -115,7 +126,8 @@ export function AiChatInterface({
   ];
 
   // Check if we should show empty state
-  const showEmptyState = messages.length === 0 && !optimisticUserMessage && !isGenerating;
+  const showEmptyState =
+    messages.length === 0 && !optimisticUserMessage && !isGenerating;
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -126,11 +138,10 @@ export function AiChatInterface({
             <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 p-6 rounded-full mb-6">
               <Sparkles className="h-12 w-12 text-purple-600" />
             </div>
-            <h2 className="text-2xl font-semibold mb-3">
-              Describe Your Form
-            </h2>
+            <h2 className="text-2xl font-semibold mb-3">Describe Your Form</h2>
             <p className="text-muted-foreground max-w-md">
-              Tell me what kind of form you need, and I'll create it for you with all the questions and fields.
+              Tell me what kind of form you need, and I'll create it for you
+              with all the questions and fields.
             </p>
           </div>
         ) : (
@@ -140,7 +151,7 @@ export function AiChatInterface({
               {messages.map((message) => (
                 <ChatMessage key={message.id} message={message} />
               ))}
-              
+
               {/* Optimistic User Message */}
               {optimisticUserMessage && (
                 <ChatMessage
@@ -149,7 +160,7 @@ export function AiChatInterface({
                 />
               )}
             </AnimatePresence>
-            
+
             {/* AI Loading State */}
             {isGenerating && (
               <motion.div
@@ -161,30 +172,50 @@ export function AiChatInterface({
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex-shrink-0">
                   <Sparkles className="h-4 w-4 text-white" />
                 </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
                     <span className="font-semibold text-xs">AI Assistant</span>
                   </div>
-                  <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-muted text-foreground shadow-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-sm">Working...</span>
-                    </div>
-                    <div className="flex gap-1 mt-2">
+                  <div className="px-6 py-4 rounded-2xl rounded-tl-sm bg-muted text-foreground shadow-sm inline-flex items-center justify-center">
+                    <div className="flex items-center gap-2">
                       <motion.div
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
-                        className="h-2 w-2 rounded-full bg-purple-400"
+                        animate={{
+                          scale: [0.5, 1, 0.5],
+                          opacity: [0.4, 1, 0.4],
+                        }}
+                        transition={{
+                          duration: 1.2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0,
+                        }}
+                        className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"
                       />
                       <motion.div
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                        className="h-2 w-2 rounded-full bg-purple-400"
+                        animate={{
+                          scale: [0.5, 1, 0.5],
+                          opacity: [0.4, 1, 0.4],
+                        }}
+                        transition={{
+                          duration: 1.2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.2,
+                        }}
+                        className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"
                       />
                       <motion.div
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
-                        className="h-2 w-2 rounded-full bg-purple-400"
+                        animate={{
+                          scale: [0.5, 1, 0.5],
+                          opacity: [0.4, 1, 0.4],
+                        }}
+                        transition={{
+                          duration: 1.2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.4,
+                        }}
+                        className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"
                       />
                     </div>
                   </div>
@@ -223,20 +254,26 @@ export function AiChatInterface({
           >
             {/* Gradient Glow Background */}
             <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-indigo-600/20 rounded-xl blur-sm" />
-            
+
             {/* Main Input Container */}
             <div className="relative flex items-center gap-2 rounded-xl border border-purple-200/50 dark:border-purple-800/50 bg-gradient-to-br from-purple-50/90 via-white/90 to-blue-50/90 dark:from-purple-950/90 dark:via-background/90 dark:to-blue-950/90 backdrop-blur-xl shadow-xl p-2">
               {/* AI Sparkle Icon */}
               <div className="pl-2 flex items-center">
                 <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
               </div>
-              
+
               {/* Input Field */}
               <Input
                 type="text"
                 value={input}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-                placeholder={isGenerating ? "AI is working..." : "Ask AI to create your form..."}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setInput(e.target.value)
+                }
+                placeholder={
+                  isGenerating
+                    ? "AI is working..."
+                    : "Ask AI to create your form..."
+                }
                 disabled={isGenerating}
                 className="flex-1 border-0 shadow-none focus-visible:ring-0 h-10 bg-transparent placeholder:text-purple-400/60 dark:placeholder:text-purple-400/50 disabled:opacity-60"
                 onKeyDown={(e) => {
@@ -246,7 +283,7 @@ export function AiChatInterface({
                   }
                 }}
               />
-              
+
               {/* Send Button */}
               <Button
                 type="submit"
