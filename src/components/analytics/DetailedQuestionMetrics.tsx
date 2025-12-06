@@ -131,57 +131,85 @@ export function DetailedQuestionMetrics({
             <CardContent className="pt-0">
               {availableTabs.length > 0 && (
                 <Tabs defaultValue={availableTabs[0]} className="w-full">
-                  <TabsList
-                    className="grid w-full"
-                    style={{
-                      gridTemplateColumns: `repeat(${Math.min(
-                        availableTabs.length,
-                        4
-                      )}, 1fr)`,
-                    }}
-                  >
-                    {availableTabs.includes("time") && (
-                      <TabsTrigger value="time" className="text-xs">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Time
-                      </TabsTrigger>
-                    )}
-                    {availableTabs.includes("dropoff") && (
-                      <TabsTrigger value="dropoff" className="text-xs">
-                        <TrendingDown className="h-3 w-3 mr-1" />
-                        Drop-off
-                      </TabsTrigger>
-                    )}
-                    {availableTabs.includes("skip") && (
-                      <TabsTrigger value="skip" className="text-xs">
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                        Skip
-                      </TabsTrigger>
-                    )}
-                    {availableTabs.includes("quality") && (
-                      <TabsTrigger value="quality" className="text-xs">
-                        <Edit className="h-3 w-3 mr-1" />
-                        QualityAns
-                      </TabsTrigger>
-                    )}
-                    {availableTabs.includes("navigation") && (
-                      <TabsTrigger value="navigation" className="text-xs">
-                        <Navigation className="h-3 w-3 mr-1" />
-                        Nav
-                      </TabsTrigger>
-                    )}
-                    {availableTabs.includes("distribution") && (
-                      <TabsTrigger value="distribution" className="text-xs">
-                        <BarChart3 className="h-3 w-3 mr-1" />
-                        Answers
-                      </TabsTrigger>
-                    )}
-                    {availableTabs.includes("sentiment") && (
-                      <TabsTrigger value="sentiment" className="text-xs">
-                        Sentiment
-                      </TabsTrigger>
-                    )}
-                  </TabsList>
+                  <div className="relative w-full overflow-x-auto pb-1">
+                    <TabsList
+                      className={`${
+                        availableTabs.length > 4
+                          ? "inline-flex w-auto min-w-full"
+                          : "grid w-full"
+                      }`}
+                      style={
+                        availableTabs.length <= 4
+                          ? {
+                              gridTemplateColumns: `repeat(${availableTabs.length}, 1fr)`,
+                            }
+                          : undefined
+                      }
+                    >
+                      {availableTabs.includes("time") && (
+                        <TabsTrigger
+                          value="time"
+                          className="text-xs flex-shrink-0"
+                        >
+                          <Clock className="h-3 w-3 mr-1" />
+                          Time
+                        </TabsTrigger>
+                      )}
+                      {availableTabs.includes("dropoff") && (
+                        <TabsTrigger
+                          value="dropoff"
+                          className="text-xs flex-shrink-0"
+                        >
+                          <TrendingDown className="h-3 w-3 mr-1" />
+                          Drop-off
+                        </TabsTrigger>
+                      )}
+                      {availableTabs.includes("skip") && (
+                        <TabsTrigger
+                          value="skip"
+                          className="text-xs flex-shrink-0"
+                        >
+                          <AlertTriangle className="h-3 w-3 mr-1" />
+                          Skip
+                        </TabsTrigger>
+                      )}
+                      {availableTabs.includes("quality") && (
+                        <TabsTrigger
+                          value="quality"
+                          className="text-xs flex-shrink-0"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Quality
+                        </TabsTrigger>
+                      )}
+                      {availableTabs.includes("navigation") && (
+                        <TabsTrigger
+                          value="navigation"
+                          className="text-xs flex-shrink-0"
+                        >
+                          <Navigation className="h-3 w-3 mr-1" />
+                          Nav
+                        </TabsTrigger>
+                      )}
+                      {availableTabs.includes("distribution") && (
+                        <TabsTrigger
+                          value="distribution"
+                          className="text-xs flex-shrink-0"
+                        >
+                          <BarChart3 className="h-3 w-3 mr-1" />
+                          Answers
+                        </TabsTrigger>
+                      )}
+                      {availableTabs.includes("sentiment") && (
+                        <TabsTrigger
+                          value="sentiment"
+                          className="text-xs flex-shrink-0"
+                        >
+                          Sentiment
+                        </TabsTrigger>
+                      )}
+                    </TabsList>
+                  </div>
                   {/* Time Metrics Tab */}
                   {availableTabs.includes("time") && (
                     <TabsContent value="time" className="mt-3">
