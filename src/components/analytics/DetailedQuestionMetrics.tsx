@@ -62,7 +62,7 @@ export function DetailedQuestionMetrics({
   }
 
   return (
-    <div className="flex-col space-y-4">
+    <div className="flex-col space-y-6 w-1/2">
       {questions.map((question, index) => {
         // Check if this is detailed data or basic data
         const hasDetailedMetrics = question.averageTimeToAnswer !== undefined;
