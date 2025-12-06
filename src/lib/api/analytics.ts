@@ -142,6 +142,24 @@ export const analyticsApi = {
   },
 
   /**
+   * Get detailed question-by-question analytics with interaction tracking
+   */
+  async getQuestionAnalyticsDetailed(
+    formId: string,
+    timeRange: TimeRangeFilter
+  ): Promise<any[]> {
+    const headers = await getAuthHeaders();
+    const params = buildTimeRangeParams(timeRange);
+    params.set("detailed", "true");
+    const response = await fetch(
+      `/api/forms/${formId}/analytics/questions?${params}`,
+      { headers }
+    );
+
+    return handleResponse(response);
+  },
+
+  /**
    * Get workspace-level analytics
    */
   async getWorkspaceAnalytics(

@@ -33,7 +33,11 @@ import { AnalyticsHeader } from "@/components/layout/headers";
 import { ResponseTrendChart } from "@/components/charts/ResponseTrendChart";
 import { TimeRangeSelector } from "@/components/analytics/TimeRangeSelector";
 import { MetricCard } from "@/components/analytics/MetricCard";
-import { useFormAnalytics } from "@/hooks/useAnalytics";
+import { DetailedQuestionMetrics } from "@/components/analytics/DetailedQuestionMetrics";
+import {
+  useFormAnalytics,
+  useQuestionAnalyticsDetailed,
+} from "@/hooks/useAnalytics";
 import { TimeRangeFilter } from "@/lib/types/analytics";
 
 export default function FormAnalyticsPage() {
@@ -45,6 +49,10 @@ export default function FormAnalyticsPage() {
     loading,
     error,
   } = useFormAnalytics(formId, timeRange);
+
+  // Fetch detailed question analytics separately
+  const { data: detailedQuestions, loading: questionsLoading } =
+    useQuestionAnalyticsDetailed(formId, timeRange);
 
   // Helper function to format time in minutes
   const formatTime = (seconds: number): string => {
@@ -346,15 +354,24 @@ export default function FormAnalyticsPage() {
 
               {/* Questions Tab */}
               <TabsContent value="questions" className="space-y-4 mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Question-by-Question Analytics</CardTitle>
-                    <CardDescription>
-                      Detailed breakdown for each question
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {analytics.questions.length > 0 ? (
+                {questionsLoading ? (
+                  <Card>
+                    <CardContent className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </CardContent>
+                  </Card>
+                ) : detailedQuestions && detailedQuestions.length > 0 ? (
+                  <DetailedQuestionMetrics questions={detailedQuestions} />
+                ) : analytics?.questions && analytics.questions.length > 0 ? (
+                  // Fallback to basic question analytics if detailed not available
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Question-by-Question Analytics</CardTitle>
+                      <CardDescription>
+                        Detailed breakdown for each question
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
                       <Accordion type="single" collapsible className="w-full">
                         {analytics.questions.map((question, index) => (
                           <AccordionItem
@@ -434,13 +451,22 @@ export default function FormAnalyticsPage() {
                           </AccordionItem>
                         ))}
                       </Accordion>
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p>No question data available</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <TrendingUp className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">
+                        No Question Data Yet
+                      </h3>
+                      <p className="text-muted-foreground text-center max-w-md">
+                        Question analytics will appear here once your form
+                        starts receiving responses.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
             </Tabs>
           </>

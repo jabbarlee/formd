@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useFormTracking } from "@/hooks/useFormTracking";
+import { useQuestionTracking } from "@/hooks/useQuestionTracking";
 
 interface PublicFormPreviewProps {
   form: Form;
@@ -46,6 +47,8 @@ interface QuestionPreviewProps {
   value: any;
   onChange: (value: any) => void;
   showQuestionNumbers?: boolean;
+  onQuestionView?: (questionId: string) => void;
+  onQuestionAnswer?: (questionId: string, value: any) => void;
 }
 
 // Question Preview Component
@@ -56,12 +59,29 @@ function QuestionPreview({
   value,
   onChange,
   showQuestionNumbers = true,
+  onQuestionView,
+  onQuestionAnswer,
 }: QuestionPreviewProps) {
   const metadata = questionTypeMetadata[question.type];
 
   const isLayout = ["section_heading", "text_content", "divider"].includes(
     question.type
   );
+
+  // Track when question becomes visible
+  useEffect(() => {
+    if (onQuestionView && !isLayout) {
+      onQuestionView(question.id);
+    }
+  }, [question.id, onQuestionView, isLayout]);
+
+  // Handle answer change with tracking
+  const handleChange = (newValue: any) => {
+    onChange(newValue);
+    if (onQuestionAnswer && !isLayout) {
+      onQuestionAnswer(question.id, newValue);
+    }
+  };
 
   const renderQuestionInput = () => {
     switch (question.type) {
@@ -71,7 +91,7 @@ function QuestionPreview({
             placeholder={question.placeholder || metadata.defaultTitle}
             type="text"
             value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
           />
         );
 
@@ -80,7 +100,7 @@ function QuestionPreview({
           <Textarea
             placeholder={question.placeholder || "Type your answer..."}
             value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
             rows={4}
           />
         );
@@ -91,7 +111,7 @@ function QuestionPreview({
             placeholder={question.placeholder || "email@example.com"}
             type="email"
             value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
           />
         );
 
@@ -101,7 +121,7 @@ function QuestionPreview({
             placeholder={question.placeholder || "+1 (555) 000-0000"}
             type="tel"
             value={value || ""}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
           />
         );
 
@@ -111,13 +131,13 @@ function QuestionPreview({
             placeholder={question.placeholder || "Enter a number"}
             type="number"
             value={value || ""}
-            onChange={(e) => onChange(parseFloat(e.target.value) || "")}
+            onChange={(e) => handleChange(parseFloat(e.target.value) || "")}
           />
         );
 
       case "multiple_choice":
         return (
-          <RadioGroup value={value} onValueChange={onChange}>
+          <RadioGroup value={value} onValueChange={handleChange}>
             {question.options?.map((option) => (
               <div key={option.id} className="flex items-center space-x-2">
                 <RadioGroupItem value={option.value} id={option.id} />
@@ -139,13 +159,10 @@ function QuestionPreview({
                   id={option.id}
                   checked={selectedValues.includes(option.value)}
                   onCheckedChange={(checked) => {
-                    if (checked) {
-                      onChange([...selectedValues, option.value]);
-                    } else {
-                      onChange(
-                        selectedValues.filter((v: string) => v !== option.value)
-                      );
-                    }
+                    const newValue = checked
+                      ? [...selectedValues, option.value]
+                      : selectedValues.filter((v: string) => v !== option.value);
+                    handleChange(newValue);
                   }}
                 />
                 <Label htmlFor={option.id} className="cursor-pointer">
@@ -158,7 +175,7 @@ function QuestionPreview({
 
       case "dropdown":
         return (
-          <SelectUI value={value} onValueChange={onChange}>
+          <SelectUI value={value} onValueChange={handleChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select an option..." />
             </SelectTrigger>
@@ -245,6 +262,7 @@ export function PublicFormPreview({ form, questions }: PublicFormPreviewProps) {
   
   // Analytics tracking
   const { trackEvent, sessionId } = useFormTracking({ formId: form.id });
+  const questionTracking = useQuestionTracking({ formId: form.id, sessionId });
   const hasTrackedStart = useRef(false);
   const isSubmittedRef = useRef(false);
 
@@ -452,6 +470,8 @@ export function PublicFormPreview({ form, questions }: PublicFormPreviewProps) {
                       handleQuestionChange(question.id, value)
                     }
                     showQuestionNumbers={form.settings?.showQuestionNumbers}
+                    onQuestionView={questionTracking.onQuestionView}
+                    onQuestionAnswer={questionTracking.onQuestionAnswer}
                   />
                   {index < questions.length - 1 && (
                     <Separator className="mt-8" />
@@ -561,6 +581,8 @@ export function PublicFormPreview({ form, questions }: PublicFormPreviewProps) {
                       handleQuestionChange(question.id, value)
                     }
                     showQuestionNumbers={form.settings?.showQuestionNumbers}
+                    onQuestionView={questionTracking.onQuestionView}
+                    onQuestionAnswer={questionTracking.onQuestionAnswer}
                   />
                 </CardContent>
               </Card>
