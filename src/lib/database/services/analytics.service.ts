@@ -30,29 +30,29 @@ function calculateDateRange(timeRange: TimeRangeFilter): DateRange {
   let start = new Date();
 
   switch (timeRange.range) {
-    case '7d':
+    case "7d":
       start.setDate(end.getDate() - 7);
       break;
-    case '30d':
+    case "30d":
       start.setDate(end.getDate() - 30);
       break;
-    case '90d':
+    case "90d":
       start.setDate(end.getDate() - 90);
       break;
-    case 'month':
+    case "month":
       start = new Date(end.getFullYear(), end.getMonth(), 1);
       break;
-    case 'last_month':
+    case "last_month":
       start = new Date(end.getFullYear(), end.getMonth() - 1, 1);
       end.setDate(0); // Last day of previous month
       break;
-    case 'custom':
+    case "custom":
       if (timeRange.customStart && timeRange.customEnd) {
         start = new Date(timeRange.customStart);
         end.setTime(new Date(timeRange.customEnd).getTime());
       }
       break;
-    case 'all':
+    case "all":
       start = new Date(0); // Beginning of time
       break;
   }
@@ -67,7 +67,7 @@ function calculatePreviousPeriod(currentRange: DateRange): DateRange {
   const duration = currentRange.end.getTime() - currentRange.start.getTime();
   const previousEnd = new Date(currentRange.start.getTime() - 1);
   const previousStart = new Date(previousEnd.getTime() - duration);
-  
+
   return { start: previousStart, end: previousEnd };
 }
 
@@ -147,48 +147,54 @@ export const analyticsService = {
       const previousRange = calculatePreviousPeriod(currentRange);
 
       // Get current period metrics
-      const [currentViews, currentResponses, currentCompletions] = await Promise.all([
-        this.countEvents(formId, 'form_viewed', currentRange),
-        this.countEvents(formId, 'form_started', currentRange),
-        supabase
-          .from("responses")
-          .select("time_spent", { count: "exact" })
-          .eq("form_id", formId)
-          .eq("status", "completed")
-          .gte("submitted_at", currentRange.start.toISOString())
-          .lte("submitted_at", currentRange.end.toISOString()),
-      ]);
+      const [currentViews, currentResponses, currentCompletions] =
+        await Promise.all([
+          this.countEvents(formId, "form_viewed", currentRange),
+          this.countEvents(formId, "form_started", currentRange),
+          supabase
+            .from("responses")
+            .select("time_spent", { count: "exact" })
+            .eq("form_id", formId)
+            .eq("status", "completed")
+            .gte("submitted_at", currentRange.start.toISOString())
+            .lte("submitted_at", currentRange.end.toISOString()),
+        ]);
 
       // Get previous period metrics
-      const [previousViews, previousResponses, previousCompletions] = await Promise.all([
-        this.countEvents(formId, 'form_viewed', previousRange),
-        this.countEvents(formId, 'form_started', previousRange),
-        supabase
-          .from("responses")
-          .select("*", { count: "exact", head: true })
-          .eq("form_id", formId)
-          .eq("status", "completed")
-          .gte("submitted_at", previousRange.start.toISOString())
-          .lte("submitted_at", previousRange.end.toISOString()),
-      ]);
+      const [previousViews, previousResponses, previousCompletions] =
+        await Promise.all([
+          this.countEvents(formId, "form_viewed", previousRange),
+          this.countEvents(formId, "form_started", previousRange),
+          supabase
+            .from("responses")
+            .select("*", { count: "exact", head: true })
+            .eq("form_id", formId)
+            .eq("status", "completed")
+            .gte("submitted_at", previousRange.start.toISOString())
+            .lte("submitted_at", previousRange.end.toISOString()),
+        ]);
 
       const totalResponses = currentCompletions.count || 0;
       const previousTotalResponses = previousCompletions.count || 0;
 
       // Calculate average time from completed responses
       const completedResponses = currentCompletions.data || [];
-      const averageTime = completedResponses.length > 0
-        ? completedResponses.reduce((sum, r) => sum + (r.time_spent || 0), 0) / completedResponses.length
-        : 0;
+      const averageTime =
+        completedResponses.length > 0
+          ? completedResponses.reduce(
+              (sum, r) => sum + (r.time_spent || 0),
+              0
+            ) / completedResponses.length
+          : 0;
 
       // Calculate completion rate
-      const completionRate = currentResponses > 0 
-        ? (totalResponses / currentResponses) * 100 
-        : 0;
-      
-      const previousCompletionRate = previousResponses > 0
-        ? (previousTotalResponses / previousResponses) * 100
-        : 0;
+      const completionRate =
+        currentResponses > 0 ? (totalResponses / currentResponses) * 100 : 0;
+
+      const previousCompletionRate =
+        previousResponses > 0
+          ? (previousTotalResponses / previousResponses) * 100
+          : 0;
 
       // Calculate previous period average time
       const { data: previousCompletedResponses } = await supabase
@@ -199,9 +205,13 @@ export const analyticsService = {
         .gte("submitted_at", previousRange.start.toISOString())
         .lte("submitted_at", previousRange.end.toISOString());
 
-      const previousAverageTime = (previousCompletedResponses && previousCompletedResponses.length > 0)
-        ? previousCompletedResponses.reduce((sum, r) => sum + (r.time_spent || 0), 0) / previousCompletedResponses.length
-        : 0;
+      const previousAverageTime =
+        previousCompletedResponses && previousCompletedResponses.length > 0
+          ? previousCompletedResponses.reduce(
+              (sum, r) => sum + (r.time_spent || 0),
+              0
+            ) / previousCompletedResponses.length
+          : 0;
 
       return {
         totalViews: currentViews,
@@ -209,9 +219,15 @@ export const analyticsService = {
         completionRate: Math.round(completionRate),
         averageTime: Math.round(averageTime),
         viewsChange: calculatePercentageChange(currentViews, previousViews),
-        responsesChange: calculatePercentageChange(totalResponses, previousTotalResponses),
+        responsesChange: calculatePercentageChange(
+          totalResponses,
+          previousTotalResponses
+        ),
         completionRateChange: completionRate - previousCompletionRate,
-        averageTimeChange: calculatePercentageChange(averageTime, previousAverageTime),
+        averageTimeChange: calculatePercentageChange(
+          averageTime,
+          previousAverageTime
+        ),
       };
     } catch (error) {
       console.error("Error in getOverviewMetrics:", error);
@@ -255,7 +271,7 @@ export const analyticsService = {
 
       // Query for daily event counts using date_trunc
       const { data: eventData, error: eventError } = await supabase.rpc(
-        'get_daily_event_counts',
+        "get_daily_event_counts",
         {
           p_form_id: formId,
           p_start_date: dateRange.start.toISOString(),
@@ -312,25 +328,37 @@ export const analyticsService = {
 
       // Process events
       events?.forEach((event) => {
-        const date = new Date(event.timestamp).toISOString().split('T')[0];
-        const existing = dataMap.get(date) || { date, views: 0, starts: 0, completions: 0 };
-        
-        if (event.event_type === 'form_viewed') existing.views++;
-        if (event.event_type === 'form_started') existing.starts++;
-        
+        const date = new Date(event.timestamp).toISOString().split("T")[0];
+        const existing = dataMap.get(date) || {
+          date,
+          views: 0,
+          starts: 0,
+          completions: 0,
+        };
+
+        if (event.event_type === "form_viewed") existing.views++;
+        if (event.event_type === "form_started") existing.starts++;
+
         dataMap.set(date, existing);
       });
 
       // Process responses
       responses?.forEach((response) => {
-        const date = new Date(response.submitted_at).toISOString().split('T')[0];
-        const existing = dataMap.get(date) || { date, views: 0, starts: 0, completions: 0 };
+        const date = new Date(response.submitted_at)
+          .toISOString()
+          .split("T")[0];
+        const existing = dataMap.get(date) || {
+          date,
+          views: 0,
+          starts: 0,
+          completions: 0,
+        };
         existing.completions++;
         dataMap.set(date, existing);
       });
 
       // Convert to array and sort by date
-      return Array.from(dataMap.values()).sort((a, b) => 
+      return Array.from(dataMap.values()).sort((a, b) =>
         a.date.localeCompare(b.date)
       );
     } catch (error) {
@@ -350,8 +378,8 @@ export const analyticsService = {
       const dateRange = calculateDateRange(timeRange);
 
       const [viewed, started, responses] = await Promise.all([
-        this.countEvents(formId, 'form_viewed', dateRange),
-        this.countEvents(formId, 'form_started', dateRange),
+        this.countEvents(formId, "form_viewed", dateRange),
+        this.countEvents(formId, "form_started", dateRange),
         supabase
           .from("responses")
           .select("completion_percentage, status", { count: "exact" })
@@ -361,31 +389,35 @@ export const analyticsService = {
       ]);
 
       const allResponses = responses.data || [];
-      const halfwayCount = allResponses.filter(r => r.completion_percentage >= 50).length;
-      const completedCount = allResponses.filter(r => r.status === 'completed').length;
+      const halfwayCount = allResponses.filter(
+        (r) => r.completion_percentage >= 50
+      ).length;
+      const completedCount = allResponses.filter(
+        (r) => r.status === "completed"
+      ).length;
 
       const stages: FunnelStage[] = [
         {
-          stage: 'viewed',
-          label: 'Form Viewed',
+          stage: "viewed",
+          label: "Form Viewed",
           count: viewed,
           percentage: 100,
         },
         {
-          stage: 'started',
-          label: 'Started',
+          stage: "started",
+          label: "Started",
           count: started,
           percentage: viewed > 0 ? (started / viewed) * 100 : 0,
         },
         {
-          stage: 'halfway',
-          label: '50% Complete',
+          stage: "halfway",
+          label: "50% Complete",
           count: halfwayCount,
           percentage: viewed > 0 ? (halfwayCount / viewed) * 100 : 0,
         },
         {
-          stage: 'completed',
-          label: 'Completed',
+          stage: "completed",
+          label: "Completed",
           count: completedCount,
           percentage: viewed > 0 ? (completedCount / viewed) * 100 : 0,
         },
@@ -426,9 +458,9 @@ export const analyticsService = {
 
       responses?.forEach((r) => {
         const device = r.device_type?.toLowerCase();
-        if (device === 'desktop') deviceCounts.desktop++;
-        else if (device === 'mobile') deviceCounts.mobile++;
-        else if (device === 'tablet') deviceCounts.tablet++;
+        if (device === "desktop") deviceCounts.desktop++;
+        else if (device === "mobile") deviceCounts.mobile++;
+        else if (device === "tablet") deviceCounts.tablet++;
       });
 
       const createStats = (count: number): DeviceStats => ({
@@ -471,15 +503,18 @@ export const analyticsService = {
 
       if (error) throw error;
 
-      const countryMap = new Map<string, { country: string; code: string; count: number }>();
+      const countryMap = new Map<
+        string,
+        { country: string; code: string; count: number }
+      >();
       const total = responses?.length || 0;
 
       responses?.forEach((r) => {
-        if (r.location && typeof r.location === 'object') {
+        if (r.location && typeof r.location === "object") {
           const location = r.location as any;
-          const country = location.country || 'Unknown';
-          const code = location.countryCode || location.country_code || 'XX';
-          
+          const country = location.country || "Unknown";
+          const code = location.countryCode || location.country_code || "XX";
+
           const existing = countryMap.get(country);
           if (existing) {
             existing.count++;
@@ -535,7 +570,7 @@ export const analyticsService = {
 
       if (responsesError) throw responsesError;
 
-      const responseIds = responses?.map(r => r.id) || [];
+      const responseIds = responses?.map((r) => r.id) || [];
       const totalResponses = responseIds.length;
 
       if (totalResponses === 0 || !questions) {
@@ -545,74 +580,386 @@ export const analyticsService = {
       // Get all answers for these responses
       const { data: answers, error: answersError } = await supabase
         .from("answers")
-        .select("question_id, answer_text, answer_number, answer_json, answer_boolean, ai_sentiment")
+        .select(
+          "question_id, answer_text, answer_number, answer_json, answer_boolean"
+        )
         .in("response_id", responseIds);
 
       if (answersError) throw answersError;
 
       // Build analytics for each question
-      const questionAnalytics: QuestionAnalytics[] = questions.map((question) => {
-        const questionAnswers = answers?.filter(a => a.question_id === question.id) || [];
-        const responseCount = questionAnswers.length;
-        const skipCount = totalResponses - responseCount;
+      const questionAnalytics: QuestionAnalytics[] = questions.map(
+        (question) => {
+          const questionAnswers =
+            answers?.filter((a) => a.question_id === question.id) || [];
+          const responseCount = questionAnswers.length;
+          const skipCount = totalResponses - responseCount;
 
-        const analytics: QuestionAnalytics = {
-          questionId: question.id,
-          questionTitle: question.title,
-          questionType: question.type,
-          responseCount,
-          skipCount,
-        };
+          const analytics: QuestionAnalytics = {
+            questionId: question.id,
+            questionTitle: question.title,
+            questionType: question.type,
+            responseCount,
+            skipCount,
+          };
 
-        // For choice-based questions, calculate option breakdown
-        const choiceTypes = ['multiple_choice', 'radio', 'dropdown', 'checkboxes'];
-        if (choiceTypes.includes(question.type) && question.options) {
-          const optionCounts = new Map<string, number>();
-          
-          questionAnswers.forEach((answer) => {
-            const value = answer.answer_text || answer.answer_json;
-            if (Array.isArray(value)) {
-              // For checkboxes (multiple selections)
-              value.forEach(v => {
-                optionCounts.set(v, (optionCounts.get(v) || 0) + 1);
-              });
-            } else if (value) {
-              optionCounts.set(String(value), (optionCounts.get(String(value)) || 0) + 1);
-            }
-          });
+          // For choice-based questions, calculate option breakdown
+          const choiceTypes = [
+            "multiple_choice",
+            "radio",
+            "dropdown",
+            "checkboxes",
+          ];
+          if (choiceTypes.includes(question.type) && question.options) {
+            const optionCounts = new Map<string, number>();
 
-          analytics.optionBreakdown = Array.from(optionCounts.entries())
-            .map(([option, count]) => ({
-              option,
-              count,
-              percentage: responseCount > 0 ? (count / responseCount) * 100 : 0,
-            }))
-            .sort((a, b) => b.count - a.count);
-        }
+            questionAnswers.forEach((answer) => {
+              const value = answer.answer_text || answer.answer_json;
+              if (Array.isArray(value)) {
+                // For checkboxes (multiple selections)
+                value.forEach((v) => {
+                  optionCounts.set(v, (optionCounts.get(v) || 0) + 1);
+                });
+              } else if (value) {
+                optionCounts.set(
+                  String(value),
+                  (optionCounts.get(String(value)) || 0) + 1
+                );
+              }
+            });
 
-        // For text questions, calculate sentiment breakdown
-        const textTypes = ['text', 'textarea', 'long_text'];
-        if (textTypes.includes(question.type)) {
-          const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
-          
-          questionAnswers.forEach((answer) => {
-            if (answer.ai_sentiment) {
-              sentimentCounts[answer.ai_sentiment as keyof typeof sentimentCounts]++;
-            }
-          });
-
-          const hasSentiment = Object.values(sentimentCounts).some(v => v > 0);
-          if (hasSentiment) {
-            analytics.sentimentBreakdown = sentimentCounts;
+            analytics.optionBreakdown = Array.from(optionCounts.entries())
+              .map(([option, count]) => ({
+                option,
+                count,
+                percentage:
+                  responseCount > 0 ? (count / responseCount) * 100 : 0,
+              }))
+              .sort((a, b) => b.count - a.count);
           }
-        }
 
-        return analytics;
-      });
+          // For text questions, calculate sentiment breakdown
+          // TODO: Sentiment analysis not yet implemented
+          // const textTypes = ['text', 'textarea', 'long_text'];
+          // if (textTypes.includes(question.type)) {
+          //   const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+          //
+          //   questionAnswers.forEach((answer) => {
+          //     if (answer.ai_sentiment) {
+          //       sentimentCounts[answer.ai_sentiment as keyof typeof sentimentCounts]++;
+          //     }
+          //   });
+          //
+          //   const hasSentiment = Object.values(sentimentCounts).some(v => v > 0);
+          //   if (hasSentiment) {
+          //     analytics.sentimentBreakdown = sentimentCounts;
+          //   }
+          // }
+
+          return analytics;
+        }
+      );
 
       return questionAnalytics;
     } catch (error) {
       console.error("Error in getQuestionAnalytics:", error);
+      return [];
+    }
+  },
+
+  /**
+   * Get detailed question analytics with interaction tracking
+   */
+  async getQuestionAnalyticsDetailed(
+    formId: string,
+    timeRange: TimeRangeFilter
+  ): Promise<import("@/lib/types/analytics").QuestionAnalyticsDetailed[]> {
+    try {
+      const dateRange = calculateDateRange(timeRange);
+
+      // Get all questions for the form
+      const { data: questions, error: questionsError } = await supabase
+        .from("questions")
+        .select("id, title, type, options, required")
+        .eq("form_id", formId)
+        .order("order_position");
+
+      if (questionsError) throw questionsError;
+      if (!questions || questions.length === 0) return [];
+
+      // Get all interactions for this form in time range
+      const { data: interactions, error: interactionsError } = await supabase
+        .from("question_interactions")
+        .select("*")
+        .eq("form_id", formId)
+        .gte("timestamp", dateRange.start.toISOString())
+        .lte("timestamp", dateRange.end.toISOString());
+
+      if (interactionsError) {
+        console.warn(
+          "Question interactions not available, falling back to basic analytics:",
+          interactionsError
+        );
+        // Fall back to basic question analytics if interactions table doesn't exist
+        return this.getQuestionAnalytics(formId, timeRange) as any;
+      }
+
+      const allInteractions = interactions || [];
+
+      // Get answers data for option breakdown and sentiment
+      const { data: responses } = await supabase
+        .from("responses")
+        .select("id")
+        .eq("form_id", formId)
+        .gte("submitted_at", dateRange.start.toISOString())
+        .lte("submitted_at", dateRange.end.toISOString());
+
+      const responseIds = responses?.map((r) => r.id) || [];
+      let answers: any[] = [];
+      if (responseIds.length > 0) {
+        const { data: answersData } = await supabase
+          .from("answers")
+          .select(
+            "question_id, answer_text, answer_number, answer_json, answer_boolean"
+          )
+          .in("response_id", responseIds);
+        answers = answersData || [];
+      }
+
+      // Build detailed analytics for each question
+      const questionAnalytics = questions.map((question) => {
+        const qInteractions = allInteractions.filter(
+          (i: any) => i.question_id === question.id
+        );
+        const qAnswers = answers.filter((a) => a.question_id === question.id);
+
+        // Time metrics
+        const answerTimes = qInteractions
+          .filter(
+            (i: any) => i.interaction_type === "answered" && i.time_to_answer
+          )
+          .map((i: any) => i.time_to_answer);
+
+        const avgTime =
+          answerTimes.length > 0
+            ? answerTimes.reduce((a: number, b: number) => a + b, 0) /
+              answerTimes.length
+            : 0;
+
+        const sortedTimes = [...answerTimes].sort((a, b) => a - b);
+        const medianTime =
+          sortedTimes.length > 0
+            ? sortedTimes[Math.floor(sortedTimes.length / 2)]
+            : 0;
+
+        // Time distribution
+        const fast = answerTimes.filter((t: number) => t < 10).length;
+        const normal = answerTimes.filter(
+          (t: number) => t >= 10 && t <= 60
+        ).length;
+        const slow = answerTimes.filter((t: number) => t > 60).length;
+
+        // Drop-off analysis
+        const viewCount = qInteractions.filter(
+          (i: any) => i.interaction_type === "viewed"
+        ).length;
+        const answerCount = qInteractions.filter(
+          (i: any) => i.interaction_type === "answered"
+        ).length;
+        const skipCount = qInteractions.filter(
+          (i: any) => i.interaction_type === "skipped"
+        ).length;
+
+        // Calculate drop-off: unique sessions that viewed but neither answered nor skipped
+        const sessionsViewed = new Set(
+          qInteractions
+            .filter((i: any) => i.interaction_type === "viewed")
+            .map((i: any) => i.session_id)
+        );
+        const sessionsCompleted = new Set(
+          qInteractions
+            .filter((i: any) =>
+              ["answered", "skipped"].includes(i.interaction_type)
+            )
+            .map((i: any) => i.session_id)
+        );
+        const dropOffCount = sessionsViewed.size - sessionsCompleted.size;
+
+        // Skip reasons analysis
+        const skipReasonMap = new Map<string, number>();
+        qInteractions
+          .filter((i: any) => i.interaction_type === "skipped" && i.skip_reason)
+          .forEach((i: any) => {
+            skipReasonMap.set(
+              i.skip_reason,
+              (skipReasonMap.get(i.skip_reason) || 0) + 1
+            );
+          });
+
+        const skipReasons = Array.from(skipReasonMap.entries()).map(
+          ([reason, count]) => ({
+            reason,
+            count,
+            percentage: skipCount > 0 ? (count / skipCount) * 100 : 0,
+          })
+        );
+
+        // Edit count analysis
+        const editCounts = qInteractions
+          .filter(
+            (i: any) => i.interaction_type === "answered" && i.edit_count > 0
+          )
+          .map((i: any) => i.edit_count);
+        const avgEditCount =
+          editCounts.length > 0
+            ? editCounts.reduce((a: number, b: number) => a + b, 0) /
+              editCounts.length
+            : 0;
+
+        // Validation error rate
+        const withErrors = qInteractions.filter(
+          (i: any) => i.validation_errors > 0
+        ).length;
+        const validationErrorRate =
+          qInteractions.length > 0
+            ? (withErrors / qInteractions.length) * 100
+            : 0;
+
+        // Retry distribution
+        const firstTry = editCounts.filter((c: number) => c === 0).length;
+        const fewRetries = editCounts.filter(
+          (c: number) => c >= 1 && c <= 3
+        ).length;
+        const manyRetries = editCounts.filter((c: number) => c > 3).length;
+
+        // Navigation patterns
+        const forward = qInteractions.filter(
+          (i: any) => i.navigation_direction === "forward"
+        ).length;
+        const backward = qInteractions.filter(
+          (i: any) => i.navigation_direction === "backward"
+        ).length;
+        const jump = qInteractions.filter(
+          (i: any) => i.navigation_direction === "jump"
+        ).length;
+
+        // Position analysis
+        const positions = qInteractions
+          .filter((i: any) => i.question_order)
+          .map((i: any) => i.question_order);
+        const avgPosition =
+          positions.length > 0
+            ? positions.reduce((a: number, b: number) => a + b, 0) /
+              positions.length
+            : 0;
+
+        // Calculate variance
+        const variance =
+          positions.length > 1
+            ? positions.reduce(
+                (sum: number, pos: number) =>
+                  sum + Math.pow(pos - avgPosition, 2),
+                0
+              ) / positions.length
+            : 0;
+
+        // Option breakdown (for choice questions)
+        let optionBreakdown: any[] | undefined;
+        const choiceTypes = [
+          "multiple_choice",
+          "radio",
+          "dropdown",
+          "checkboxes",
+        ];
+        if (choiceTypes.includes(question.type) && question.options) {
+          const optionCounts = new Map<string, number>();
+
+          qAnswers.forEach((answer) => {
+            const value = answer.answer_text || answer.answer_json;
+            if (Array.isArray(value)) {
+              value.forEach((v) => {
+                optionCounts.set(v, (optionCounts.get(v) || 0) + 1);
+              });
+            } else if (value) {
+              optionCounts.set(
+                String(value),
+                (optionCounts.get(String(value)) || 0) + 1
+              );
+            }
+          });
+
+          optionBreakdown = Array.from(optionCounts.entries())
+            .map(([option, count]) => ({
+              option,
+              count,
+              percentage:
+                qAnswers.length > 0 ? (count / qAnswers.length) * 100 : 0,
+            }))
+            .sort((a, b) => b.count - a.count);
+        }
+
+        // Sentiment breakdown (for text questions)
+        // TODO: Sentiment analysis not yet implemented
+        let sentimentBreakdown: any | undefined;
+        // const textTypes = ['text', 'textarea', 'long_text'];
+        // if (textTypes.includes(question.type)) {
+        //   const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+        //
+        //   qAnswers.forEach((answer) => {
+        //     if (answer.ai_sentiment && answer.ai_sentiment in sentimentCounts) {
+        //       sentimentCounts[answer.ai_sentiment as keyof typeof sentimentCounts]++;
+        //     }
+        //   });
+        //
+        //   const hasSentiment = Object.values(sentimentCounts).some(v => v > 0);
+        //   if (hasSentiment) {
+        //     sentimentBreakdown = sentimentCounts;
+        //   }
+        // }
+
+        return {
+          questionId: question.id,
+          questionTitle: question.title,
+          questionType: question.type,
+          responseCount: answerCount,
+          skipCount,
+          averageTime: avgTime,
+          // Detailed metrics
+          averageTimeToAnswer: avgTime,
+          medianTimeToAnswer: medianTime,
+          timeDistribution: {
+            fast,
+            normal,
+            slow,
+          },
+          viewCount,
+          answerCount,
+          dropOffCount,
+          dropOffRate: viewCount > 0 ? (dropOffCount / viewCount) * 100 : 0,
+          skipRate: viewCount > 0 ? (skipCount / viewCount) * 100 : 0,
+          skipReasons,
+          averageEditCount: avgEditCount,
+          validationErrorRate,
+          retryDistribution: {
+            firstTry,
+            fewRetries,
+            manyRetries,
+          },
+          navigationPatterns: {
+            forward,
+            backward,
+            jump,
+          },
+          averagePosition: avgPosition,
+          positionVariance: variance,
+          optionBreakdown,
+          sentimentBreakdown,
+        };
+      });
+
+      return questionAnalytics;
+    } catch (error) {
+      console.error("Error in getQuestionAnalyticsDetailed:", error);
       return [];
     }
   },
@@ -635,14 +982,15 @@ export const analyticsService = {
       if (formError) throw formError;
 
       // Fetch all analytics in parallel
-      const [overview, trends, funnel, devices, geography, questions] = await Promise.all([
-        this.getOverviewMetrics(formId, timeRange),
-        this.getTrendData(formId, timeRange),
-        this.getFunnelData(formId, timeRange),
-        this.getDeviceBreakdown(formId, timeRange),
-        this.getGeographicData(formId, timeRange),
-        this.getQuestionAnalytics(formId, timeRange),
-      ]);
+      const [overview, trends, funnel, devices, geography, questions] =
+        await Promise.all([
+          this.getOverviewMetrics(formId, timeRange),
+          this.getTrendData(formId, timeRange),
+          this.getFunnelData(formId, timeRange),
+          this.getDeviceBreakdown(formId, timeRange),
+          this.getGeographicData(formId, timeRange),
+          this.getQuestionAnalytics(formId, timeRange),
+        ]);
 
       return {
         formId,
@@ -679,8 +1027,9 @@ export const analyticsService = {
 
       if (formsError) throw formsError;
 
-      const formIds = forms?.map(f => f.id) || [];
-      const activeForms = forms?.filter(f => f.status === 'published').length || 0;
+      const formIds = forms?.map((f) => f.id) || [];
+      const activeForms =
+        forms?.filter((f) => f.status === "published").length || 0;
 
       if (formIds.length === 0) {
         // Return empty analytics
@@ -722,9 +1071,11 @@ export const analyticsService = {
         .lte("submitted_at", dateRange.end.toISOString());
 
       // Calculate metrics
-      const averageTime = responses && responses.length > 0
-        ? responses.reduce((sum, r) => sum + (r.time_spent || 0), 0) / responses.length
-        : 0;
+      const averageTime =
+        responses && responses.length > 0
+          ? responses.reduce((sum, r) => sum + (r.time_spent || 0), 0) /
+            responses.length
+          : 0;
 
       const { count: starts } = await supabase
         .from("analytics_events")
@@ -734,9 +1085,8 @@ export const analyticsService = {
         .gte("timestamp", dateRange.start.toISOString())
         .lte("timestamp", dateRange.end.toISOString());
 
-      const completionRate = starts && starts > 0 
-        ? ((totalResponses || 0) / starts) * 100 
-        : 0;
+      const completionRate =
+        starts && starts > 0 ? ((totalResponses || 0) / starts) * 100 : 0;
 
       // Get previous period for comparison
       const previousRange = calculatePreviousPeriod(dateRange);
@@ -777,15 +1127,15 @@ export const analyticsService = {
 
       // Get aggregated trends
       const trendsMap = new Map<string, TrendDataPoint>();
-      
+
       for (const formId of formIds) {
         const formTrends = await this.getTrendData(formId, timeRange);
         formTrends.forEach((point) => {
-          const existing = trendsMap.get(point.date) || { 
-            date: point.date, 
-            views: 0, 
-            starts: 0, 
-            completions: 0 
+          const existing = trendsMap.get(point.date) || {
+            date: point.date,
+            views: 0,
+            starts: 0,
+            completions: 0,
           };
           existing.views += point.views;
           existing.starts += point.starts;
@@ -794,7 +1144,7 @@ export const analyticsService = {
         });
       }
 
-      const trends = Array.from(trendsMap.values()).sort((a, b) => 
+      const trends = Array.from(trendsMap.values()).sort((a, b) =>
         a.date.localeCompare(b.date)
       );
 
@@ -805,8 +1155,14 @@ export const analyticsService = {
           totalResponses: totalResponses || 0,
           completionRate: Math.round(completionRate),
           averageTime: Math.round(averageTime),
-          viewsChange: calculatePercentageChange(totalViews || 0, previousViews || 0),
-          responsesChange: calculatePercentageChange(totalResponses || 0, previousResponses || 0),
+          viewsChange: calculatePercentageChange(
+            totalViews || 0,
+            previousViews || 0
+          ),
+          responsesChange: calculatePercentageChange(
+            totalResponses || 0,
+            previousResponses || 0
+          ),
           completionRateChange: 0, // Could calculate if needed
           averageTimeChange: 0, // Could calculate if needed
         },
@@ -821,4 +1177,3 @@ export const analyticsService = {
     }
   },
 };
-

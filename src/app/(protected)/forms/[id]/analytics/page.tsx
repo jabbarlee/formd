@@ -18,6 +18,14 @@ import {
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import {
   TrendingUp,
   Users,
   Clock,
@@ -28,23 +36,39 @@ import {
   Loader2,
   BarChart3,
   HelpCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { AnalyticsHeader } from "@/components/layout/headers";
 import { ResponseTrendChart } from "@/components/charts/ResponseTrendChart";
 import { TimeRangeSelector } from "@/components/analytics/TimeRangeSelector";
 import { MetricCard } from "@/components/analytics/MetricCard";
-import { useFormAnalytics } from "@/hooks/useAnalytics";
+import { DetailedQuestionMetrics } from "@/components/analytics/DetailedQuestionMetrics";
+import {
+  useFormAnalytics,
+  useQuestionAnalyticsDetailed,
+} from "@/hooks/useAnalytics";
 import { TimeRangeFilter } from "@/lib/types/analytics";
 
 export default function FormAnalyticsPage() {
   const params = useParams();
   const formId = params.id as string;
   const [timeRange, setTimeRange] = useState<TimeRangeFilter>({ range: "30d" });
+  const [questionViewMode, setQuestionViewMode] = useState<"all" | "paginated">(
+    "all"
+  );
+  const [currentQuestionPage, setCurrentQuestionPage] = useState(1);
+  const questionsPerPage = 1;
+
   const {
     data: analytics,
     loading,
     error,
   } = useFormAnalytics(formId, timeRange);
+
+  // Fetch detailed question analytics separately
+  const { data: detailedQuestions, loading: questionsLoading } =
+    useQuestionAnalyticsDetailed(formId, timeRange);
 
   // Helper function to format time in minutes
   const formatTime = (seconds: number): string => {
@@ -147,20 +171,20 @@ export default function FormAnalyticsPage() {
             {/* Chart Sections */}
             <Tabs defaultValue="overview" className="w-full">
               <TabsList>
-                <TabsTrigger value="overview">
-                  <BarChart3 className="h-4 w-4 mr-2" />
+                <TabsTrigger value="overview" className="pl-4 pr-4">
+                  <BarChart3 className="h-4 w-4" />
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="devices">
-                  <Monitor className="h-4 w-4 mr-2" />
+                <TabsTrigger value="devices" className="pl-4 pr-4">
+                  <Monitor className="h-4 w-4" />
                   Devices
                 </TabsTrigger>
-                <TabsTrigger value="geography">
-                  <Globe className="h-4 w-4 mr-2" />
+                <TabsTrigger value="geography" className="pl-4 pr-4">
+                  <Globe className="h-4 w-4" />
                   Geography
                 </TabsTrigger>
-                <TabsTrigger value="questions">
-                  <HelpCircle className="h-4 w-4 mr-2" />
+                <TabsTrigger value="questions" className="pl-4 pr-4">
+                  <HelpCircle className="h-4 w-4" />
                   Questions
                 </TabsTrigger>
               </TabsList>
@@ -346,101 +370,410 @@ export default function FormAnalyticsPage() {
 
               {/* Questions Tab */}
               <TabsContent value="questions" className="space-y-4 mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Question-by-Question Analytics</CardTitle>
-                    <CardDescription>
-                      Detailed breakdown for each question
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {analytics.questions.length > 0 ? (
-                      <Accordion type="single" collapsible className="w-full">
-                        {analytics.questions.map((question, index) => (
-                          <AccordionItem
-                            key={question.questionId}
-                            value={question.questionId}
-                          >
-                            <AccordionTrigger>
-                              <div className="flex items-center justify-between w-full pr-4">
-                                <span className="font-medium">
-                                  Q{index + 1}: {question.questionTitle}
-                                </span>
-                                <Badge variant="secondary">
-                                  {question.responseCount} responses
-                                </Badge>
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <div className="space-y-3 pt-2">
-                                {question.optionBreakdown &&
-                                  question.optionBreakdown.length > 0 && (
-                                    <>
-                                      {question.optionBreakdown.map(
-                                        (option, i) => (
-                                          <div key={i}>
-                                            <div className="flex items-center justify-between mb-2">
-                                              <span className="text-sm">
-                                                {option.option}
-                                              </span>
-                                              <span className="text-sm text-muted-foreground">
-                                                {option.count} (
-                                                {option.percentage.toFixed(0)}%)
-                                              </span>
-                                            </div>
-                                            <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                              <div
-                                                className="h-full bg-indigo-600"
-                                                style={{
-                                                  width: `${option.percentage}%`,
-                                                }}
-                                              />
-                                            </div>
-                                          </div>
-                                        )
-                                      )}
-                                    </>
-                                  )}
-
-                                {question.sentimentBreakdown && (
-                                  <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                                    <p className="text-sm font-medium mb-2">
-                                      Sentiment Analysis
-                                    </p>
-                                    <div className="flex gap-4 text-sm">
-                                      <span className="text-emerald-600">
-                                        Positive:{" "}
-                                        {question.sentimentBreakdown.positive}
-                                      </span>
-                                      <span className="text-muted-foreground">
-                                        Neutral:{" "}
-                                        {question.sentimentBreakdown.neutral}
-                                      </span>
-                                      <span className="text-red-600">
-                                        Negative:{" "}
-                                        {question.sentimentBreakdown.negative}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {question.skipCount > 0 && (
-                                  <p className="text-sm text-muted-foreground mt-2">
-                                    Skipped by {question.skipCount} respondents
-                                  </p>
-                                )}
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p>No question data available</p>
+                {questionsLoading ? (
+                  <Card>
+                    <CardContent className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </CardContent>
+                  </Card>
+                ) : detailedQuestions && detailedQuestions.length > 0 ? (
+                  <>
+                    {/* View Mode Selector */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          View Mode:
+                        </span>
+                        <Select
+                          value={questionViewMode}
+                          onValueChange={(value: "all" | "paginated") => {
+                            setQuestionViewMode(value);
+                            setCurrentQuestionPage(1);
+                          }}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select view mode" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Questions</SelectItem>
+                            <SelectItem value="paginated">
+                              One by One
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
+                      {questionViewMode === "paginated" && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">
+                            Question {currentQuestionPage} of{" "}
+                            {detailedQuestions.length}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Questions Display */}
+                    <div className="flex flex-col items-center">
+                      <DetailedQuestionMetrics
+                        questions={
+                          questionViewMode === "all"
+                            ? detailedQuestions
+                            : detailedQuestions.slice(
+                                (currentQuestionPage - 1) * questionsPerPage,
+                                currentQuestionPage * questionsPerPage
+                              )
+                        }
+                      />
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {questionViewMode === "paginated" &&
+                      detailedQuestions.length > 1 && (
+                        <div className="flex items-center justify-center gap-2 mt-6">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setCurrentQuestionPage(
+                                Math.max(1, currentQuestionPage - 1)
+                              )
+                            }
+                            disabled={currentQuestionPage === 1}
+                          >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Previous
+                          </Button>
+
+                          {/* Breadcrumb Navigation */}
+                          <div className="flex items-center gap-1">
+                            {Array.from(
+                              { length: detailedQuestions.length },
+                              (_, i) => i + 1
+                            ).map((page) => {
+                              // Show first, last, current, and nearby pages
+                              const shouldShow =
+                                page === 1 ||
+                                page === detailedQuestions.length ||
+                                Math.abs(page - currentQuestionPage) <= 1;
+
+                              const shouldShowEllipsis =
+                                (page === 2 && currentQuestionPage > 3) ||
+                                (page === detailedQuestions.length - 1 &&
+                                  currentQuestionPage <
+                                    detailedQuestions.length - 2);
+
+                              if (shouldShowEllipsis) {
+                                return (
+                                  <span
+                                    key={page}
+                                    className="px-2 text-muted-foreground"
+                                  >
+                                    ...
+                                  </span>
+                                );
+                              }
+
+                              if (!shouldShow) {
+                                return null;
+                              }
+
+                              return (
+                                <Button
+                                  key={page}
+                                  variant={
+                                    page === currentQuestionPage
+                                      ? "default"
+                                      : "outline"
+                                  }
+                                  size="sm"
+                                  className="w-8 h-8 p-0"
+                                  onClick={() => setCurrentQuestionPage(page)}
+                                >
+                                  {page}
+                                </Button>
+                              );
+                            })}
+                          </div>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setCurrentQuestionPage(
+                                Math.min(
+                                  detailedQuestions.length,
+                                  currentQuestionPage + 1
+                                )
+                              )
+                            }
+                            disabled={
+                              currentQuestionPage === detailedQuestions.length
+                            }
+                          >
+                            Next
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                          </Button>
+                        </div>
+                      )}
+                  </>
+                ) : analytics?.questions && analytics.questions.length > 0 ? (
+                  <>
+                    {/* View Mode Selector */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          View Mode:
+                        </span>
+                        <Select
+                          value={questionViewMode}
+                          onValueChange={(value: "all" | "paginated") => {
+                            setQuestionViewMode(value);
+                            setCurrentQuestionPage(1);
+                          }}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select view mode" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Questions</SelectItem>
+                            <SelectItem value="paginated">
+                              One by One
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {questionViewMode === "paginated" && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">
+                            Question {currentQuestionPage} of{" "}
+                            {analytics.questions.length}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Fallback to basic question analytics if detailed not available */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Question-by-Question Analytics</CardTitle>
+                        <CardDescription>
+                          Detailed breakdown for each question
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Accordion type="single" collapsible className="w-full">
+                          {(questionViewMode === "all"
+                            ? analytics.questions
+                            : analytics.questions.slice(
+                                (currentQuestionPage - 1) * questionsPerPage,
+                                currentQuestionPage * questionsPerPage
+                              )
+                          ).map((question, index) => {
+                            const actualIndex =
+                              questionViewMode === "all"
+                                ? index
+                                : (currentQuestionPage - 1) * questionsPerPage +
+                                  index;
+                            return (
+                              <AccordionItem
+                                key={question.questionId}
+                                value={question.questionId}
+                              >
+                                <AccordionTrigger>
+                                  <div className="flex items-center justify-between w-full pr-4">
+                                    <span className="font-medium">
+                                      Q{actualIndex + 1}:{" "}
+                                      {question.questionTitle}
+                                    </span>
+                                    <Badge variant="secondary">
+                                      {question.responseCount} responses
+                                    </Badge>
+                                  </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                  <div className="space-y-3 pt-2">
+                                    {question.optionBreakdown &&
+                                      question.optionBreakdown.length > 0 && (
+                                        <>
+                                          {question.optionBreakdown.map(
+                                            (option, i) => (
+                                              <div key={i}>
+                                                <div className="flex items-center justify-between mb-2">
+                                                  <span className="text-sm">
+                                                    {option.option}
+                                                  </span>
+                                                  <span className="text-sm text-muted-foreground">
+                                                    {option.count} (
+                                                    {option.percentage.toFixed(
+                                                      0
+                                                    )}
+                                                    %)
+                                                  </span>
+                                                </div>
+                                                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                                  <div
+                                                    className="h-full bg-indigo-600"
+                                                    style={{
+                                                      width: `${option.percentage}%`,
+                                                    }}
+                                                  />
+                                                </div>
+                                              </div>
+                                            )
+                                          )}
+                                        </>
+                                      )}
+
+                                    {question.sentimentBreakdown && (
+                                      <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                                        <p className="text-sm font-medium mb-2">
+                                          Sentiment Analysis
+                                        </p>
+                                        <div className="flex gap-4 text-sm">
+                                          <span className="text-emerald-600">
+                                            Positive:{" "}
+                                            {
+                                              question.sentimentBreakdown
+                                                .positive
+                                            }
+                                          </span>
+                                          <span className="text-muted-foreground">
+                                            Neutral:{" "}
+                                            {
+                                              question.sentimentBreakdown
+                                                .neutral
+                                            }
+                                          </span>
+                                          <span className="text-red-600">
+                                            Negative:{" "}
+                                            {
+                                              question.sentimentBreakdown
+                                                .negative
+                                            }
+                                          </span>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {question.skipCount > 0 && (
+                                      <p className="text-sm text-muted-foreground mt-2">
+                                        Skipped by {question.skipCount}{" "}
+                                        respondents
+                                      </p>
+                                    )}
+                                  </div>
+                                </AccordionContent>
+                              </AccordionItem>
+                            );
+                          })}
+                        </Accordion>
+                      </CardContent>
+                    </Card>
+
+                    {/* Pagination Controls */}
+                    {questionViewMode === "paginated" &&
+                      analytics.questions.length > 1 && (
+                        <div className="flex items-center justify-center gap-2 mt-6">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setCurrentQuestionPage(
+                                Math.max(1, currentQuestionPage - 1)
+                              )
+                            }
+                            disabled={currentQuestionPage === 1}
+                          >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Previous
+                          </Button>
+
+                          {/* Breadcrumb Navigation */}
+                          <div className="flex items-center gap-1">
+                            {Array.from(
+                              { length: analytics.questions.length },
+                              (_, i) => i + 1
+                            ).map((page) => {
+                              // Show first, last, current, and nearby pages
+                              const shouldShow =
+                                page === 1 ||
+                                page === analytics.questions.length ||
+                                Math.abs(page - currentQuestionPage) <= 1;
+
+                              const shouldShowEllipsis =
+                                (page === 2 && currentQuestionPage > 3) ||
+                                (page === analytics.questions.length - 1 &&
+                                  currentQuestionPage <
+                                    analytics.questions.length - 2);
+
+                              if (shouldShowEllipsis) {
+                                return (
+                                  <span
+                                    key={page}
+                                    className="px-2 text-muted-foreground"
+                                  >
+                                    ...
+                                  </span>
+                                );
+                              }
+
+                              if (!shouldShow) {
+                                return null;
+                              }
+
+                              return (
+                                <Button
+                                  key={page}
+                                  variant={
+                                    page === currentQuestionPage
+                                      ? "default"
+                                      : "outline"
+                                  }
+                                  size="sm"
+                                  className="w-8 h-8 p-0"
+                                  onClick={() => setCurrentQuestionPage(page)}
+                                >
+                                  {page}
+                                </Button>
+                              );
+                            })}
+                          </div>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setCurrentQuestionPage(
+                                Math.min(
+                                  analytics.questions.length,
+                                  currentQuestionPage + 1
+                                )
+                              )
+                            }
+                            disabled={
+                              currentQuestionPage === analytics.questions.length
+                            }
+                          >
+                            Next
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                          </Button>
+                        </div>
+                      )}
+                  </>
+                ) : (
+                  <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                      <TrendingUp className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">
+                        No Question Data Yet
+                      </h3>
+                      <p className="text-muted-foreground text-center max-w-md">
+                        Question analytics will appear here once your form
+                        starts receiving responses.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
             </Tabs>
           </>

@@ -184,6 +184,95 @@ export interface WorkspaceAnalytics {
 }
 
 // ============================================================================
+// Question Interaction Types (Detailed Tracking)
+// ============================================================================
+
+export type QuestionInteractionType = 
+  | 'viewed'
+  | 'focused'
+  | 'answered'
+  | 'skipped'
+  | 'edited'
+  | 'validation_error';
+
+export interface QuestionInteraction {
+  id: string;
+  formId: string;
+  questionId: string;
+  responseId?: string;
+  sessionId: string;
+  interactionType: QuestionInteractionType;
+  questionOrder?: number;
+  timeToAnswer?: number;
+  timeOnQuestion?: number;
+  editCount: number;
+  validationErrors: number;
+  isSkipped: boolean;
+  skipReason?: string;
+  answerValue?: any;
+  cameFromQuestionId?: string;
+  navigationDirection?: 'forward' | 'backward' | 'jump';
+  timestamp: string;
+}
+
+// ============================================================================
+// Detailed Question Analytics
+// ============================================================================
+
+export interface TimeDistribution {
+  fast: number; // < 10s
+  normal: number; // 10-60s
+  slow: number; // > 60s
+}
+
+export interface SkipReason {
+  reason: string;
+  count: number;
+  percentage: number;
+}
+
+export interface RetryDistribution {
+  firstTry: number; // Got it right first time
+  fewRetries: number; // 2-3 attempts
+  manyRetries: number; // 4+ attempts
+}
+
+export interface NavigationPatterns {
+  forward: number; // Came from previous question
+  backward: number; // Went back and re-answered
+  jump: number; // Jumped from elsewhere
+}
+
+export interface QuestionAnalyticsDetailed extends QuestionAnalytics {
+  // Time metrics
+  averageTimeToAnswer: number; // seconds
+  medianTimeToAnswer: number;
+  timeDistribution: TimeDistribution;
+  
+  // Drop-off metrics
+  viewCount: number; // How many times question was viewed
+  answerCount: number; // How many times answered
+  dropOffCount: number; // Viewed but form abandoned after
+  dropOffRate: number; // Percentage who abandoned at this question
+  
+  // Skip analysis
+  skipRate: number; // Percentage who skipped (for optional questions)
+  skipReasons: SkipReason[];
+  
+  // Answer quality
+  averageEditCount: number; // How many times users edit their answer
+  validationErrorRate: number; // Percentage who had validation errors
+  retryDistribution: RetryDistribution;
+  
+  // Navigation patterns
+  navigationPatterns: NavigationPatterns;
+  
+  // Sequence insights
+  averagePosition: number; // Average order this question was answered in
+  positionVariance: number; // How much order varies (for non-linear forms)
+}
+
+// ============================================================================
 // Export Types
 // ============================================================================
 

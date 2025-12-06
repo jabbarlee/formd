@@ -45,7 +45,8 @@ export function useFormAnalytics(
       const analytics = await analyticsApi.getFormAnalytics(formId, timeRange);
       setData(analytics);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error("Failed to fetch analytics");
+      const error =
+        err instanceof Error ? err : new Error("Failed to fetch analytics");
       setError(error);
       console.error("Error fetching form analytics:", error);
     } finally {
@@ -89,7 +90,8 @@ export function useAnalyticsOverview(
       const metrics = await analyticsApi.getOverviewMetrics(formId, timeRange);
       setData(metrics);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error("Failed to fetch metrics");
+      const error =
+        err instanceof Error ? err : new Error("Failed to fetch metrics");
       setError(error);
       console.error("Error fetching overview metrics:", error);
     } finally {
@@ -133,7 +135,8 @@ export function useAnalyticsTrends(
       const trends = await analyticsApi.getTrendData(formId, timeRange);
       setData(trends);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error("Failed to fetch trends");
+      const error =
+        err instanceof Error ? err : new Error("Failed to fetch trends");
       setError(error);
       console.error("Error fetching trend data:", error);
     } finally {
@@ -174,12 +177,84 @@ export function useQuestionAnalytics(
     setError(null);
 
     try {
-      const questions = await analyticsApi.getQuestionAnalytics(formId, timeRange);
+      const questions = await analyticsApi.getQuestionAnalytics(
+        formId,
+        timeRange
+      );
       setData(questions);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error("Failed to fetch question analytics");
+      const error =
+        err instanceof Error
+          ? err
+          : new Error("Failed to fetch question analytics");
       setError(error);
       console.error("Error fetching question analytics:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [formId, timeRange]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return {
+    data,
+    loading,
+    error,
+    refetch: fetchData,
+  };
+}
+
+/**
+ * Hook for fetching detailed question analytics with interaction tracking
+ */
+export function useQuestionAnalyticsDetailed(
+  formId: string | undefined,
+  timeRange: TimeRangeFilter
+): UseAnalyticsState<
+  import("@/lib/types/analytics").QuestionAnalyticsDetailed[]
+> {
+  const [data, setData] = useState<
+    import("@/lib/types/analytics").QuestionAnalyticsDetailed[] | null
+  >(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchData = useCallback(async () => {
+    if (!formId) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("[useQuestionAnalyticsDetailed] Fetching for form:", formId);
+      const questions = await analyticsApi.getQuestionAnalyticsDetailed(
+        formId,
+        timeRange
+      );
+      console.log(
+        "[useQuestionAnalyticsDetailed] Received",
+        questions?.length || 0,
+        "questions"
+      );
+      if (questions && questions.length > 0) {
+        console.log(
+          "[useQuestionAnalyticsDetailed] Sample question data:",
+          questions[0]
+        );
+      }
+      setData(questions);
+    } catch (err) {
+      const error =
+        err instanceof Error
+          ? err
+          : new Error("Failed to fetch detailed question analytics");
+      setError(error);
+      console.error("[useQuestionAnalyticsDetailed] Error:", error);
     } finally {
       setLoading(false);
     }
@@ -215,7 +290,10 @@ export function useWorkspaceAnalytics(
       const analytics = await analyticsApi.getWorkspaceAnalytics(timeRange);
       setData(analytics);
     } catch (err) {
-      const error = err instanceof Error ? err : new Error("Failed to fetch workspace analytics");
+      const error =
+        err instanceof Error
+          ? err
+          : new Error("Failed to fetch workspace analytics");
       setError(error);
       console.error("Error fetching workspace analytics:", error);
     } finally {
@@ -234,4 +312,3 @@ export function useWorkspaceAnalytics(
     refetch: fetchData,
   };
 }
-

@@ -66,7 +66,12 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       return errorResponse(error.message, 400);
     }
 
-    const questions = await analyticsService.getQuestionAnalytics(formId, timeRange);
+    // Check if detailed param is set to use enhanced analytics
+    const useDetailed = request.nextUrl.searchParams.get('detailed') === 'true';
+    
+    const questions = useDetailed
+      ? await analyticsService.getQuestionAnalyticsDetailed(formId, timeRange)
+      : await analyticsService.getQuestionAnalytics(formId, timeRange);
 
     return NextResponse.json(questions, { status: 200 });
   } catch (error: any) {
