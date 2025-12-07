@@ -44,16 +44,20 @@ export function MetricCard({
       gradientFrom
     )}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className={cn("rounded-full p-2", iconBgColor)}>
-          <Icon className={cn("h-4 w-4", iconColor)} />
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <div className={cn("rounded-full p-2.5", iconBgColor)}>
+          <Icon className={cn("h-5 w-5", iconColor)} />
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+      <CardContent className="space-y-2">
+        <div className={cn("text-4xl font-bold tracking-tight", iconColor)}>
+          {value}
+        </div>
         {change !== undefined && (
           <p className={cn(
-            "text-xs font-medium flex items-center gap-1 mt-1",
+            "text-xs font-medium flex items-center gap-1",
             isPositive && "text-emerald-600",
             isNegative && "text-red-600",
             isNeutral && "text-muted-foreground"
