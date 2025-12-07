@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   TrendingUp,
   Users,
   Clock,
@@ -22,25 +29,38 @@ import {
   BarChart3,
   HelpCircle,
 } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { AnalyticsHeader } from "@/components/layout/headers";
 import { ResponseTrendChart } from "@/components/charts/ResponseTrendChart";
 import { MetricCard } from "@/components/analytics/MetricCard";
-import {
-  useFormAnalytics,
-} from "@/hooks/useAnalytics";
+import { useFormAnalytics } from "@/hooks/useAnalytics";
 import { TimeRangeFilter } from "@/lib/types/analytics";
 
 export default function FormAnalyticsPage() {
   const params = useParams();
   const formId = params.id as string;
   const [timeRange, setTimeRange] = useState<TimeRangeFilter>({ range: "30d" });
+  const [funnelChartType, setFunnelChartType] = useState<
+    "bars" | "pie" | "bar"
+  >("bars");
 
   const {
     data: analytics,
     loading,
     error,
   } = useFormAnalytics(formId, timeRange);
-
 
   // Helper function to format time in minutes
   const formatTime = (seconds: number): string => {
@@ -176,37 +196,143 @@ export default function FormAnalyticsPage() {
                   {/* Completion Funnel */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Completion Funnel</CardTitle>
-                      <CardDescription>Drop-off at each stage</CardDescription>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <CardTitle>Completion Funnel</CardTitle>
+                          <CardDescription>
+                            Drop-off at each stage
+                          </CardDescription>
+                        </div>
+                        <Select
+                          value={funnelChartType}
+                          onValueChange={(value: "bars" | "pie" | "bar") =>
+                            setFunnelChartType(value)
+                          }
+                        >
+                          <SelectTrigger className="w-[140px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="bars">Progress Bars</SelectItem>
+                            <SelectItem value="pie">Pie Chart</SelectItem>
+                            <SelectItem value="bar">Bar Chart</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
-                        {analytics.funnel.map((stage, index) => (
-                          <div key={stage.stage}>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium">
-                                {stage.label}
-                              </span>
-                              <span className="text-sm text-muted-foreground">
-                                {stage.count.toLocaleString()} (
-                                {stage.percentage.toFixed(0)}%)
-                              </span>
+                      {funnelChartType === "bars" && (
+                        <div className="space-y-4">
+                          {analytics.funnel.map((stage, index) => (
+                            <div key={stage.stage}>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium">
+                                  {stage.label}
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                  {stage.count.toLocaleString()} (
+                                  {stage.percentage.toFixed(0)}%)
+                                </span>
+                              </div>
+                              <div className="h-3 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full shadow-sm ${
+                                    index === 0
+                                      ? "bg-gradient-to-r from-blue-500 to-blue-600"
+                                      : index === analytics.funnel.length - 1
+                                      ? "bg-gradient-to-r from-emerald-500 to-emerald-600"
+                                      : "bg-gradient-to-r from-violet-500 to-violet-600"
+                                  }`}
+                                  style={{ width: `${stage.percentage}%` }}
+                                />
+                              </div>
                             </div>
-                            <div className="h-3 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className={`h-full shadow-sm ${
-                                  index === 0
-                                    ? "bg-gradient-to-r from-blue-500 to-blue-600"
-                                    : index === analytics.funnel.length - 1
-                                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600"
-                                    : "bg-gradient-to-r from-violet-500 to-violet-600"
-                                }`}
-                                style={{ width: `${stage.percentage}%` }}
+                          ))}
+                        </div>
+                      )}
+
+                      {funnelChartType === "pie" && (
+                        <div className="h-[250px] w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={analytics.funnel.map((stage) => ({
+                                  name: stage.label,
+                                  value: stage.count,
+                                  percentage: stage.percentage,
+                                }))}
+                                dataKey="value"
+                                nameKey="name"
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={80}
+                                label={(entry: any) =>
+                                  `${entry.name}: ${entry.percentage.toFixed(
+                                    0
+                                  )}%`
+                                }
+                              >
+                                {analytics.funnel.map((entry, index) => {
+                                  const colors = [
+                                    "#3b82f6",
+                                    "#8b5cf6",
+                                    "#10b981",
+                                  ];
+                                  return (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={colors[index % colors.length]}
+                                    />
+                                  );
+                                })}
+                              </Pie>
+                              <Tooltip
+                                formatter={(value: number) =>
+                                  value.toLocaleString()
+                                }
                               />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                              <Legend />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
+
+                      {funnelChartType === "bar" && (
+                        <div className="h-[250px] w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={analytics.funnel}>
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis dataKey="label" />
+                              <YAxis />
+                              <Tooltip
+                                formatter={(value: number) =>
+                                  value.toLocaleString()
+                                }
+                              />
+                              <Legend />
+                              <Bar
+                                dataKey="count"
+                                name="Count"
+                                radius={[8, 8, 0, 0]}
+                              >
+                                {analytics.funnel.map((entry, index) => {
+                                  const colors = [
+                                    "#3b82f6",
+                                    "#8b5cf6",
+                                    "#10b981",
+                                  ];
+                                  return (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={colors[index % colors.length]}
+                                    />
+                                  );
+                                })}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
