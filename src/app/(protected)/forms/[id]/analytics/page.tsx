@@ -223,31 +223,33 @@ export default function FormAnalyticsPage() {
                     <CardContent>
                       {funnelChartType === "bars" && (
                         <div className="space-y-4">
-                          {analytics.funnel.map((stage, index) => (
-                            <div key={stage.stage}>
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium">
-                                  {stage.label}
-                                </span>
-                                <span className="text-sm text-muted-foreground">
-                                  {stage.count.toLocaleString()} (
-                                  {stage.percentage.toFixed(0)}%)
-                                </span>
+                          {analytics.funnel
+                            .filter((stage) => !stage.label.includes("50%"))
+                            .map((stage, index, filteredArray) => (
+                              <div key={stage.stage}>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-sm font-medium">
+                                    {stage.label}
+                                  </span>
+                                  <span className="text-sm text-muted-foreground">
+                                    {stage.count.toLocaleString()} (
+                                    {stage.percentage.toFixed(0)}%)
+                                  </span>
+                                </div>
+                                <div className="h-3 bg-muted rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full shadow-sm ${
+                                      index === 0
+                                        ? "bg-gradient-to-r from-blue-500 to-blue-600"
+                                        : index === filteredArray.length - 1
+                                        ? "bg-gradient-to-r from-emerald-500 to-emerald-600"
+                                        : "bg-gradient-to-r from-violet-500 to-violet-600"
+                                    }`}
+                                    style={{ width: `${stage.percentage}%` }}
+                                  />
+                                </div>
                               </div>
-                              <div className="h-3 bg-muted rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full shadow-sm ${
-                                    index === 0
-                                      ? "bg-gradient-to-r from-blue-500 to-blue-600"
-                                      : index === analytics.funnel.length - 1
-                                      ? "bg-gradient-to-r from-emerald-500 to-emerald-600"
-                                      : "bg-gradient-to-r from-violet-500 to-violet-600"
-                                  }`}
-                                  style={{ width: `${stage.percentage}%` }}
-                                />
-                              </div>
-                            </div>
-                          ))}
+                            ))}
                         </div>
                       )}
 
@@ -256,11 +258,15 @@ export default function FormAnalyticsPage() {
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Pie
-                                data={analytics.funnel.map((stage) => ({
-                                  name: stage.label,
-                                  value: stage.count,
-                                  percentage: stage.percentage,
-                                }))}
+                                data={analytics.funnel
+                                  .filter(
+                                    (stage) => !stage.label.includes("50%")
+                                  )
+                                  .map((stage) => ({
+                                    name: stage.label,
+                                    value: stage.count,
+                                    percentage: stage.percentage,
+                                  }))}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
@@ -272,19 +278,23 @@ export default function FormAnalyticsPage() {
                                   )}%`
                                 }
                               >
-                                {analytics.funnel.map((entry, index) => {
-                                  const colors = [
-                                    "#3b82f6",
-                                    "#8b5cf6",
-                                    "#10b981",
-                                  ];
-                                  return (
-                                    <Cell
-                                      key={`cell-${index}`}
-                                      fill={colors[index % colors.length]}
-                                    />
-                                  );
-                                })}
+                                {analytics.funnel
+                                  .filter(
+                                    (stage) => !stage.label.includes("50%")
+                                  )
+                                  .map((entry, index) => {
+                                    const colors = [
+                                      "#3b82f6",
+                                      "#8b5cf6",
+                                      "#10b981",
+                                    ];
+                                    return (
+                                      <Cell
+                                        key={`cell-${index}`}
+                                        fill={colors[index % colors.length]}
+                                      />
+                                    );
+                                  })}
                               </Pie>
                               <Tooltip
                                 formatter={(value: number) =>
@@ -300,7 +310,11 @@ export default function FormAnalyticsPage() {
                       {funnelChartType === "bar" && (
                         <div className="h-[250px] w-full">
                           <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={analytics.funnel}>
+                            <BarChart
+                              data={analytics.funnel.filter(
+                                (stage) => !stage.label.includes("50%")
+                              )}
+                            >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="label" />
                               <YAxis />
@@ -315,19 +329,23 @@ export default function FormAnalyticsPage() {
                                 name="Count"
                                 radius={[8, 8, 0, 0]}
                               >
-                                {analytics.funnel.map((entry, index) => {
-                                  const colors = [
-                                    "#3b82f6",
-                                    "#8b5cf6",
-                                    "#10b981",
-                                  ];
-                                  return (
-                                    <Cell
-                                      key={`cell-${index}`}
-                                      fill={colors[index % colors.length]}
-                                    />
-                                  );
-                                })}
+                                {analytics.funnel
+                                  .filter(
+                                    (stage) => !stage.label.includes("50%")
+                                  )
+                                  .map((entry, index) => {
+                                    const colors = [
+                                      "#3b82f6",
+                                      "#8b5cf6",
+                                      "#10b981",
+                                    ];
+                                    return (
+                                      <Cell
+                                        key={`cell-${index}`}
+                                        fill={colors[index % colors.length]}
+                                      />
+                                    );
+                                  })}
                               </Bar>
                             </BarChart>
                           </ResponsiveContainer>
