@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import {
   Star,
   Users,
@@ -13,24 +14,19 @@ import {
   Phone,
   CheckSquare,
   List,
+  Eye,
 } from "lucide-react";
 import { Response } from "@/lib/mock-data";
-import { QuestionType } from "@/lib/types/forms";
+import { Question } from "@/lib/types/forms";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-interface Question {
-  id: string;
-  type: QuestionType;
-  title: string;
-  required: boolean;
-}
-
 interface ResponsesSummaryViewProps {
   questions: Question[];
   responses: Response[];
+  onViewAllResponses?: (question: Question) => void;
 }
 
 interface QuestionStats {
@@ -586,6 +582,7 @@ const getQuestionIcon = (type: QuestionType) => {
 export function ResponsesSummaryView({
   questions,
   responses,
+  onViewAllResponses,
 }: ResponsesSummaryViewProps) {
   const totalResponses = responses.length;
 
@@ -645,8 +642,22 @@ export function ResponsesSummaryView({
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-6">
+              <CardContent className="pt-6 space-y-6">
                 {renderQuestionVisualization(question, stats)}
+                
+                {onViewAllResponses && stats.answeredCount > 0 && (
+                  <div className="pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onViewAllResponses(question)}
+                      className="gap-2 w-full"
+                    >
+                      <Eye className="h-4 w-4" />
+                      View All Responses ({stats.answeredCount})
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
