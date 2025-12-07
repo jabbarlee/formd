@@ -17,6 +17,7 @@ import {
 import { ResponsesTableView } from "@/components/pages/responses/ResponsesTableView";
 import { ResponsesSummaryView } from "@/components/pages/responses/ResponsesSummaryView";
 import { ResponseDetailSheet } from "@/components/pages/responses/ResponseDetailSheet";
+import { QuestionResponsesSheet } from "@/components/pages/responses/QuestionResponsesSheet";
 import { ResponsesFilters } from "@/components/pages/responses/ResponsesFilters";
 import { ResponsesStats } from "@/components/pages/responses/ResponsesStats";
 import { FormResponsesHeader } from "@/components/pages/responses/FormResponsesHeader";
@@ -59,6 +60,10 @@ export default function FormResponsesPage({
     null
   );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null
+  );
+  const [isQuestionResponsesOpen, setIsQuestionResponsesOpen] = useState(false);
   const [loading, setLoading] = useState<LoadingState>({
     form: true,
     responses: true,
@@ -214,6 +219,11 @@ export default function FormResponsesPage({
     }
   };
 
+  const handleViewAllResponses = (question: Question) => {
+    setSelectedQuestion(question);
+    setIsQuestionResponsesOpen(true);
+  };
+
   // Show loading state
   if (loading.form) {
     return (
@@ -309,6 +319,7 @@ export default function FormResponsesPage({
                 <ResponsesSummaryView
                   questions={questions}
                   responses={filteredResponses}
+                  onViewAllResponses={handleViewAllResponses}
                 />
               </TabsContent>
 
@@ -556,6 +567,13 @@ export default function FormResponsesPage({
               onDelete={handleDeleteResponse}
               onFlag={handleFlagResponse}
               formQuestions={questions}
+            />
+
+            <QuestionResponsesSheet
+              isOpen={isQuestionResponsesOpen}
+              onClose={() => setIsQuestionResponsesOpen(false)}
+              question={selectedQuestion}
+              responses={filteredResponses}
             />
           </>
         )}

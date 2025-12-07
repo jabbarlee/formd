@@ -1,8 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Star,
   Users,
@@ -13,24 +22,32 @@ import {
   Phone,
   CheckSquare,
   List,
+  Eye,
 } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { Response } from "@/lib/mock-data";
-import { QuestionType } from "@/lib/types/forms";
+import { Question } from "@/lib/types/forms";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-interface Question {
-  id: string;
-  type: QuestionType;
-  title: string;
-  required: boolean;
-}
-
 interface ResponsesSummaryViewProps {
   questions: Question[];
   responses: Response[];
+  onViewAllResponses?: (question: Question) => void;
 }
 
 interface QuestionStats {
@@ -283,7 +300,13 @@ const NPSVisualization = ({ stats }: { stats: QuestionStats }) => {
 /**
  * Multiple Choice / Dropdown Visualization
  */
-const ChoiceVisualization = ({ stats }: { stats: QuestionStats }) => {
+const ChoiceVisualization = ({
+  stats,
+  chartType = "bars",
+}: {
+  stats: QuestionStats;
+  chartType?: "bars" | "pie" | "bar";
+}) => {
   const answerFrequency = countAnswerFrequency(stats.allAnswers);
 
   if (answerFrequency.length === 0) {
@@ -292,68 +315,294 @@ const ChoiceVisualization = ({ stats }: { stats: QuestionStats }) => {
     );
   }
 
-  return (
-    <div className="space-y-3">
-      {answerFrequency.map(([answer, count]) => {
-        const percentage = (count / stats.answeredCount) * 100;
+  // Bars view (original)
+  if (chartType === "bars") {
+    return (
+      <div className="space-y-3">
+        {answerFrequency.map(([answer, count]) => {
+          const percentage = (count / stats.answeredCount) * 100;
 
-        return (
-          <div key={answer} className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium capitalize">{answer}</span>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground">
-                  {percentage.toFixed(1)}%
-                </span>
-                <Badge
-                  variant="secondary"
-                  className="min-w-[3rem] justify-center"
-                >
-                  {count}
-                </Badge>
+          return (
+            <div key={answer} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium capitalize">{answer}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">
+                    {percentage.toFixed(1)}%
+                  </span>
+                  <Badge
+                    variant="secondary"
+                    className="min-w-[3rem] justify-center"
+                  >
+                    {count}
+                  </Badge>
+                </div>
               </div>
+              <Progress value={percentage} className="h-2.5" />
             </div>
-            <Progress value={percentage} className="h-2.5" />
-          </div>
-        );
-      })}
-    </div>
-  );
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Pie chart view
+  if (chartType === "pie") {
+    const chartData = answerFrequency.map(([answer, count]) => ({
+      name: answer,
+      value: count,
+      percentage: (count / stats.answeredCount) * 100,
+    }));
+
+    const COLORS = [
+      "#3b82f6",
+      "#8b5cf6",
+      "#10b981",
+      "#f59e0b",
+      "#ef4444",
+      "#ec4899",
+      "#06b6d4",
+      "#84cc16",
+    ];
+
+    return (
+      <div className="h-[300px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              label={(entry: any) =>
+                `${entry.name}: ${entry.percentage.toFixed(1)}%`
+              }
+            >
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: number) => [value, "Responses"]}
+              contentStyle={{
+                backgroundColor: "hsl(var(--background))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "6px",
+              }}
+            />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+  // Bar chart view
+  if (chartType === "bar") {
+    const chartData = answerFrequency.map(([answer, count]) => ({
+      name: answer,
+      count: count,
+      percentage: (count / stats.answeredCount) * 100,
+    }));
+
+    const COLORS = [
+      "#3b82f6",
+      "#8b5cf6",
+      "#10b981",
+      "#f59e0b",
+      "#ef4444",
+      "#ec4899",
+      "#06b6d4",
+      "#84cc16",
+    ];
+
+    return (
+      <div className="h-[300px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip
+              formatter={(value: number) => [value, "Responses"]}
+              contentStyle={{
+                backgroundColor: "hsl(var(--background))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "6px",
+              }}
+            />
+            <Legend />
+            <Bar dataKey="count" name="Count" radius={[8, 8, 0, 0]}>
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+  return null;
 };
 
 /**
  * Checkboxes Visualization (multiple selections allowed)
  */
-const CheckboxesVisualization = ({ stats }: { stats: QuestionStats }) => {
+const CheckboxesVisualization = ({
+  stats,
+  chartType = "bars",
+}: {
+  stats: QuestionStats;
+  chartType?: "bars" | "pie" | "bar";
+}) => {
   // Flatten array answers if they exist
   const flatAnswers = stats.allAnswers.flatMap((answer) =>
     Array.isArray(answer) ? answer : [answer]
   );
   const answerFrequency = countAnswerFrequency(flatAnswers);
 
-  return (
-    <div className="space-y-3">
-      {answerFrequency.map(([answer, count]) => {
-        const percentage = (count / stats.answeredCount) * 100;
+  // Bars view (original)
+  if (chartType === "bars") {
+    return (
+      <div className="space-y-3">
+        {answerFrequency.map(([answer, count]) => {
+          const percentage = (count / stats.answeredCount) * 100;
 
-        return (
-          <div key={answer} className="space-y-2">
-            <div className="flex items-center gap-2">
-              <CheckSquare className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium flex-1 capitalize">
-                {answer}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {percentage.toFixed(1)}%
-              </span>
-              <Badge variant="secondary">{count}</Badge>
+          return (
+            <div key={answer} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium flex-1 capitalize">
+                  {answer}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {percentage.toFixed(1)}%
+                </span>
+                <Badge variant="secondary">{count}</Badge>
+              </div>
+              <Progress value={percentage} className="h-2" />
             </div>
-            <Progress value={percentage} className="h-2" />
-          </div>
-        );
-      })}
-    </div>
-  );
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Pie chart view
+  if (chartType === "pie") {
+    const chartData = answerFrequency.map(([answer, count]) => ({
+      name: answer,
+      value: count,
+      percentage: (count / stats.answeredCount) * 100,
+    }));
+
+    const COLORS = [
+      "#3b82f6",
+      "#8b5cf6",
+      "#10b981",
+      "#f59e0b",
+      "#ef4444",
+      "#ec4899",
+      "#06b6d4",
+      "#84cc16",
+    ];
+
+    return (
+      <div className="h-[300px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              label={(entry: any) =>
+                `${entry.name}: ${entry.percentage.toFixed(1)}%`
+              }
+            >
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: number) => [value, "Selections"]}
+              contentStyle={{
+                backgroundColor: "hsl(var(--background))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "6px",
+              }}
+            />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+  // Bar chart view
+  if (chartType === "bar") {
+    const chartData = answerFrequency.map(([answer, count]) => ({
+      name: answer,
+      count: count,
+      percentage: (count / stats.answeredCount) * 100,
+    }));
+
+    const COLORS = [
+      "#3b82f6",
+      "#8b5cf6",
+      "#10b981",
+      "#f59e0b",
+      "#ef4444",
+      "#ec4899",
+      "#06b6d4",
+      "#84cc16",
+    ];
+
+    return (
+      <div className="h-[300px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip
+              formatter={(value: number) => [value, "Selections"]}
+              contentStyle={{
+                backgroundColor: "hsl(var(--background))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "6px",
+              }}
+            />
+            <Legend />
+            <Bar dataKey="count" name="Count" radius={[8, 8, 0, 0]}>
+              {chartData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+  return null;
 };
 
 /**
@@ -494,11 +743,19 @@ const GenericVisualization = ({ stats }: { stats: QuestionStats }) => {
 // ============================================================================
 
 /**
+ * Check if question type supports chart type selection
+ */
+const supportsChartTypes = (questionType: string): boolean => {
+  return ["multiple_choice", "dropdown", "checkboxes"].includes(questionType);
+};
+
+/**
  * Render appropriate visualization based on question type
  */
 const renderQuestionVisualization = (
   question: Question,
-  stats: QuestionStats
+  stats: QuestionStats,
+  chartType: "bars" | "pie" | "bar" = "bars"
 ) => {
   if (stats.answeredCount === 0) {
     return (
@@ -520,10 +777,10 @@ const renderQuestionVisualization = (
 
     case "multiple_choice":
     case "dropdown":
-      return <ChoiceVisualization stats={stats} />;
+      return <ChoiceVisualization stats={stats} chartType={chartType} />;
 
     case "checkboxes":
-      return <CheckboxesVisualization stats={stats} />;
+      return <CheckboxesVisualization stats={stats} chartType={chartType} />;
 
     case "short_text":
     case "email":
@@ -586,8 +843,16 @@ const getQuestionIcon = (type: QuestionType) => {
 export function ResponsesSummaryView({
   questions,
   responses,
+  onViewAllResponses,
 }: ResponsesSummaryViewProps) {
   const totalResponses = responses.length;
+  
+  // State to track chart type for each question
+  const [chartTypes, setChartTypes] = useState<Record<string, "bars" | "pie" | "bar">>({});
+
+  const handleChartTypeChange = (questionId: string, type: "bars" | "pie" | "bar") => {
+    setChartTypes((prev) => ({ ...prev, [questionId]: type }));
+  };
 
   if (questions.length === 0) {
     return (
@@ -602,13 +867,14 @@ export function ResponsesSummaryView({
       <div className="flex flex-col items-center space-y-6">
         {questions.map((question, index) => {
           const stats = calculateQuestionStats(question, responses);
+          const currentChartType = chartTypes[question.id] || "bars";
 
           return (
             <Card
               key={question.id}
               className="overflow-hidden w-full max-w-[50%]"
             >
-              <CardHeader>
+              <CardHeader className="space-y-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -632,21 +898,71 @@ export function ResponsesSummaryView({
                       {question.title}
                     </CardTitle>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Users className="h-4 w-4" />
-                      <span className="text-sm font-medium">
-                        {stats.answeredCount}/{totalResponses}
-                      </span>
+                  {supportsChartTypes(question.type) && stats.answeredCount > 0 && (
+                    <Select
+                      value={currentChartType}
+                      onValueChange={(value: "bars" | "pie" | "bar") =>
+                        handleChartTypeChange(question.id, value)
+                      }
+                    >
+                      <SelectTrigger className="w-[140px] h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bars">Progress Bars</SelectItem>
+                        <SelectItem value="pie">Pie Chart</SelectItem>
+                        <SelectItem value="bar">Bar Chart</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {/* Response Count Highlight Section */}
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-lg border border-primary/20">
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Users className="h-7 w-7 text-primary" />
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {stats.responseRate.toFixed(1)}% response rate
+                    <div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-bold text-primary">
+                          {stats.answeredCount}
+                        </span>
+                        <span className="text-lg text-muted-foreground font-medium">
+                          / {totalResponses}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground font-medium">
+                        Responses
+                      </p>
                     </div>
+                  </div>
+                  <div className="ml-auto text-right">
+                    <div className="text-2xl font-bold text-primary">
+                      {stats.responseRate.toFixed(1)}%
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Response Rate
+                    </p>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-6">
-                {renderQuestionVisualization(question, stats)}
+              <CardContent className="pt-6 space-y-6">
+                {renderQuestionVisualization(question, stats, currentChartType)}
+                
+                {onViewAllResponses && stats.answeredCount > 0 && (
+                  <div className="pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onViewAllResponses(question)}
+                      className="gap-2 w-full"
+                    >
+                      <Eye className="h-4 w-4" />
+                      View All Responses ({stats.answeredCount})
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );

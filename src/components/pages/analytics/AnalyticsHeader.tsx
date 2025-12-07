@@ -23,16 +23,16 @@ interface AnalyticsHeaderProps {
   description?: string;
 }
 
-export function AnalyticsHeader({ 
-  formId, 
-  timeRange, 
+export function AnalyticsHeader({
+  formId,
+  timeRange,
   onTimeRangeChange,
   title = "Analytics",
-  description = "Track performance and gain insights from your forms."
-}: AnalyticsHeaderProps = {}) {
+  description = "Track performance and gain insights from your forms.",
+}: AnalyticsHeaderProps) {
   const [isExporting, setIsExporting] = useState(false);
 
-  const handleExport = async (format: 'csv' | 'json') => {
+  const handleExport = async (format: "csv" | "json") => {
     if (!formId || !timeRange) {
       toast.error("Cannot export: Form ID or time range not available");
       return;
@@ -52,31 +52,34 @@ export function AnalyticsHeader({
 
   // Build custom action based on props
   let customAction: ReactNode = undefined;
-  
-  if (formId && timeRange) {
-    // Form-specific analytics - show export button
+
+  if (formId && timeRange && onTimeRangeChange) {
+    // Form-specific analytics - show both time range selector and export button
     customAction = (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" disabled={isExporting}>
-            <Download className="mr-2 h-4 w-4" />
-            {isExporting ? "Exporting..." : "Export Report"}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => handleExport('csv')}>
-            <Download className="mr-2 h-4 w-4" />
-            Export as CSV
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleExport('json')}>
-            <FileJson className="mr-2 h-4 w-4" />
-            Export as JSON
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex items-center gap-3">
+        <TimeRangeSelector value={timeRange} onChange={onTimeRangeChange} />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="default" disabled={isExporting} className="gap-2">
+              <Download className="h-4 w-4" />
+              {isExporting ? "Exporting..." : "Export Report"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={() => handleExport("csv")}>
+              <Download className="mr-2 h-4 w-4" />
+              Export as CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport("json")}>
+              <FileJson className="mr-2 h-4 w-4" />
+              Export as JSON
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     );
   } else if (timeRange && onTimeRangeChange) {
-    // Workspace analytics - show time range selector in header
+    // Workspace analytics - show time range selector only
     customAction = (
       <TimeRangeSelector value={timeRange} onChange={onTimeRangeChange} />
     );

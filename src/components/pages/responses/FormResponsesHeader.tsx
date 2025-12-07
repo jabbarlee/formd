@@ -2,8 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Download, Inbox, ArrowLeft } from "lucide-react";
+import { Download, Inbox, ArrowLeft, BarChart3 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@radix-ui/react-dropdown-menu";
 
 interface FormResponsesHeaderProps {
   formTitle: string;
@@ -18,6 +25,12 @@ export function FormResponsesHeader({
   totalResponses,
   onExport,
 }: FormResponsesHeaderProps) {
+  const router = useRouter();
+
+  const handleAnalytics = () => {
+    router.push(`/forms/${formId}/analytics`);
+  };
+
   return (
     <div className="border-b bg-gradient-to-r from-background via-cyan-500/5 to-background backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center gap-4 px-6">
@@ -51,10 +64,14 @@ export function FormResponsesHeader({
           </div>
         </div>
 
-        {/* Action button */}
-        <Button variant="outline" onClick={onExport} className="gap-2">
-          <Download className="h-4 w-4" />
-          <span className="hidden sm:inline">Export</span>
+        <Button variant="outline" onClick={handleAnalytics}>
+          <BarChart3 className="h-4 w-4 mr-2" />
+          Analytics
+        </Button>
+
+        <Button onClick={onExport}>
+          <Download className="h-4 w-4 mr-2" />
+          Download a copy
         </Button>
       </div>
     </div>
