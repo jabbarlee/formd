@@ -69,9 +69,9 @@ export function FormResponsesHeader({
           Analytics
         </Button>
 
-        <Button variant="outline" onClick={onExport}>
+        <Button onClick={onExport}>
           <Download className="h-4 w-4 mr-2" />
-          Export
+          Download a copy
         </Button>
       </div>
     </div>
