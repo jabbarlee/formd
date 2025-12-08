@@ -58,7 +58,6 @@ const mainItems = [
     title: "Analytics",
     url: "/analytics",
     icon: BarChart3,
-    hasBadge: true,
   },
   {
     title: "Templates",
